@@ -1,132 +1,66 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl) {
-  throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL');
-}
-
-const supabaseKey = supabaseServiceRoleKey || supabaseAnonKey;
-
-if (!supabaseKey) {
+if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase credentials');
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function POST(request) {
   try {
     const body = await request.json();
 
     // Validate required fields
-    const requiredFields = ['term', 'meaning', 'category', 'risk', 'language'];
-    const missingFields = requiredFields.filter(field => !body[field]);
-
-    if (missingFields.length > 0) {
+    if (!body.term || !body.meaning || !body.category || !body.risk || !body.language) {
       return new Response(
         JSON.stringify({ 
-          error: 'Missing required fields',
-          missing: missingFields
+          error: 'Missing required fields: term, meaning, category, risk, language'
         }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Validate category
-    const validCategories = ['Derogatory', 'Exclusionary', 'Dangerous', 'Coded'];
-    if (!validCategories.includes(body.category)) {
-      return new Response(
-        JSON.stringify({ 
-          error: `Invalid category. Must be one of: ${validCategories.join(', ')}`
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Validate risk level
-    const validRisks = ['Low', 'Medium', 'High', 'Very High'];
-    if (!validRisks.includes(body.risk)) {
-      return new Response(
-        JSON.stringify({ 
-          error: `Invalid risk level. Must be one of: ${validRisks.join(', ')}`
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Validate language
-    const validLanguages = ['Swahili', 'English', 'Sheng', 'Mixed'];
-    if (!validLanguages.includes(body.language)) {
-      return new Response(
-        JSON.stringify({ 
-          error: `Invalid language. Must be one of: ${validLanguages.join(', ')}`
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Validate at least one example
-    if (!body.examples || body.examples.length === 0) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'At least one example is required'
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const hasValidExample = body.examples.some(ex => ex.quote && ex.platform);
-    if (!hasValidExample) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'At least one example must have both quote and platform'
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Prepare term data for insertion using ACTUAL KESL column names
+    // Only save the basic fields that exist in your table
     const termData = {
-      term: body.term,
-      literal_gloss: body.literal_gloss || null,
-      meaning: body.meaning,
+      term: body.term.trim(),
+      meaning: body.meaning.trim(),
       category: body.category,
-      risk: body.risk,  // ✅ CORRECT: 'risk' not 'risk_level'
+      risk: body.risk,
       language: body.language,
-      status: 'pending', // New submissions need moderation
-      examples: body.examples // Store examples as JSON
+      literal_gloss: body.literal_gloss || null,
+      status: 'pending'
     };
 
-    // Insert the term
-    const { data: termInsert, error: termError } = await supabase
+    console.log('Inserting term:', termData);
+
+    // Insert into terms table
+    const { data, error } = await supabase
       .from('terms')
       .insert([termData])
       .select();
 
-    if (termError) {
-      console.error('Supabase insert error:', termError);
+    if (error) {
+      console.error('Supabase error:', error);
       return new Response(
         JSON.stringify({ 
           error: 'Failed to save term to database',
-          details: termError.message 
+          details: error.message,
+          code: error.code
         }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    const newTerm = termInsert[0];
+    console.log('Term inserted successfully:', data);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Term submitted for review. It will appear in the lexicon after moderation.',
-        data: {
-          term_id: newTerm.id,
-          term: newTerm.term,
-          status: newTerm.status
-        }
+        message: 'Term submitted for review!',
+        data: data[0]
       }),
       { status: 201, headers: { 'Content-Type': 'application/json' } }
     );
@@ -143,14 +77,13 @@ export async function POST(request) {
   }
 }
 
-// GET endpoint to fetch terms (with filters)
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status') || 'approved';
     const category = searchParams.get('category');
     const language = searchParams.get('language');
     const risk = searchParams.get('risk');
-    const status = searchParams.get('status') || 'approved';
 
     let query = supabase
       .from('terms')
@@ -167,13 +100,13 @@ export async function GET(request) {
     }
 
     if (risk) {
-      query = query.eq('risk', risk);  // ✅ CORRECT: 'risk' not 'risk_level'
+      query = query.eq('risk', risk);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Supabase fetch error:', error);
+      console.error('Fetch error:', error);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch terms' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
