@@ -7,80 +7,151 @@ export default function UnderstandingExtremeSpeech() {
   const [activeTab, setActiveTab] = useState('definition');
 
   const tabs = [
-    { id: 'definition', label: 'Core Definition', icon: '📖' },
-    { id: 'why-extreme', label: 'Why "Extreme Speech"?', icon: '❓' },
-    { id: 'categories', label: 'Key Categories', icon: '🏷️' },
-    { id: 'kenya-context', label: 'Our Approach in Kenya', icon: '🇰🇪' },
+    { id: 'definition', label: 'Core Definition' },
+    { id: 'why-extreme', label: 'Why Extreme Speech?' },
+    { id: 'categories', label: 'Key Categories' },
+    { id: 'kenya-context', label: 'Kenya Context' },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-navy to-blue-700 text-white py-16">
-        <div className="max-w-4xl mx-auto px-6">
-          <Link href="/" className="text-blue-200 hover:text-white mb-4 flex items-center gap-2">
+    <div style={{ background: '#ffffff', minHeight: '100vh' }}>
+      {/* Hero Section - Minimal and Clean */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%)',
+        color: 'white',
+        padding: '60px 20px',
+        textAlign: 'left'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <Link href="/" style={{ 
+            color: 'rgba(255,255,255,0.8)', 
+            textDecoration: 'none',
+            fontSize: '14px',
+            marginBottom: '20px',
+            display: 'inline-block'
+          }}>
             ← Back to Home
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Understanding Extreme Speech</h1>
-          <p className="text-xl text-blue-100">
-            A critical conceptual framework for analyzing harmful online discourse
+          <h1 style={{ 
+            fontSize: '48px', 
+            marginBottom: '15px', 
+            fontWeight: '700',
+            lineHeight: '1.2'
+          }}>
+            Understanding Extreme Speech
+          </h1>
+          <p style={{ 
+            fontSize: '18px', 
+            opacity: 0.95,
+            maxWidth: '600px',
+            lineHeight: '1.6'
+          }}>
+            A critical framework for analyzing how speech functions as both subversive resistance and systematic harm in Kenya's digital spaces
           </p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px' }}>
         
-        {/* Tab Navigation */}
-        <div className="flex flex-wrap gap-3 mb-12 border-b border-gray-200 pb-4">
+        {/* Tab Navigation - Horizontal Scroll */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '20px', 
+          borderBottom: '2px solid #e2e8f0',
+          marginBottom: '50px',
+          overflowX: 'auto',
+          paddingBottom: '0'
+        }}>
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-                activeTab === tab.id
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              style={{
+                padding: '16px 0',
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '500',
+                color: activeTab === tab.id ? '#1a3a52' : '#94a3b8',
+                borderBottom: activeTab === tab.id ? '3px solid #1a3a52' : 'none',
+                transition: 'all 0.3s ease',
+                whiteSpace: 'nowrap',
+                paddingLeft: '20px',
+                paddingRight: '20px',
+                marginBottom: '-2px'
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== tab.id) {
+                  e.target.style.color = '#475569';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== tab.id) {
+                  e.target.style.color = '#94a3b8';
+                }
+              }}
             >
-              <span className="text-xl">{tab.icon}</span>
               {tab.label}
             </button>
           ))}
         </div>
 
-        {/* Tab Content */}
-        <div className="bg-white rounded-lg shadow-lg p-10">
+        {/* Tab Content - Clean Cards */}
+        <div style={{ minHeight: '500px' }}>
 
           {/* Definition Tab */}
           {activeTab === 'definition' && (
-            <div className="space-y-8 animate-fadeIn">
-              <div>
-                <h2 className="text-3xl font-bold text-navy mb-6">Core Definition</h2>
-                
-                <div className="bg-blue-50 border-l-4 border-blue-600 p-6 mb-8 rounded">
-                  <p className="text-lg text-gray-800 italic mb-4">
-                    "Extreme speech is a critical conceptual framework that aims to uncover vitriolic online cultures through comparative and ethnographic excavations of digital practices."
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    — Udupa, S. (2023). Extreme speech. In C. Strippel, S. Paasch-Colberg, M. Emmer, & J. Trebbe (Eds.), <em>Challenges and perspectives of hate speech research</em> (pp. 233–248). Digital Communication Research. https://doi.org/10.48541/dcr.v12.14
+            <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+              <h2 style={{ fontSize: '32px', fontWeight: '700', color: '#1a3a52', marginBottom: '30px' }}>
+                Core Definition
+              </h2>
+              
+              {/* Quote Card */}
+              <div style={{
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderLeft: '4px solid #1a3a52',
+                padding: '30px',
+                borderRadius: '8px',
+                marginBottom: '40px'
+              }}>
+                <p style={{ 
+                  fontSize: '18px', 
+                  fontStyle: 'italic',
+                  color: '#1e293b',
+                  margin: '0 0 15px 0',
+                  lineHeight: '1.7'
+                }}>
+                  "Extreme speech is a critical conceptual framework that aims to uncover vitriolic online cultures through comparative and ethnographic excavations of digital practices."
+                </p>
+                <p style={{ 
+                  fontSize: '13px', 
+                  color: '#64748b',
+                  margin: 0
+                }}>
+                  — Udupa, S. (2023). <em>Challenges and perspectives of hate speech research</em>
+                </p>
+              </div>
+
+              {/* Two Column Layout */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a3a52', marginBottom: '12px' }}>
+                    Key Principle
+                  </h3>
+                  <p style={{ color: '#475569', lineHeight: '1.7', margin: 0 }}>
+                    Extreme speech is <strong>not just another definition</strong>. Rather, it is a conceptual framework developed to foreground <strong>historical awareness</strong>, <strong>critical deconstruction of existing categories</strong>, and <strong>grounded understanding of evolving practices</strong> in online communities.
                   </p>
                 </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-navy mb-3">Key Principle</h3>
-                    <p className="text-gray-700 leading-relaxed">
-                      Extreme speech is <span className="font-semibold">not just another definition</span> or a term replaceable with "extremist speech." Rather, it is a conceptual framework developed to foreground <strong>historical awareness</strong>, <strong>critical deconstruction of existing categories</strong>, and a <strong>grounded understanding of evolving practices</strong> in online communities.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-bold text-navy mb-3">Core Goal</h3>
-                    <p className="text-gray-700 leading-relaxed">
-                      To holistically analyze the contours and consequences of contemporary digital hate cultures by examining both <strong>proximate contexts</strong> (media affordances, situated speech cultures) and <strong>deep contextualization</strong> (grave historical continuities and technopolitical formations on a planetary scale).
-                    </p>
-                  </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a3a52', marginBottom: '12px' }}>
+                    Core Goal
+                  </h3>
+                  <p style={{ color: '#475569', lineHeight: '1.7', margin: 0 }}>
+                    To holistically analyze contemporary digital hate cultures by examining both <strong>proximate contexts</strong> (media affordances, speech cultures) and <strong>deep contextualization</strong> (historical continuities and technopolitical formations).
+                  </p>
                 </div>
               </div>
             </div>
@@ -88,165 +159,303 @@ export default function UnderstandingExtremeSpeech() {
 
           {/* Why Extreme Speech Tab */}
           {activeTab === 'why-extreme' && (
-            <div className="space-y-8 animate-fadeIn">
-              <div>
-                <h2 className="text-3xl font-bold text-navy mb-6">Why "Extreme Speech" Instead of "Hate Speech"?</h2>
-                
-                <div className="space-y-6">
-                  <div className="border-l-4 border-orange-500 pl-6">
-                    <h3 className="text-xl font-bold text-orange-700 mb-3">The Problem with "Hate Speech"</h3>
-                    <p className="text-gray-700 mb-3">
-                      Traditional "hate speech" discourse has significant limitations:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 text-gray-700">
-                      <li><strong>Predefined effects:</strong> It assumes hate speech is inherently negative and damaging</li>
-                      <li><strong>Legal focus:</strong> Emphasizes culpability rather than understanding social dynamics</li>
-                      <li><strong>Universalizing:</strong> Imposes Western legal-normative definitions across diverse contexts</li>
-                      <li><strong>Misuse potential:</strong> Can be weaponized by regimes to suppress dissent or target minoritized groups</li>
-                      <li><strong>Closing dialogue:</strong> Functions as an accusation that closes off avenues for change</li>
-                    </ul>
-                  </div>
-
-                  <div className="bg-green-50 border-l-4 border-green-600 pl-6">
-                    <h3 className="text-xl font-bold text-green-700 mb-3">What "Extreme Speech" Offers</h3>
-                    <ul className="space-y-3 text-gray-700">
-                      <li>✓ <strong>Ambiguity recognition:</strong> Acknowledges that speech can be simultaneously subversive and harmful</li>
-                      <li>✓ <strong>Cultural sensitivity:</strong> Considers cultural variations in speech norms and meanings</li>
-                      <li>✓ <strong>Historical depth:</strong> Analyzes connections to colonial histories and power structures</li>
-                      <li>✓ <strong>Ethnographic approach:</strong> Centers lived experiences and emic (insider) categories</li>
-                      <li>✓ <strong>Grounded understanding:</strong> Emerges from understanding communities, not imposing frameworks</li>
-                    </ul>
-                  </div>
-
-                  <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded">
-                    <p className="text-gray-800">
-                      <span className="font-semibold">In Kenya's context:</span> As scholar Katiambo (2021) argues, "the polysemy of extreme speech is removed when incivility becomes known as hate speech, blocking us from ever knowing its alternative possibilities." Understanding the ambivalence is critical.
-                    </p>
-                  </div>
+            <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+              <h2 style={{ fontSize: '32px', fontWeight: '700', color: '#1a3a52', marginBottom: '30px' }}>
+                Why "Extreme Speech" Instead of "Hate Speech"?
+              </h2>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
+                {/* Problems */}
+                <div style={{
+                  background: '#fef2f2',
+                  border: '1px solid #fee2e2',
+                  borderRadius: '8px',
+                  padding: '30px'
+                }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#991b1b', marginBottom: '20px' }}>
+                    Problems with "Hate Speech"
+                  </h3>
+                  <ul style={{ 
+                    listStyle: 'none', 
+                    padding: 0, 
+                    margin: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      <strong>Predefined effects</strong> — Assumes inherent negativity
+                    </li>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      <strong>Legal focus</strong> — Emphasizes culpability over understanding
+                    </li>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      <strong>Universalizing</strong> — Imposes Western definitions
+                    </li>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      <strong>Weaponizable</strong> — Used to suppress dissent
+                    </li>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      <strong>Closes dialogue</strong> — Functions as accusation
+                    </li>
+                  </ul>
                 </div>
+
+                {/* Benefits */}
+                <div style={{
+                  background: '#f0fdf4',
+                  border: '1px solid #dcfce7',
+                  borderRadius: '8px',
+                  padding: '30px'
+                }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#166534', marginBottom: '20px' }}>
+                    What "Extreme Speech" Offers
+                  </h3>
+                  <ul style={{ 
+                    listStyle: 'none', 
+                    padding: 0, 
+                    margin: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      ✓ <strong>Ambiguity recognition</strong> — Speech is contextual
+                    </li>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      ✓ <strong>Cultural sensitivity</strong> — Respects local norms
+                    </li>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      ✓ <strong>Historical depth</strong> — Connects to power structures
+                    </li>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      ✓ <strong>Ethnographic</strong> — Centers lived experience
+                    </li>
+                    <li style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      ✓ <strong>Grounded</strong> — Emerges from communities
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Kenya Context */}
+              <div style={{
+                background: '#f0f4f8',
+                border: '1px solid #cbd5e1',
+                borderRadius: '8px',
+                padding: '25px',
+                marginTop: '30px'
+              }}>
+                <p style={{ color: '#1e293b', lineHeight: '1.7', margin: 0 }}>
+                  <strong>In Kenya:</strong> As scholar Katiambo (2021) argues, "the polysemy of extreme speech is removed when incivility becomes known as hate speech, blocking us from ever knowing its alternative possibilities." Understanding the ambivalence is critical.
+                </p>
               </div>
             </div>
           )}
 
           {/* Categories Tab */}
           {activeTab === 'categories' && (
-            <div className="space-y-8 animate-fadeIn">
-              <div>
-                <h2 className="text-3xl font-bold text-navy mb-6">Three Key Categories of Extreme Speech</h2>
-                
-                <div className="space-y-6">
-                  {/* Derogatory */}
-                  <div className="border-2 border-purple-200 rounded-lg p-6 bg-purple-50">
-                    <h3 className="text-xl font-bold text-purple-700 mb-3">1. Derogatory Extreme Speech</h3>
-                    <p className="text-gray-800 mb-3">
-                      <span className="font-semibold">Definition:</span> Expressions that do not conform to accepted norms of civility within specific local or national contexts and are targeted at any group (but not explicitly excluding vulnerable/historically disadvantaged groups).
-                    </p>
-                    <p className="text-gray-700 text-sm">
-                      <span className="font-semibold">Examples:</span> Derogatory jokes, insults, sobriquets
-                    </p>
-                    <p className="text-gray-700 text-sm mt-2">
-                      <span className="font-semibold">Characteristic:</span> Ambivalent—can challenge power structures OR perpetuate harm depending on context
-                    </p>
+            <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+              <h2 style={{ fontSize: '32px', fontWeight: '700', color: '#1a3a52', marginBottom: '30px' }}>
+                Three Key Categories
+              </h2>
+              
+              <div style={{ display: 'grid', gap: '20px' }}>
+                {/* Derogatory */}
+                <div style={{
+                  background: '#fef3c7',
+                  border: '1px solid #fcd34d',
+                  borderLeft: '4px solid #d97706',
+                  borderRadius: '8px',
+                  padding: '25px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#92400e', margin: 0 }}>
+                      1. Derogatory Extreme Speech
+                    </h3>
+                    <span style={{ 
+                      background: '#d97706', 
+                      color: 'white', 
+                      padding: '4px 12px', 
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: '600'
+                    }}>
+                      Uncivil
+                    </span>
                   </div>
-
-                  {/* Exclusionary */}
-                  <div className="border-2 border-red-200 rounded-lg p-6 bg-red-50">
-                    <h3 className="text-xl font-bold text-red-700 mb-3">2. Exclusionary Extreme Speech</h3>
-                    <p className="text-gray-800 mb-3">
-                      <span className="font-semibold">Definition:</span> Expressions that call for or imply excluding disadvantaged and vulnerable groups on the basis of their group belonging.
-                    </p>
-                    <p className="text-gray-700 text-sm">
-                      <span className="font-semibold">Target groups include:</span> Gender, caste, ethnicity, national origin, racialized categories
-                    </p>
-                    <p className="text-gray-700 text-sm mt-2">
-                      <span className="font-semibold">Characteristic:</span> Explicitly harms marginalized populations
-                    </p>
-                  </div>
-
-                  {/* Dangerous */}
-                  <div className="border-2 border-red-600 rounded-lg p-6 bg-red-50">
-                    <h3 className="text-xl font-bold text-red-700 mb-3">3. Dangerous Speech</h3>
-                    <p className="text-gray-800 mb-3">
-                      <span className="font-semibold">Definition:</span> Expressions that have reasonable chances to trigger or catalyze harm and violence against target groups.
-                    </p>
-                    <p className="text-gray-700 text-sm">
-                      <span className="font-semibold">Characteristic:</span> Most severe category—immediate risk of real-world violence
-                    </p>
-                    <p className="text-gray-700 text-sm mt-2">
-                      Source: Benesch, S. (2013). <em>Dangerous Speech: A Proposal to Prevent Group Violence</em>
-                    </p>
-                  </div>
-
-                  <div className="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded mt-8">
-                    <h3 className="font-bold text-yellow-900 mb-2">Key Insight</h3>
-                    <p className="text-gray-800">
-                      These categories help us move beyond simple "is this hate speech?" questions and instead ask: <strong>"What are the contextual, historical, and power dynamics at play? Who benefits? Who is harmed?"</strong>
-                    </p>
-                  </div>
+                  <p style={{ color: '#78350f', fontSize: '14px', lineHeight: '1.6', margin: '0 0 10px 0' }}>
+                    Violates civility norms within specific contexts but doesn't explicitly exclude vulnerable groups. Ambivalent—can challenge power OR perpetuate harm.
+                  </p>
+                  <p style={{ color: '#b45309', fontSize: '13px', margin: 0 }}>
+                    <strong>Examples:</strong> Derogatory jokes, insults, sobriquets
+                  </p>
                 </div>
+
+                {/* Exclusionary */}
+                <div style={{
+                  background: '#fee2e2',
+                  border: '1px solid #fecaca',
+                  borderLeft: '4px solid #dc2626',
+                  borderRadius: '8px',
+                  padding: '25px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#7f1d1d', margin: 0 }}>
+                      2. Exclusionary Extreme Speech
+                    </h3>
+                    <span style={{ 
+                      background: '#dc2626', 
+                      color: 'white', 
+                      padding: '4px 12px', 
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: '600'
+                    }}>
+                      Excluding
+                    </span>
+                  </div>
+                  <p style={{ color: '#7f1d1d', fontSize: '14px', lineHeight: '1.6', margin: '0 0 10px 0' }}>
+                    Calls for or implies excluding disadvantaged groups. Explicitly targets ethnic, gender, and other marginalized identities.
+                  </p>
+                  <p style={{ color: '#991b1b', fontSize: '13px', margin: 0 }}>
+                    <strong>Targets:</strong> Gender, ethnicity, national origin, racialized categories
+                  </p>
+                </div>
+
+                {/* Dangerous */}
+                <div style={{
+                  background: '#f8d7da',
+                  border: '1px solid #f5c6cb',
+                  borderLeft: '4px solid #991b1b',
+                  borderRadius: '8px',
+                  padding: '25px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#721c24', margin: 0 }}>
+                      3. Dangerous Speech
+                    </h3>
+                    <span style={{ 
+                      background: '#991b1b', 
+                      color: 'white', 
+                      padding: '4px 12px', 
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: '600'
+                    }}>
+                      Violent
+                    </span>
+                  </div>
+                  <p style={{ color: '#721c24', fontSize: '14px', lineHeight: '1.6', margin: '0 0 10px 0' }}>
+                    Has reasonable chance to trigger or catalyze real-world harm and violence. Most severe category requiring intervention.
+                  </p>
+                  <p style={{ color: '#991b1b', fontSize: '13px', margin: 0 }}>
+                    <strong>Framework:</strong> Benesch (2013) Dangerous Speech Project
+                  </p>
+                </div>
+              </div>
+
+              {/* Key Insight */}
+              <div style={{
+                background: 'linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%)',
+                color: 'white',
+                borderRadius: '8px',
+                padding: '30px',
+                marginTop: '30px'
+              }}>
+                <p style={{ margin: 0, lineHeight: '1.7' }}>
+                  These categories help us ask the right questions: <strong>What are the contextual, historical, and power dynamics at play? Who benefits? Who is harmed?</strong>
+                </p>
               </div>
             </div>
           )}
 
           {/* Kenya Context Tab */}
           {activeTab === 'kenya-context' && (
-            <div className="space-y-8 animate-fadeIn">
+            <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+              <h2 style={{ fontSize: '32px', fontWeight: '700', color: '#1a3a52', marginBottom: '30px' }}>
+                KESL's Approach in Kenya
+              </h2>
+              
               <div>
-                <h2 className="text-3xl font-bold text-navy mb-6">KESL's Approach in Kenya</h2>
-                
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-navy mb-4">Why This Framework Matters for Kenya</h3>
-                    <p className="text-gray-700 leading-relaxed mb-4">
-                      Kenya's digital landscape—particularly across platforms like Twitter, WhatsApp, Telegram, Facebook, and local Kenyan platforms—features complex forms of online speech that resist simple "hate speech" categorization:
-                    </p>
-                    <ul className="space-y-3 text-gray-700">
-                      <li><strong>🗣️ Political contestation:</strong> Speech that challenges power may appear "extreme" by civility standards but serves democratic function</li>
-                      <li><strong>🌍 Platform dynamics:</strong> Transnational speech flows across platforms, with different norms on each</li>
-                      <li><strong>📱 Ethnic dimensions:</strong> Extreme speech often targets ethnic minorities and marginalized communities</li>
-                      <li><strong>⚖️ State weaponization:</strong> Risk of "hate speech" accusations being used against dissent and civil society</li>
-                      <li><strong>💬 Cultural context:</strong> Kenyan speech cultures have their own norms, histories, and meanings</li>
-                    </ul>
-                  </div>
+                <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1a3a52', marginBottom: '15px' }}>
+                  Why This Framework Matters for Kenya
+                </h3>
+                <p style={{ color: '#475569', lineHeight: '1.7', marginBottom: '20px' }}>
+                  Kenya's digital landscape—across Twitter, WhatsApp, Telegram, Reddit, and local platforms—features complex speech that resists simple categorization:
+                </p>
 
-                  <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded">
-                    <h3 className="font-bold text-blue-900 mb-3">KESL's Mission</h3>
-                    <p className="text-gray-800 mb-3">
-                      The Kenya Extreme Speech Lexicon documents extreme speech patterns across Kenyan digital platforms through:
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                  gap: '20px',
+                  marginBottom: '40px'
+                }}>
+                  <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <p style={{ color: '#1a3a52', fontWeight: '600', fontSize: '14px', margin: '0 0 8px 0' }}>
+                      🗣️ Political Contestation
                     </p>
-                    <ul className="space-y-2 text-gray-700">
-                      <li>✓ <strong>Community contributions:</strong> Enabling Kenyans to document patterns they observe in their communities</li>
-                      <li>✓ <strong>Contextual documentation:</strong> Capturing the historical, social, and political context of speech</li>
-                      <li>✓ <strong>Intersectional analysis:</strong> Understanding how extreme speech targets specific groups (ethnic minorities, women, LGBTQ+, etc.)</li>
-                      <li>✓ <strong>Rights-centered approach:</strong> Generating evidence for advocacy and platform accountability</li>
-                      <li>✓ <strong>Decolonial thinking:</strong> Rejecting Western definitions and centering Kenyan epistemologies</li>
-                    </ul>
+                    <p style={{ color: '#475569', fontSize: '13px', lineHeight: '1.6', margin: 0 }}>
+                      Speech challenging power serves democratic function despite appearing "extreme"
+                    </p>
                   </div>
-
-                  <div className="border-2 border-green-200 rounded-lg p-6 bg-green-50">
-                    <h3 className="font-bold text-green-700 mb-3">Research Focus Areas</h3>
-                    <p className="text-gray-700 mb-4">
-                      The KESL documents extreme speech across six key research dimensions:
+                  <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <p style={{ color: '#1a3a52', fontWeight: '600', fontSize: '14px', margin: '0 0 8px 0' }}>
+                      📱 Ethnic Dimensions
                     </p>
-                    <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
-                      <div>
-                        <strong>🌐 Platform Mapping:</strong> Identify and analyze extreme speech patterns across Kenya's smaller digital platforms
-                      </div>
-                      <div>
-                        <strong>📊 Content Migration:</strong> Track how harmful content moves from mainstream to niche platforms and offline
-                      </div>
-                      <div>
-                        <strong>👥 Community Impact:</strong> Document systematic targeting of ethnic minorities and marginalized groups
-                      </div>
-                      <div>
-                        <strong>⚖️ Policy Analysis:</strong> Examine legal gaps and moderation failures on small platforms
-                      </div>
-                      <div>
-                        <strong>🎯 Systemic Patterns:</strong> Identify organized campaigns and systematic targeting strategies
-                      </div>
-                      <div>
-                        <strong>🛡️ Rights Protection:</strong> Generate evidence for digital rights advocacy and accountability
-                      </div>
+                    <p style={{ color: '#475569', fontSize: '13px', lineHeight: '1.6', margin: 0 }}>
+                      Extreme speech systematically targets minorities and marginalized communities
+                    </p>
+                  </div>
+                  <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <p style={{ color: '#1a3a52', fontWeight: '600', fontSize: '14px', margin: '0 0 8px 0' }}>
+                      ⚖️ State Weaponization
+                    </p>
+                    <p style={{ color: '#475569', fontSize: '13px', lineHeight: '1.6', margin: 0 }}>
+                      Risk of "hate speech" accusations used against civil society and dissent
+                    </p>
+                  </div>
+                </div>
+
+                <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1a3a52', marginBottom: '15px' }}>
+                  KESL's Mission
+                </h3>
+                <p style={{ color: '#475569', lineHeight: '1.7', marginBottom: '20px' }}>
+                  We document extreme speech patterns across Kenyan platforms through community contributions, contextual analysis, and rights-centered advocacy. We reject Western definitions and center Kenyan voices and epistemologies.
+                </p>
+
+                <div style={{ 
+                  background: '#f0fdf4', 
+                  border: '1px solid #dcfce7', 
+                  borderRadius: '8px', 
+                  padding: '25px'
+                }}>
+                  <h4 style={{ color: '#166534', fontWeight: '600', marginBottom: '15px', margin: 0 }}>
+                    Research Focus Areas
+                  </h4>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                    gap: '15px',
+                    marginTop: '15px'
+                  }}>
+                    <div style={{ color: '#1e293b', fontSize: '13px', lineHeight: '1.6' }}>
+                      <strong>🌐 Platform Mapping</strong><br/>Patterns across smaller digital platforms
+                    </div>
+                    <div style={{ color: '#1e293b', fontSize: '13px', lineHeight: '1.6' }}>
+                      <strong>📊 Content Migration</strong><br/>How content moves between platforms
+                    </div>
+                    <div style={{ color: '#1e293b', fontSize: '13px', lineHeight: '1.6' }}>
+                      <strong>👥 Community Impact</strong><br/>Targeting of minorities and marginalized groups
+                    </div>
+                    <div style={{ color: '#1e293b', fontSize: '13px', lineHeight: '1.6' }}>
+                      <strong>⚖️ Policy Analysis</strong><br/>Legal gaps and moderation failures
+                    </div>
+                    <div style={{ color: '#1e293b', fontSize: '13px', lineHeight: '1.6' }}>
+                      <strong>🎯 Systemic Patterns</strong><br/>Organized campaigns and strategies
+                    </div>
+                    <div style={{ color: '#1e293b', fontSize: '13px', lineHeight: '1.6' }}>
+                      <strong>🛡️ Rights Protection</strong><br/>Evidence for advocacy and accountability
                     </div>
                   </div>
                 </div>
@@ -256,35 +465,76 @@ export default function UnderstandingExtremeSpeech() {
         </div>
 
         {/* Citations Section */}
-        <div className="mt-12 bg-gray-50 rounded-lg p-8">
-          <h3 className="text-2xl font-bold text-navy mb-6">Key Sources</h3>
-          <div className="space-y-4 text-sm text-gray-700 border-l-4 border-gray-300 pl-6">
-            <p>
-              <strong>Udupa, S. (2023).</strong> Extreme speech. In C. Strippel, S. Paasch-Colberg, M. Emmer, & J. Trebbe (Eds.), <em>Challenges and perspectives of hate speech research</em> (pp. 233–248). Digital Communication Research. https://doi.org/10.48541/dcr.v12.14
-            </p>
-            <p>
-              <strong>Katiambo, D. (2021).</strong> It is incivility, not hate speech: Application of Laclau and Mouffe's discourse theory to analysis of non-anthropocentric agency. In S. Udupa, I. Gagliardone, & P. Hervik (Eds.), <em>Digital hate: The global conjuncture of extreme speech</em>. Indiana University Press.
-            </p>
-            <p>
-              <strong>Udupa, S., Gagliardone, I., & Hervik, P. (2021).</strong> <em>Digital hate: The global conjuncture of extreme speech</em>. Indiana University Press.
-            </p>
-            <p>
-              <strong>Benesch, S. (2013).</strong> Dangerous Speech: A Proposal to Prevent Group Violence. Dangerous Speech Project. https://dangerousspeech.org/
-            </p>
+        <div style={{ 
+          borderTop: '2px solid #e2e8f0', 
+          marginTop: '60px', 
+          paddingTop: '60px'
+        }}>
+          <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1a3a52', marginBottom: '25px' }}>
+            Key Sources
+          </h3>
+          <div style={{ 
+            display: 'grid', 
+            gap: '20px',
+            fontSize: '13px',
+            color: '#475569',
+            lineHeight: '1.7'
+          }}>
+            <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px' }}>
+              <p style={{ margin: 0 }}>
+                <strong>Udupa, S. (2023).</strong> Extreme speech. In C. Strippel, S. Paasch-Colberg, M. Emmer, & J. Trebbe (Eds.), <em>Challenges and perspectives of hate speech research</em>. Digital Communication Research. https://doi.org/10.48541/dcr.v12.14
+              </p>
+            </div>
+            <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px' }}>
+              <p style={{ margin: 0 }}>
+                <strong>Katiambo, D. (2021).</strong> It is incivility, not hate speech. In S. Udupa, I. Gagliardone, & P. Hervik (Eds.), <em>Digital hate: The global conjuncture of extreme speech</em>. Indiana University Press.
+              </p>
+            </div>
+            <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px' }}>
+              <p style={{ margin: 0 }}>
+                <strong>Benesch, S. (2013).</strong> Dangerous Speech: A Proposal to Prevent Group Violence. Dangerous Speech Project.
+              </p>
+            </div>
           </div>
         </div>
 
         {/* CTA */}
-        <div className="mt-12 text-center">
-          <Link href="/lexicon">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+        <div style={{ 
+          textAlign: 'center', 
+          marginTop: '60px',
+          paddingTop: '40px',
+          borderTop: '2px solid #e2e8f0'
+        }}>
+          <h3 style={{ color: '#1a3a52', fontSize: '20px', marginBottom: '15px' }}>
+            Ready to explore?
+          </h3>
+          <Link href="/lexicon" style={{ textDecoration: 'none' }}>
+            <button style={{
+              padding: '14px 36px',
+              backgroundColor: '#1a3a52',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '15px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#2d5a7b';
+              e.target.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#1a3a52';
+              e.target.style.transform = 'translateY(0)';
+            }}>
               Explore the KESL Lexicon →
             </button>
           </Link>
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -294,9 +544,6 @@ export default function UnderstandingExtremeSpeech() {
             opacity: 1;
             transform: translateY(0);
           }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-in-out;
         }
       `}</style>
     </div>
