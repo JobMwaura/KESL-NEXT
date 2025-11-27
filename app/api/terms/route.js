@@ -17,13 +17,15 @@ export async function POST(request) {
     if (!body.term || !body.meaning || !body.category || !body.risk || !body.language) {
       return new Response(
         JSON.stringify({ 
-          error: 'Missing required fields: term, meaning, category, risk, language'
+          error: 'Missing required fields',
+          required: ['term', 'meaning', 'category', 'risk', 'language']
         }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Only save the basic fields that exist in your table
+    // Only insert fields that exist in your table schema
+    // Omit: id (auto-generated), created_by (uuid), created_at (auto timestamp), updated_at (auto timestamp)
     const termData = {
       term: body.term.trim(),
       meaning: body.meaning.trim(),
@@ -31,7 +33,17 @@ export async function POST(request) {
       risk: body.risk,
       language: body.language,
       literal_gloss: body.literal_gloss || null,
-      status: 'pending'
+      status: 'pending',
+      // Optional fields (set to null if not provided)
+      migration: body.migration || null,
+      tags: body.tags || [],
+      context_history: body.context_history || null,
+      harm_description: body.harm_description || null,
+      related_terms: body.related_terms || [],
+      rejection_reason: null,
+      reviewed_at: null,
+      reviewed_by: null,
+      submission_ip: null
     };
 
     console.log('Inserting term:', termData);
@@ -59,8 +71,12 @@ export async function POST(request) {
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Term submitted for review!',
-        data: data[0]
+        message: 'Term submitted for review! It will appear in the lexicon after moderation.',
+        data: {
+          id: data[0].id,
+          term: data[0].term,
+          status: data[0].status
+        }
       }),
       { status: 201, headers: { 'Content-Type': 'application/json' } }
     );
