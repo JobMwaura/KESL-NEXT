@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Kenya Extreme Speech Lexicon - Global Color Scheme */
 
 :root {
