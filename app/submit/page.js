@@ -7,9 +7,11 @@ import Footer from '@/components/Footer';
 export default function SubmitPage() {
   const [formData, setFormData] = useState({
     term: '',
+    literal_gloss: '',
     meaning: '',
     category: '',
     risk: '',
+    language: '',
     quote: '',
     platform: '',
     date: '',
@@ -21,6 +23,7 @@ export default function SubmitPage() {
 
   const categories = ['Derogatory', 'Exclusionary', 'Dangerous', 'Coded'];
   const riskLevels = ['Low', 'Medium', 'High', 'Very High'];
+  const languages = ['Swahili', 'English', 'Sheng', 'Mixed'];
   const platforms = ['Reddit', 'Telegram', 'KenyaList', 'KenyansOnline', 'Twitter/X', 'Facebook', 'WhatsApp', 'TikTok', 'YouTube', 'Instagram', 'Other'];
 
   const handleInputChange = (e) => {
@@ -44,6 +47,7 @@ export default function SubmitPage() {
     if (!formData.meaning.trim()) newErrors.meaning = 'Meaning is required';
     if (!formData.category) newErrors.category = 'Category is required';
     if (!formData.risk) newErrors.risk = 'Risk level is required';
+    if (!formData.language) newErrors.language = 'Language is required';
     if (!formData.quote.trim()) newErrors.quote = 'At least one example quote is required';
     if (!formData.platform) newErrors.platform = 'Platform is required';
 
@@ -63,9 +67,11 @@ export default function SubmitPage() {
           },
           body: JSON.stringify({
             term: formData.term,
+            literal_gloss: formData.literal_gloss,
             meaning: formData.meaning,
             category: formData.category,
             risk: formData.risk,
+            language: formData.language,
             examples: [{
               quote: formData.quote,
               platform: formData.platform,
@@ -87,9 +93,11 @@ export default function SubmitPage() {
         setTimeout(() => {
           setFormData({
             term: '',
+            literal_gloss: '',
             meaning: '',
             category: '',
             risk: '',
+            language: '',
             quote: '',
             platform: '',
             date: '',
@@ -211,6 +219,53 @@ export default function SubmitPage() {
                   }}
                 />
                 {errors.meaning && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.meaning}</p>}
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
+                  Language <span style={{ color: '#d62828' }}>*</span>
+                </label>
+                <select
+                  name="language"
+                  value={formData.language}
+                  onChange={handleInputChange}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: errors.language ? '2px solid #d62828' : '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="">Select language...</option>
+                  {languages.map(lang => (
+                    <option key={lang} value={lang}>{lang}</option>
+                  ))}
+                </select>
+                {errors.language && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.language}</p>}
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
+                  Literal Gloss (optional)
+                </label>
+                <input
+                  type="text"
+                  name="literal_gloss"
+                  value={formData.literal_gloss}
+                  onChange={handleInputChange}
+                  placeholder="Direct word-for-word translation"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit'
+                  }}
+                />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
