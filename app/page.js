@@ -180,6 +180,60 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Understanding Extreme Speech Section */}
+        <section style={{ padding: '80px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+          <h2 style={{ textAlign: 'center', fontSize: '40px', marginBottom: '60px', color: '#1e293b' }}>
+            Conceptual Foundation
+          </h2>
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <a href="/understanding-extreme-speech" style={{ textDecoration: 'none' }}>
+              <div style={{
+                border: '2px solid #2d5a7b',
+                borderRadius: '8px',
+                padding: '40px',
+                backgroundColor: '#f0f4f8',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 15px 40px rgba(45, 90, 123, 0.2)';
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.borderColor = '#1a3a52';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = '#2d5a7b';
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '20px' }}>📚</div>
+                <h3 style={{ fontSize: '28px', color: '#1a3a52', marginBottom: '15px' }}>
+                  Understanding Extreme Speech
+                </h3>
+                <p style={{ color: '#475569', lineHeight: '1.8', marginBottom: '20px', fontSize: '16px' }}>
+                  Learn how we conceptualize extreme speech as a critical framework for understanding online vitriol. Discover why we move beyond traditional "hate speech" definitions to center historical awareness, cultural context, and community voices.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <span style={{ color: '#2d5a7b', fontWeight: 'bold', fontSize: '18px' }}>→</span>
+                    <div><strong>Definition:</strong> A scholarly framework grounded in ethnography and decolonial thinking</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <span style={{ color: '#2d5a7b', fontWeight: 'bold', fontSize: '18px' }}>→</span>
+                    <div><strong>Why it matters:</strong> Recognizes ambivalence, power dynamics, and context</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <span style={{ color: '#2d5a7b', fontWeight: 'bold', fontSize: '18px' }}>→</span>
+                    <div><strong>Kenya context:</strong> How we apply this framework to Kenyan digital spaces</div>
+                  </div>
+                </div>
+                <p style={{ color: '#2d5a7b', fontWeight: 'bold', fontSize: '16px', margin: 0 }}>
+                  Explore the framework →
+                </p>
+              </div>
+            </a>
+          </div>
+        </section>
+
         {/* Key Findings */}
         <section style={{ background: '#f8fafc', padding: '80px 20px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
