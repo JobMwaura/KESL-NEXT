@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { createClient } from '@supabase/supabase-js';
 import CommunityContributionForm from '@/components/CommunityContributionForm';
+import ApprovedContributions from '@/components/ApprovedContributions';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -243,6 +244,11 @@ export default function TermPage() {
                       </p>
                     </>
                   )}
+
+                  {/* Approved Community Contributions - Examples */}
+                  <div style={{ marginTop: '40px', paddingTop: '40px', borderTop: '1px solid #e2e8f0' }}>
+                    <ApprovedContributions termId={term.id} type="example" />
+                  </div>
                 </div>
               )}
 
@@ -321,6 +327,11 @@ export default function TermPage() {
                       No context examples documented yet.
                     </p>
                   )}
+
+                  {/* Approved Community Contributions - Context */}
+                  <div style={{ marginTop: '40px', paddingTop: '40px', borderTop: '1px solid #e2e8f0' }}>
+                    <ApprovedContributions termId={term.id} type="context" />
+                  </div>
                 </div>
               )}
 
@@ -340,7 +351,7 @@ export default function TermPage() {
                   <p style={{ color: '#475569', marginBottom: '20px' }}>
                     Help us document more examples of this term across platforms.
                   </p>
-                  <CommunityContributionForm relatedTermId={term.id} relatedTermName={term.term} />
+                  <CommunityContributionForm termId={term.id} termName={term.term} />
                 </div>
               )}
             </div>
