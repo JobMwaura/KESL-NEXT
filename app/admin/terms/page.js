@@ -155,7 +155,6 @@ export default function AdminTermsPage() {
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       setSuspensionReason('');
-      // Reload stats to reflect the suspension count
       await loadStats();
       alert('⏸ Term suspended!');
     } catch (err) {
@@ -180,12 +179,30 @@ export default function AdminTermsPage() {
 
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
-      // Reload stats to reflect the unsuspension
       await loadStats();
       alert('✓ Term unsuspended and restored!');
     } catch (err) {
       console.error('Error unsuspending:', err);
       alert('Failed to unsuspend: ' + err.message);
+    }
+  }
+
+  async function deleteTerm(id) {
+    try {
+      const { error } = await supabase
+        .from('terms')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTerms(terms.filter(t => t.id !== id));
+      setSelectedTerm(null);
+      await loadStats();
+      alert('🗑 Term permanently deleted!');
+    } catch (err) {
+      console.error('Error deleting:', err);
+      alert('Failed to delete: ' + err.message);
     }
   }
 
@@ -880,7 +897,7 @@ export default function AdminTermsPage() {
                     </div>
                   )}
 
-                  {/* Action Buttons */}
+                  {/* Action Buttons - PENDING TERMS */}
                   {selectedTerm.status === 'pending' && (
                     <div style={{ display: 'grid', gap: '12px' }}>
                       <button
@@ -954,6 +971,7 @@ export default function AdminTermsPage() {
                     </div>
                   )}
 
+                  {/* Action Buttons - APPROVED TERMS ONLY */}
                   {selectedTerm.status === 'approved' && (
                     <div style={{ display: 'grid', gap: '12px' }}>
                       <div style={{
@@ -966,12 +984,12 @@ export default function AdminTermsPage() {
                         fontWeight: '600',
                         marginBottom: '12px'
                       }}>
-                        ✓ This term is approved and live
+                        ✓ This term is approved and live in the lexicon
                       </div>
 
                       <div>
                         <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
-                          Suspension Reason (if suspending)
+                          Suspension Reason
                         </label>
                         <textarea
                           value={suspensionReason}
@@ -1003,11 +1021,32 @@ export default function AdminTermsPage() {
                           fontSize: '14px'
                         }}
                       >
-                        ⏸ Suspend Term
+                        ⏸ Suspend (Hide from public)
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          if (window.confirm('⚠️ PERMANENT ACTION: This will delete this term permanently. This cannot be undone. Are you sure?')) {
+                            deleteTerm(selectedTerm.id);
+                          }
+                        }}
+                        style={{
+                          padding: '14px 24px',
+                          backgroundColor: '#dc2626',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '14px'
+                        }}
+                      >
+                        🗑 Delete Permanently
                       </button>
                     </div>
                   )}
 
+                  {/* Action Buttons - SUSPENDED TERMS */}
                   {selectedTerm.status === 'suspended' && (
                     <div style={{ display: 'grid', gap: '12px' }}>
                       <div style={{
@@ -1020,7 +1059,7 @@ export default function AdminTermsPage() {
                         fontWeight: '600',
                         marginBottom: '12px'
                       }}>
-                        ⏸ This term is currently suspended
+                        ⏸ This term is currently suspended (hidden from public)
                       </div>
 
                       <button
@@ -1037,6 +1076,26 @@ export default function AdminTermsPage() {
                         }}
                       >
                         ✓ Unsuspend & Restore
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          if (window.confirm('⚠️ PERMANENT ACTION: This will delete this term permanently. This cannot be undone. Are you sure?')) {
+                            deleteTerm(selectedTerm.id);
+                          }
+                        }}
+                        style={{
+                          padding: '14px 24px',
+                          backgroundColor: '#dc2626',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '14px'
+                        }}
+                      >
+                        🗑 Delete Permanently
                       </button>
                     </div>
                   )}
