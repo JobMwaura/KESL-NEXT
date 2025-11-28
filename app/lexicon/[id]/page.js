@@ -268,33 +268,33 @@ export default function TermPage() {
             <CommunityContributionForm termId={term.id} termName={term.term} />
           </div>
 
-          {/* Sidebar */}
-          <aside style={{ display: 'grid', gap: '20px' }}>
-            {/* Usefulness Vote */}
+          {/* SIDEBAR - ULTRA COMPACT NO GAPS */}
+          <aside style={{ display: 'grid', gap: '10px', alignContent: 'start' }}>
+            {/* HELPFUL CARD */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #cbd5e1',
-              borderRadius: '10px',
-              padding: '20px',
+              borderRadius: '8px',
+              padding: '10px',
               position: 'sticky',
               top: '20px'
             }}>
-              <h4 style={{ margin: '0 0 15px 0', color: '#1e293b', textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>
+              <h4 style={{ margin: '0 0 8px 0', color: '#1e293b', textAlign: 'center', fontSize: '12px', fontWeight: '700' }}>
                 Is this helpful?
               </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '8px' }}>
                 <button
                   onClick={() => handleVote(1)}
                   style={{
-                    padding: '10px',
+                    padding: '6px',
                     backgroundColor: userVote === 1 ? '#10b981' : '#f1f5f9',
                     color: userVote === 1 ? 'white' : '#475569',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '4px',
                     cursor: 'pointer',
                     fontWeight: '600',
-                    fontSize: '13px',
-                    transition: 'all 0.3s ease'
+                    fontSize: '11px',
+                    transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
                     if (userVote !== 1) e.target.style.backgroundColor = '#e2e8f0';
@@ -308,15 +308,15 @@ export default function TermPage() {
                 <button
                   onClick={() => handleVote(-1)}
                   style={{
-                    padding: '10px',
+                    padding: '6px',
                     backgroundColor: userVote === -1 ? '#ef4444' : '#f1f5f9',
                     color: userVote === -1 ? 'white' : '#475569',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '4px',
                     cursor: 'pointer',
                     fontWeight: '600',
-                    fontSize: '13px',
-                    transition: 'all 0.3s ease'
+                    fontSize: '11px',
+                    transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
                     if (userVote !== -1) e.target.style.backgroundColor = '#e2e8f0';
@@ -328,36 +328,36 @@ export default function TermPage() {
                   👎 No
                 </button>
               </div>
-              <div style={{ textAlign: 'center', fontSize: '13px', color: '#94a3b8' }}>
-                <strong style={{ color: '#475569', fontSize: '15px' }}>{votes}</strong> found this helpful
+              <div style={{ textAlign: 'center', fontSize: '11px', color: '#94a3b8', margin: 0 }}>
+                <strong style={{ color: '#475569', fontSize: '12px' }}>{votes}</strong> helpful
               </div>
             </div>
 
-            {/* Metadata */}
+            {/* DETAILS CARD */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #cbd5e1',
-              borderRadius: '10px',
-              padding: '20px'
+              borderRadius: '8px',
+              padding: '10px'
             }}>
-              <h4 style={{ margin: '0 0 15px 0', color: '#1e293b', fontSize: '14px', fontWeight: '600' }}>Details</h4>
-              <div style={{ fontSize: '13px', color: '#475569', lineHeight: '2' }}>
-                <div><strong style={{ color: '#1e293b' }}>Language:</strong> {term.language}</div>
-                <div><strong style={{ color: '#1e293b' }}>Category:</strong> {term.category}</div>
-                <div><strong style={{ color: '#1e293b' }}>Risk:</strong> {term.risk}</div>
-                <div><strong style={{ color: '#1e293b' }}>Added:</strong> {new Date(term.created_at).toLocaleDateString()}</div>
+              <h4 style={{ margin: '0 0 8px 0', color: '#1e293b', fontSize: '12px', fontWeight: '700' }}>Details</h4>
+              <div style={{ fontSize: '11px', color: '#475569', lineHeight: '1.6' }}>
+                <div><strong style={{ color: '#1e293b', fontSize: '11px' }}>Language:</strong> {term.language}</div>
+                <div><strong style={{ color: '#1e293b', fontSize: '11px' }}>Category:</strong> {term.category}</div>
+                <div><strong style={{ color: '#1e293b', fontSize: '11px' }}>Risk:</strong> {term.risk}</div>
+                <div><strong style={{ color: '#1e293b', fontSize: '11px' }}>Added:</strong> {new Date(term.created_at).toLocaleDateString()}</div>
               </div>
             </div>
 
-            {/* Info Box */}
+            {/* INFO BOX */}
             <div style={{
               backgroundColor: '#fef3c7',
               border: '1px solid #f59e0b',
-              borderRadius: '10px',
-              padding: '16px'
+              borderRadius: '8px',
+              padding: '10px'
             }}>
-              <p style={{ margin: 0, color: '#92400e', fontSize: '13px', lineHeight: '1.6' }}>
-                <strong>📖 Research Content:</strong> This term is documented for educational and research purposes to understand harmful speech patterns.
+              <p style={{ margin: 0, color: '#92400e', fontSize: '11px', lineHeight: '1.5' }}>
+                <strong>📖 Research:</strong> For educational purposes to understand speech patterns.
               </p>
             </div>
           </aside>
