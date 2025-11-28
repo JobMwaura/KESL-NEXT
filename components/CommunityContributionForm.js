@@ -1,6 +1,12 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default function CommunityContributionForm({ termId, termName }) {
   const [activeTab, setActiveTab] = useState('example');
@@ -51,13 +57,11 @@ export default function CommunityContributionForm({ termId, termName }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('Image must be less than 5MB');
       return;
     }
 
-    // Validate file type
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
       setError('Only JPG and PNG images are allowed');
       return;
@@ -93,7 +97,6 @@ export default function CommunityContributionForm({ termId, termName }) {
     const y = (e.clientY - rect.top) * scaleY;
     const size = 30;
 
-    // Apply blur effect
     ctx.filter = 'blur(10px)';
     ctx.fillRect(x - size, y - size, size * 2, size * 2);
     ctx.filter = 'none';
@@ -144,23 +147,43 @@ export default function CommunityContributionForm({ termId, termName }) {
         content = JSON.stringify(formData.relation);
       }
 
-      const formDataToSend = new FormData();
-      formDataToSend.append('term_id', termId);
-      formDataToSend.append('contribution_type', type);
-      formDataToSend.append('content', content);
-      
+      // Upload image to Supabase Storage if present
+      let imageUrl = null;
       if (type === 'example' && formData.example.image) {
-        formDataToSend.append('image', formData.example.image);
+        try {
+          const fileName = `contributions/${termId}/${type}/${Date.now()}-${formData.example.image.name}`;
+          const { data, error: uploadError } = await supabase.storage
+            .from('contributions')
+            .upload(fileName, formData.example.image);
+
+          if (uploadError) {
+            console.warn('Image upload warning:', uploadError);
+          } else {
+            imageUrl = data.path;
+          }
+        } catch (imgErr) {
+          console.warn('Image upload skipped:', imgErr);
+        }
       }
 
-      const response = await fetch('/api/contributions', {
-        method: 'POST',
-        body: formDataToSend
-      });
+      // Insert contribution directly to Supabase
+      const { data, error: insertError } = await supabase
+        .from('community_contributions')
+        .insert([
+          {
+            term_id: termId,
+            contribution_type: type,
+            content: content,
+            image_url: imageUrl,
+            status: 'pending',
+            created_at: new Date().toISOString()
+          }
+        ])
+        .select();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit');
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw new Error(insertError.message || 'Failed to save contribution');
       }
 
       setSubmitted(true);
@@ -175,7 +198,8 @@ export default function CommunityContributionForm({ termId, termName }) {
       });
       setIsBlurMode(false);
     } catch (err) {
-      setError(err.message);
+      console.error('Submit error:', err);
+      setError(err.message || 'Failed to submit contribution');
     } finally {
       setLoading(false);
     }
