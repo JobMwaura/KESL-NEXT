@@ -192,7 +192,7 @@ export default function TermPage() {
                 backgroundColor: 'white',
                 borderRadius: '10px 10px 0 0'
               }}>
-                {['overview', 'context', 'contribute'].map(tab => (
+                {['overview', 'context', 'contributions', 'contribute'].map(tab => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -206,13 +206,15 @@ export default function TermPage() {
                       fontWeight: activeTab === tab ? '700' : '600',
                       fontSize: '14px',
                       transition: 'all 0.3s ease',
-                      textTransform: 'capitalize'
+                      textTransform: 'capitalize',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     {tab === 'overview' && '📖 '}
                     {tab === 'context' && '📚 '}
+                    {tab === 'contributions' && '💬 '}
                     {tab === 'contribute' && '✏️ '}
-                    {tab}
+                    {tab === 'contributions' ? 'Community' : tab}
                   </button>
                 ))}
               </div>
@@ -244,11 +246,6 @@ export default function TermPage() {
                       </p>
                     </>
                   )}
-
-                  {/* Approved Community Contributions - Examples */}
-                  <div style={{ marginTop: '40px', paddingTop: '40px', borderTop: '1px solid #e2e8f0' }}>
-                    <ApprovedContributions termId={term.id} type="example" />
-                  </div>
                 </div>
               )}
 
@@ -327,10 +324,44 @@ export default function TermPage() {
                       No context examples documented yet.
                     </p>
                   )}
+                </div>
+              )}
 
-                  {/* Approved Community Contributions - Context */}
-                  <div style={{ marginTop: '40px', paddingTop: '40px', borderTop: '1px solid #e2e8f0' }}>
+              {/* Community Contributions Tab */}
+              {activeTab === 'contributions' && (
+                <div style={{
+                  backgroundColor: 'white',
+                  borderRadius: '0 10px 10px 10px',
+                  padding: '40px',
+                  border: '1px solid #cbd5e1',
+                  borderTop: 'none',
+                  marginBottom: '30px'
+                }}>
+                  <h2 style={{ margin: '0 0 20px 0', fontSize: '24px', color: '#1e293b', fontWeight: '700' }}>
+                    Community Contributions
+                  </h2>
+                  <p style={{ color: '#475569', marginBottom: '30px', fontSize: '15px' }}>
+                    Here are verified examples, context, and analysis from our community:
+                  </p>
+
+                  {/* Examples */}
+                  <div style={{ marginBottom: '40px' }}>
+                    <ApprovedContributions termId={term.id} type="example" />
+                  </div>
+
+                  {/* Context Contributions */}
+                  <div style={{ marginBottom: '40px' }}>
                     <ApprovedContributions termId={term.id} type="context" />
+                  </div>
+
+                  {/* Harm Contributions */}
+                  <div style={{ marginBottom: '40px' }}>
+                    <ApprovedContributions termId={term.id} type="harm" />
+                  </div>
+
+                  {/* Relations */}
+                  <div>
+                    <ApprovedContributions termId={term.id} type="relation" />
                   </div>
                 </div>
               )}
