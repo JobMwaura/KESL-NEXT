@@ -69,29 +69,45 @@ export default function Home() {
                 Browse Lexicon →
               </button>
             </a>
-            <button style={{
-              padding: '16px 40px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              border: '2px solid white',
-              borderRadius: '6px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              backdropFilter: 'blur(10px)'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = 'rgba(255,255,255,0.3)';
-              e.target.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'rgba(255,255,255,0.2)';
-              e.target.style.transform = 'translateY(0)';
-            }}>
-              Learn More
-            </button>
+            <a href="/submit" style={{ textDecoration: 'none' }}>
+              <button style={{
+                padding: '16px 40px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#059669';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 12px rgba(0,0,0,0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#10b981';
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 6px rgba(0,0,0,0.2)';
+              }}>
+                + Submit a Term
+              </button>
+            </a>
           </div>
+        </section>
+
+        {/* Submission Info Banner */}
+        <section style={{
+          background: '#ecfdf5',
+          borderTop: '4px solid #10b981',
+          padding: '20px',
+          textAlign: 'center'
+        }}>
+          <p style={{ margin: 0, color: '#065f46', fontSize: '14px', fontWeight: '600' }}>
+            ℹ️ <strong>Help us document extreme speech:</strong> Found a term? Submit it with one example and our team will review it within 24-48 hours.
+          </p>
         </section>
 
         {/* Quick Stats */}
@@ -108,21 +124,49 @@ export default function Home() {
         <section style={{ background: '#f8fafc', padding: '80px 20px' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '60px' }}>
-              <h2 style={{ fontSize: '40px', color: '#1e293b', margin: 0 }}>Recently Documented Terms</h2>
-              <a href="/lexicon" style={{ textDecoration: 'none' }}>
-                <button style={{
-                  padding: '12px 24px',
-                  backgroundColor: '#2d5a7b',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  fontSize: '14px'
-                }}>
-                  View All Terms
-                </button>
-              </a>
+              <div>
+                <h2 style={{ fontSize: '40px', color: '#1e293b', margin: '0 0 5px 0' }}>Recently Documented Terms</h2>
+                <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>Latest submissions approved by our research team</p>
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <a href="/submit" style={{ textDecoration: 'none' }}>
+                  <button style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#059669';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#10b981';
+                    e.target.style.transform = 'translateY(0)';
+                  }}>
+                    + Submit
+                  </button>
+                </a>
+                <a href="/lexicon" style={{ textDecoration: 'none' }}>
+                  <button style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#2d5a7b',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '14px'
+                  }}>
+                    View All Terms
+                  </button>
+                </a>
+              </div>
             </div>
             
             {loading ? (
@@ -138,6 +182,67 @@ export default function Home() {
             ) : (
               <p style={{ textAlign: 'center', color: '#94a3b8' }}>No terms documented yet.</p>
             )}
+          </div>
+        </section>
+
+        {/* How to Contribute */}
+        <section style={{ padding: '80px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+          <h2 style={{ textAlign: 'center', fontSize: '40px', marginBottom: '60px', color: '#1e293b' }}>
+            How to Contribute
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px', maxWidth: '900px', margin: '0 auto' }}>
+            <ContributionStep 
+              number="1"
+              icon="📝"
+              title="Find a Term"
+              description="Spot extreme speech on Reddit, Telegram, KenyaList, or other platforms"
+            />
+            <ContributionStep 
+              number="2"
+              icon="✏️"
+              title="Submit with Example"
+              description="Fill out the simple form with the term, its meaning, and one redacted example"
+            />
+            <ContributionStep 
+              number="3"
+              icon="👀"
+              title="Review Process"
+              description="Our research team reviews submissions within 24-48 hours"
+            />
+            <ContributionStep 
+              number="4"
+              icon="✓"
+              title="Goes Live"
+              description="Once approved, your term appears in the lexicon and on the homepage"
+            />
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '60px' }}>
+            <a href="/submit" style={{ textDecoration: 'none' }}>
+              <button style={{
+                padding: '16px 50px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#059669';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 12px rgba(0,0,0,0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#10b981';
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 6px rgba(0,0,0,0.2)';
+              }}>
+                Ready to Submit? →
+              </button>
+            </a>
           </div>
         </section>
 
@@ -335,39 +440,92 @@ export default function Home() {
           textAlign: 'center'
         }}>
           <h2 style={{ fontSize: '40px', marginBottom: '20px' }}>
-            Explore the Lexicon
+            Ready to Contribute?
           </h2>
           <p style={{ fontSize: '18px', marginBottom: '30px', opacity: 0.95 }}>
-            Search 30+ documented terms and understand extreme speech patterns in Kenya
+            Help us document extreme speech. Submit a term with one example in just 3-5 minutes.
           </p>
-          <a href="/lexicon" style={{ textDecoration: 'none' }}>
-            <button style={{
-              padding: '16px 50px',
-              backgroundColor: 'white',
-              color: '#1a3a52',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 8px 12px rgba(0,0,0,0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 4px 6px rgba(0,0,0,0.2)';
-            }}>
-              Start Browsing →
-            </button>
-          </a>
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/submit" style={{ textDecoration: 'none' }}>
+              <button style={{
+                padding: '16px 50px',
+                backgroundColor: 'white',
+                color: '#1a3a52',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 12px rgba(0,0,0,0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 6px rgba(0,0,0,0.2)';
+              }}>
+                + Submit a Term
+              </button>
+            </a>
+            <a href="/lexicon" style={{ textDecoration: 'none' }}>
+              <button style={{
+                padding: '16px 50px',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '2px solid white',
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(255,255,255,0.3)';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'rgba(255,255,255,0.2)';
+                e.target.style.transform = 'translateY(0)';
+              }}>
+                Browse Lexicon
+              </button>
+            </a>
+          </div>
         </section>
       </main>
       <Footer />
     </>
+  );
+}
+
+function ContributionStep({ number, icon, title, description }) {
+  return (
+    <div style={{
+      textAlign: 'center',
+      padding: '30px'
+    }}>
+      <div style={{
+        width: '60px',
+        height: '60px',
+        borderRadius: '50%',
+        backgroundColor: '#dbeafe',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '0 auto 20px',
+        fontSize: '28px',
+        fontWeight: 'bold',
+        color: '#2d5a7b'
+      }}>
+        {number}
+      </div>
+      <div style={{ fontSize: '40px', marginBottom: '15px' }}>{icon}</div>
+      <h3 style={{ fontSize: '18px', color: '#1e293b', marginBottom: '10px' }}>{title}</h3>
+      <p style={{ color: '#64748b', lineHeight: '1.6', margin: 0 }}>{description}</p>
+    </div>
   );
 }
 

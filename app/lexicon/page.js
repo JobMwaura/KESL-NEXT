@@ -1,334 +1,302 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { fetchApprovedTerms } from '@/lib/supabase';
 
 export default function LexiconPage() {
-  const [allTerms, setAllTerms] = useState([]);
+  const [terms, setTerms] = useState([]);
+  const [filteredTerms, setFilteredTerms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState('');
-  const [selectedRisk, setSelectedRisk] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('');
-  const [sortBy, setSortBy] = useState('recent');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [filterLanguage, setFilterLanguage] = useState('all');
+  const [filterRisk, setFilterRisk] = useState('all');
 
-  // Fetch terms from Supabase
   useEffect(() => {
-    async function loadTerms() {
-      try {
-        setLoading(true);
-        const data = await fetchApprovedTerms();
-        setAllTerms(data);
-      } catch (err) {
-        console.error('Error loading terms:', err);
-        setError('Failed to load terms');
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadTerms();
   }, []);
 
-  // Get unique values for filters
-  const categories = [...new Set(allTerms.map(t => t.category))].sort();
-  const platforms = [...new Set(allTerms.flatMap(t => t.migration || []))].sort();
-  const riskLevels = [...new Set(allTerms.map(t => t.risk))].sort();
-  const languages = [...new Set(allTerms.map(t => t.language))].sort();
+  useEffect(() => {
+    filterTerms();
+  }, [terms, searchTerm, filterCategory, filterLanguage, filterRisk]);
 
-  // Filter and search
-  const filteredTerms = useMemo(() => {
-    let result = allTerms.filter(term => {
-      const matchesSearch = 
-        term.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        term.meaning.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (term.tags && term.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
-      
-      const matchesCategory = !selectedCategory || term.category === selectedCategory;
-      const matchesPlatform = !selectedPlatform || (term.migration && term.migration.includes(selectedPlatform));
-      const matchesRisk = !selectedRisk || term.risk === selectedRisk;
-      const matchesLanguage = !selectedLanguage || term.language === selectedLanguage;
-
-      return matchesSearch && matchesCategory && matchesPlatform && matchesRisk && matchesLanguage;
-    });
-
-    // Sort
-    if (sortBy === 'votes') {
-      result.sort((a, b) => (b.votes || 0) - (a.votes || 0));
-    } else if (sortBy === 'recent') {
-      result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    } else if (sortBy === 'term') {
-      result.sort((a, b) => a.term.localeCompare(b.term));
+  async function loadTerms() {
+    try {
+      setLoading(true);
+      const data = await fetchApprovedTerms();
+      setTerms(data);
+    } catch (err) {
+      console.error('Error loading terms:', err);
+    } finally {
+      setLoading(false);
     }
-
-    return result;
-  }, [allTerms, searchTerm, selectedCategory, selectedPlatform, selectedRisk, selectedLanguage, sortBy]);
-
-  const hasFilters = selectedCategory || selectedPlatform || selectedRisk || selectedLanguage || searchTerm;
-
-  const handleClearFilters = () => {
-    setSearchTerm('');
-    setSelectedCategory('');
-    setSelectedPlatform('');
-    setSelectedRisk('');
-    setSelectedLanguage('');
-  };
-
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '40px', marginBottom: '20px' }}>📚</div>
-            <p style={{ fontSize: '18px', color: '#475569' }}>Loading terms...</p>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
   }
 
-  if (error) {
-    return (
-      <>
-        <Header />
-        <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ textAlign: 'center', color: '#ef4444' }}>
-            <div style={{ fontSize: '40px', marginBottom: '20px' }}>⚠️</div>
-            <p style={{ fontSize: '18px' }}>{error}</p>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
+  function filterTerms() {
+    let filtered = terms;
+
+    if (searchTerm) {
+      filtered = filtered.filter(t =>
+        t.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.meaning.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (filterCategory !== 'all') {
+      filtered = filtered.filter(t => t.category === filterCategory);
+    }
+
+    if (filterLanguage !== 'all') {
+      filtered = filtered.filter(t => t.language === filterLanguage);
+    }
+
+    if (filterRisk !== 'all') {
+      filtered = filtered.filter(t => t.risk === filterRisk);
+    }
+
+    setFilteredTerms(filtered);
   }
 
   return (
     <>
       <Header />
-      <main style={{ minHeight: '100vh', paddingBottom: '80px', backgroundColor: '#f8fafc' }}>
-        {/* Hero */}
+      <main style={{ minHeight: '100vh', paddingBottom: '80px' }}>
+        {/* Hero Section */}
         <section style={{
-          background: 'linear-gradient(135deg, #1a3a52 0%, #2d5a7b 50%, #4a7ba7 100%)',
+          background: 'linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%)',
           color: 'white',
           padding: '80px 20px',
           textAlign: 'center'
         }}>
-          <h1 style={{ fontSize: '48px', marginBottom: '15px', fontWeight: 'bold' }}>Extreme Speech Lexicon</h1>
-          <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '800px', margin: '0 auto', lineHeight: '1.6' }}>
-            Search and explore {allTerms.length} documented terms, coded language, and extreme speech patterns in Kenya's digital spaces
+          <h1 style={{ fontSize: '48px', margin: '0 0 20px 0', fontWeight: 'bold' }}>
+            Kenya Extreme Speech Lexicon
+          </h1>
+          <p style={{ fontSize: '18px', opacity: 0.95, maxWidth: '600px', margin: '0 auto' }}>
+            Browse {terms.length}+ documented terms. Help us expand the lexicon by submitting new terms.
           </p>
         </section>
 
-        {/* Search & Filters */}
-        <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '40px 20px' }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '40px',
-            borderRadius: '12px',
-            border: '1px solid #cbd5e1',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-          }}>
+        {/* Search & Filters Section */}
+        <section style={{ background: '#f8fafc', padding: '40px 20px', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
+              <h2 style={{ margin: 0, fontSize: '24px', color: '#1e293b', fontWeight: '700' }}>
+                Search & Filter
+              </h2>
+              <a href="/submit" style={{ textDecoration: 'none' }}>
+                <button style={{
+                  padding: '12px 24px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  transition: 'all 0.3s ease',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#059669';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#10b981';
+                  e.target.style.transform = 'translateY(0)';
+                }}>
+                  + Submit New Term
+                </button>
+              </a>
+            </div>
+
             {/* Search Bar */}
             <div style={{ marginBottom: '30px' }}>
               <input
                 type="text"
-                placeholder="Search terms, meanings, or tags..."
+                placeholder="Search by term or meaning..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '16px 16px',
-                  fontSize: '16px',
-                  border: '2px solid #cbd5e1',
+                  padding: '14px 20px',
+                  border: '2px solid #ddd',
                   borderRadius: '8px',
+                  fontSize: '16px',
                   boxSizing: 'border-box',
-                  transition: 'all 0.3s ease',
-                  fontFamily: 'inherit'
+                  transition: 'all 0.3s ease'
                 }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#2d5a7b';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(45, 90, 123, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#cbd5e1';
-                  e.target.style.boxShadow = 'none';
-                }}
+                onFocus={(e) => e.target.style.borderColor = '#2d5a7b'}
+                onBlur={(e) => e.target.style.borderColor = '#ddd'}
               />
             </div>
 
-            {/* Filter Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '25px' }}>
-              <FilterSelect
-                label="Category"
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-                options={['All', ...categories]}
-              />
-              <FilterSelect
-                label="Platform"
-                value={selectedPlatform}
-                onChange={setSelectedPlatform}
-                options={['All', ...platforms]}
-              />
-              <FilterSelect
-                label="Risk Level"
-                value={selectedRisk}
-                onChange={setSelectedRisk}
-                options={['All', ...riskLevels]}
-              />
-              <FilterSelect
-                label="Language"
-                value={selectedLanguage}
-                onChange={setSelectedLanguage}
-                options={['All', ...languages]}
-              />
-            </div>
-
-            {/* Sort, Results Count & Clear Filters */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', paddingTop: '20px', borderTop: '1px solid #cbd5e1' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div>
-                  <label style={{ marginRight: '10px', fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>Sort:</label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    style={{
-                      padding: '10px 14px',
-                      border: '1px solid #cbd5e1',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      backgroundColor: 'white',
-                      cursor: 'pointer',
-                      fontWeight: '500'
-                    }}
-                  >
-                    <option value="recent">Most Recent</option>
-                    <option value="votes">Most Useful</option>
-                    <option value="term">A-Z</option>
-                  </select>
-                </div>
+            {/* Filter Controls */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
+                  Category
+                </label>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="all">All Categories</option>
+                  <option value="Derogatory">Derogatory</option>
+                  <option value="Exclusionary">Exclusionary</option>
+                  <option value="Dangerous">Dangerous</option>
+                  <option value="Coded">Coded</option>
+                </select>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                {hasFilters && (
-                  <button
-                    onClick={handleClearFilters}
-                    style={{
-                      padding: '10px 16px',
-                      backgroundColor: '#f1f5f9',
-                      color: '#475569',
-                      border: '1px solid #cbd5e1',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#e2e8f0';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#f1f5f9';
-                    }}
-                  >
-                    Clear Filters ✕
-                  </button>
-                )}
-                <div style={{ color: '#475569', fontSize: '14px', fontWeight: '500' }}>
-                  <span style={{ color: '#2d5a7b', fontWeight: 'bold', fontSize: '16px' }}>{filteredTerms.length}</span> term{filteredTerms.length !== 1 ? 's' : ''}
-                </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
+                  Language
+                </label>
+                <select
+                  value={filterLanguage}
+                  onChange={(e) => setFilterLanguage(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="all">All Languages</option>
+                  <option value="English">English</option>
+                  <option value="Swahili">Swahili</option>
+                  <option value="Sheng">Sheng</option>
+                  <option value="Mixed">Mixed</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
+                  Risk Level
+                </label>
+                <select
+                  value={filterRisk}
+                  onChange={(e) => setFilterRisk(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="all">All Risk Levels</option>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                  <option value="Very High">Very High</option>
+                </select>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Results */}
-        <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 20px 60px' }}>
-          {filteredTerms.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '80px 40px',
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              border: '1px solid #cbd5e1',
-              marginTop: '20px'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '20px' }}>🔍</div>
-              <p style={{ fontSize: '18px', color: '#1e293b', marginBottom: '10px', fontWeight: '600' }}>No terms found</p>
-              <p style={{ fontSize: '14px', color: '#475569' }}>Try adjusting your search or filters</p>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gap: '16px', marginTop: '20px' }}>
-              {filteredTerms.map((term) => (
-                <TermCard key={term.id} term={term} />
-              ))}
-            </div>
-          )}
+        {/* Terms Display Section */}
+        <section style={{ padding: '60px 20px' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            {loading ? (
+              <p style={{ textAlign: 'center', color: '#64748b', fontSize: '16px' }}>Loading terms...</p>
+            ) : filteredTerms.length === 0 ? (
+              <div style={{
+                backgroundColor: '#f0f9ff',
+                border: '2px dashed #0ea5e9',
+                borderRadius: '8px',
+                padding: '40px 20px',
+                textAlign: 'center'
+              }}>
+                <p style={{ color: '#0369a1', fontSize: '16px', margin: '0 0 15px 0' }}>
+                  {searchTerm || filterCategory !== 'all' || filterLanguage !== 'all' || filterRisk !== 'all'
+                    ? 'No terms match your filters'
+                    : 'No terms documented yet'}
+                </p>
+                <a href="/submit" style={{ textDecoration: 'none' }}>
+                  <button style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#0ea5e9',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '14px'
+                  }}>
+                    Submit the first term →
+                  </button>
+                </a>
+              </div>
+            ) : (
+              <>
+                <p style={{ color: '#64748b', marginBottom: '30px', fontSize: '14px' }}>
+                  Showing {filteredTerms.length} of {terms.length} terms
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '25px' }}>
+                  {filteredTerms.map((term) => (
+                    <TermCard key={term.id} term={term} />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </section>
 
-        {/* Info Banner */}
+        {/* Contribution CTA */}
         <section style={{
-          background: '#fef3c7',
-          borderLeft: '4px solid #f59e0b',
-          padding: '20px',
-          maxWidth: '1400px',
-          margin: '0 auto 40px',
-          borderRadius: '8px'
+          background: '#ecfdf5',
+          borderTop: '4px solid #10b981',
+          padding: '40px 20px',
+          textAlign: 'center'
         }}>
-          <p style={{ margin: 0, color: '#92400e', fontSize: '14px', lineHeight: '1.6' }}>
-            <strong>⚠️ Research Content:</strong> This lexicon contains redacted references to abusive and extreme speech documented for research purposes. The terms and examples here are presented in an educational context to understand harmful speech patterns in Kenya's digital spaces. Viewer discretion is advised.
+          <h2 style={{ color: '#065f46', fontSize: '24px', marginBottom: '10px' }}>
+            See a term we missed?
+          </h2>
+          <p style={{ color: '#047857', marginBottom: '20px' }}>
+            Help us document extreme speech patterns across Kenya's digital platforms.
           </p>
+          <a href="/submit" style={{ textDecoration: 'none' }}>
+            <button style={{
+              padding: '14px 40px',
+              backgroundColor: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '16px',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#059669';
+              e.target.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#10b981';
+              e.target.style.transform = 'translateY(0)';
+            }}>
+              + Submit a Term
+            </button>
+          </a>
         </section>
       </main>
       <Footer />
     </>
-  );
-}
-
-function FilterSelect({ label, value, onChange, options }) {
-  return (
-    <div>
-      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: '#1e293b' }}>
-        {label}
-      </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value === 'All' ? '' : e.target.value)}
-        style={{
-          width: '100%',
-          padding: '12px 14px',
-          border: '1px solid #cbd5e1',
-          borderRadius: '6px',
-          fontSize: '14px',
-          boxSizing: 'border-box',
-          backgroundColor: 'white',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          fontWeight: '500'
-        }}
-        onFocus={(e) => {
-          e.target.style.borderColor = '#2d5a7b';
-          e.target.style.boxShadow = '0 0 0 3px rgba(45, 90, 123, 0.1)';
-        }}
-        onBlur={(e) => {
-          e.target.style.borderColor = '#cbd5e1';
-          e.target.style.boxShadow = 'none';
-        }}
-      >
-        {options.map(opt => (
-          <option key={opt} value={opt === 'All' ? '' : opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-    </div>
   );
 }
 
@@ -347,102 +315,105 @@ function TermCard({ term }) {
     const colors = {
       'Low': '#10b981',
       'Medium': '#f59e0b',
-      'High': '#ef4444'
+      'High': '#ef4444',
+      'Very High': '#991b1b'
     };
-    return colors[risk] || '#94a3b8';
+    return colors[risk] || '#64748b';
   };
 
   return (
     <a href={`/lexicon/${term.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div style={{
         border: '1px solid #cbd5e1',
-        borderRadius: '10px',
-        padding: '24px',
+        borderRadius: '12px',
+        padding: '25px',
         backgroundColor: 'white',
         transition: 'all 0.3s ease',
         cursor: 'pointer',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column'
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.08)';
-        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.12)';
+        e.currentTarget.style.transform = 'translateY(-4px)';
         e.currentTarget.style.borderColor = '#2d5a7b';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+        e.currentTarget.style.boxShadow = 'none';
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.borderColor = '#cbd5e1';
       }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-          <div style={{ flex: 1, minWidth: '200px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
+          <div style={{ flex: 1 }}>
             <h3 style={{ margin: '0 0 6px 0', fontSize: '22px', color: '#1e293b', fontWeight: '700' }}>
               {term.term}
             </h3>
-            <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px', fontWeight: '500' }}>
-              {term.language} • {term.literal_gloss}
+            <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>
+              {term.language}
             </p>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <Badge text={term.category} color={getCategoryColor(term.category)} />
-            <Badge text={term.risk} color={getRiskColor(term.risk)} />
           </div>
         </div>
 
-        {/* Meaning */}
-        <p style={{ margin: '16px 0', fontSize: '14px', color: '#475569', lineHeight: '1.6', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-          {term.meaning}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '15px', flexWrap: 'wrap' }}>
+          <span style={{
+            backgroundColor: getCategoryColor(term.category),
+            color: 'white',
+            padding: '5px 10px',
+            borderRadius: '4px',
+            fontSize: '11px',
+            fontWeight: '700',
+            textTransform: 'uppercase'
+          }}>
+            {term.category}
+          </span>
+          <span style={{
+            backgroundColor: getRiskColor(term.risk),
+            color: 'white',
+            padding: '5px 10px',
+            borderRadius: '4px',
+            fontSize: '11px',
+            fontWeight: '700'
+          }}>
+            {term.risk}
+          </span>
+        </div>
+
+        <p style={{ 
+          margin: '0 0 20px 0', 
+          fontSize: '14px', 
+          color: '#475569', 
+          lineHeight: '1.6',
+          flex: 1
+        }}>
+          {term.meaning.substring(0, 120)}...
         </p>
 
-        {/* Tags */}
-        {term.tags && term.tags.length > 0 && (
-          <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {term.tags.slice(0, 4).map(tag => (
-              <span key={tag} style={{
-                backgroundColor: '#f1f5f9',
-                padding: '4px 10px',
-                borderRadius: '14px',
-                fontSize: '12px',
-                color: '#475569',
-                fontWeight: '500',
-                border: '1px solid #cbd5e1'
-              }}>
-                #{tag}
-              </span>
-            ))}
-            {term.tags.length > 4 && (
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500' }}>
-                +{term.tags.length - 4} more
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Footer */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#94a3b8', borderTop: '1px solid #cbd5e1', paddingTop: '16px' }}>
-          <div style={{ display: 'flex', gap: '24px' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>👍 <span style={{ color: '#475569', fontWeight: '600' }}>{term.votes || 0}</span> useful</span>
-          </div>
-          <span style={{ color: '#2d5a7b', fontWeight: '700' }}>View Details →</span>
+        <div style={{ display: 'flex', gap: '10px', paddingTop: '15px', borderTop: '1px solid #f1f5f9' }}>
+          <button style={{
+            flex: 1,
+            padding: '10px 16px',
+            backgroundColor: '#f8fafc',
+            color: '#2d5a7b',
+            border: '1px solid #cbd5e1',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '12px',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = '#f1f5f9';
+            e.target.style.borderColor = '#2d5a7b';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = '#f8fafc';
+            e.target.style.borderColor = '#cbd5e1';
+          }}>
+            Read More →
+          </button>
         </div>
       </div>
     </a>
-  );
-}
-
-function Badge({ text, color }) {
-  return (
-    <span style={{
-      backgroundColor: color,
-      color: 'white',
-      padding: '5px 11px',
-      borderRadius: '5px',
-      fontSize: '12px',
-      fontWeight: '700',
-      whiteSpace: 'nowrap',
-      boxShadow: `0 2px 4px ${color}40`
-    }}>
-      {text}
-    </span>
   );
 }
