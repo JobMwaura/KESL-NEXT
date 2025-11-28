@@ -21,6 +21,7 @@ export default function AdminTermsPage() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [suspensionReason, setSuspensionReason] = useState('');
   const [researchNote, setResearchNote] = useState('');
+  const [savingResearchNote, setSavingResearchNote] = useState(false);
   const [showBulkSelect, setShowBulkSelect] = useState(false);
   const [selectedTerms, setSelectedTerms] = useState(new Set());
   const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, suspended: 0 });
@@ -77,6 +78,34 @@ export default function AdminTermsPage() {
       setStats(newStats);
     } catch (err) {
       console.error('Error loading stats:', err);
+    }
+  }
+
+  // NEW: Save research note without changing status
+  async function saveResearchNote(id) {
+    try {
+      setSavingResearchNote(true);
+      const { error } = await supabase
+        .from('terms')
+        .update({ 
+          research_note: researchNote || null
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Update the selected term to reflect the change
+      setSelectedTerm(prev => ({
+        ...prev,
+        research_note: researchNote
+      }));
+
+      alert('✓ Research note saved!');
+    } catch (err) {
+      console.error('Error saving research note:', err);
+      alert('Failed to save research note: ' + err.message);
+    } finally {
+      setSavingResearchNote(false);
     }
   }
 
@@ -872,7 +901,7 @@ export default function AdminTermsPage() {
                 )}
               </div>
 
-              {/* Research Note Field - NEW */}
+              {/* Research Note Field - NEW WITH SAVE BUTTON */}
               <div style={{ marginBottom: '30px', paddingBottom: '30px', borderBottom: '1px solid #e2e8f0' }}>
                 <h3 style={{ margin: '0 0 15px 0', color: '#1e293b', fontWeight: '700', fontSize: '16px' }}>
                   📖 Research Note (appears on public page)
@@ -894,8 +923,26 @@ export default function AdminTermsPage() {
                     marginBottom: '10px'
                   }}
                 />
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                  <button
+                    onClick={() => saveResearchNote(selectedTerm.id)}
+                    disabled={savingResearchNote}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: savingResearchNote ? '#cbd5e1' : '#2d5a7b',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: savingResearchNote ? 'not-allowed' : 'pointer',
+                      fontWeight: '600',
+                      fontSize: '13px'
+                    }}
+                  >
+                    {savingResearchNote ? 'Saving...' : '💾 Save Research Note'}
+                  </button>
+                </div>
                 <p style={{ margin: '0', color: '#94a3b8', fontSize: '12px' }}>
-                  This note will be displayed on the term's public page
+                  This note will be displayed on the term's public page. You can save it without approving the term.
                 </p>
               </div>
 
