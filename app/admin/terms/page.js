@@ -91,12 +91,9 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
-      setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       await loadStats();
-      if (filterStatus === 'pending') {
-        await loadTerms();
-      }
+      await loadTerms();
       alert('✓ Term approved!');
     } catch (err) {
       console.error('Error approving:', err);
@@ -123,13 +120,10 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
-      setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       setRejectionReason('');
       await loadStats();
-      if (filterStatus === 'pending') {
-        await loadTerms();
-      }
+      await loadTerms();
       alert('✓ Term rejected!');
     } catch (err) {
       console.error('Error rejecting:', err);
@@ -137,6 +131,7 @@ export default function AdminTermsPage() {
     }
   }
 
+  // FIXED: Always reload after suspend
   async function suspendTerm(id) {
     if (!suspensionReason.trim()) {
       alert('Please provide a reason for suspension');
@@ -156,16 +151,13 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
-      setTerms(terms.filter(t => t.id !== id));
+      // Close modal
       setSelectedTerm(null);
       setSuspensionReason('');
       
-      // Reload both stats and terms to reflect the suspension
+      // Always reload stats and current view
       await loadStats();
-      // If currently viewing approved tab, reload to show updated list
-      if (filterStatus === 'approved') {
-        await loadTerms();
-      }
+      await loadTerms();
       
       alert('⏸ Term suspended!');
     } catch (err) {
@@ -174,6 +166,7 @@ export default function AdminTermsPage() {
     }
   }
 
+  // FIXED: Always reload after unsuspend
   async function unsuspendTerm(id) {
     try {
       const { error } = await supabase
@@ -188,12 +181,9 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
-      setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       await loadStats();
-      if (filterStatus === 'suspended') {
-        await loadTerms();
-      }
+      await loadTerms();
       alert('✓ Term restored!');
     } catch (err) {
       console.error('Error unsuspending:', err);
@@ -201,6 +191,7 @@ export default function AdminTermsPage() {
     }
   }
 
+  // FIXED: Always reload after delete
   async function deleteTerm(id) {
     try {
       const { error } = await supabase
@@ -210,7 +201,6 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
-      setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       await loadStats();
       await loadTerms();
@@ -250,7 +240,6 @@ export default function AdminTermsPage() {
       if (error) throw error;
 
       const count = selectedTerms.size;
-      setTerms(terms.filter(t => !selectedTerms.has(t.id)));
       setSelectedTerms(new Set());
       await loadStats();
       await loadTerms();
@@ -287,7 +276,6 @@ export default function AdminTermsPage() {
       if (error) throw error;
 
       const count = selectedTerms.size;
-      setTerms(terms.filter(t => !selectedTerms.has(t.id)));
       setSelectedTerms(new Set());
       await loadStats();
       await loadTerms();
@@ -317,7 +305,6 @@ export default function AdminTermsPage() {
       if (error) throw error;
 
       const count = selectedTerms.size;
-      setTerms(terms.filter(t => !selectedTerms.has(t.id)));
       setSelectedTerms(new Set());
       await loadStats();
       await loadTerms();
