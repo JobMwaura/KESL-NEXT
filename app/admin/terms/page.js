@@ -249,13 +249,82 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
+      const count = selectedTerms.size;
       setTerms(terms.filter(t => !selectedTerms.has(t.id)));
       setSelectedTerms(new Set());
       await loadStats();
-      alert(`✓ ${selectedTerms.size} terms approved!`);
+      await loadTerms();
+      alert(`✓ ${count} terms approved!`);
     } catch (err) {
       console.error('Error bulk approving:', err);
       alert('Failed to bulk approve: ' + err.message);
+    }
+  }
+
+  async function bulkSuspend() {
+    if (selectedTerms.size === 0) {
+      alert('Select terms first');
+      return;
+    }
+
+    const reason = prompt('Enter suspension reason for all selected terms:');
+    if (!reason || !reason.trim()) {
+      alert('Suspension reason is required');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('terms')
+        .update({ 
+          status: 'suspended',
+          rejection_reason: reason,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: 'admin-bulk'
+        })
+        .in('id', Array.from(selectedTerms));
+
+      if (error) throw error;
+
+      const count = selectedTerms.size;
+      setTerms(terms.filter(t => !selectedTerms.has(t.id)));
+      setSelectedTerms(new Set());
+      await loadStats();
+      await loadTerms();
+      alert(`⏸ ${count} terms suspended!`);
+    } catch (err) {
+      console.error('Error bulk suspending:', err);
+      alert('Failed to bulk suspend: ' + err.message);
+    }
+  }
+
+  async function bulkDelete() {
+    if (selectedTerms.size === 0) {
+      alert('Select terms first');
+      return;
+    }
+
+    if (!window.confirm(`⚠️ PERMANENT: Delete ${selectedTerms.size} term(s) permanently? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('terms')
+        .delete()
+        .in('id', Array.from(selectedTerms));
+
+      if (error) throw error;
+
+      const count = selectedTerms.size;
+      setTerms(terms.filter(t => !selectedTerms.has(t.id)));
+      setSelectedTerms(new Set());
+      await loadStats();
+      await loadTerms();
+      alert(`🗑 ${count} terms permanently deleted!`);
+    } catch (err) {
+      console.error('Error bulk deleting:', err);
+      alert('Failed to bulk delete: ' + err.message);
     }
   }
 
@@ -416,26 +485,66 @@ export default function AdminTermsPage() {
                 marginBottom: '20px',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center'
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '12px'
               }}>
-                <p style={{ margin: 0, color: '#1e40af', fontWeight: '600' }}>
+                <p style={{ margin: 0, color: '#1e40af', fontWeight: '600', minWidth: '150px' }}>
                   {selectedTerms.size} term{selectedTerms.size > 1 ? 's' : ''} selected
                 </p>
-                <button
-                  onClick={bulkApprove}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    fontSize: '13px'
-                  }}
-                >
-                  Approve All
-                </button>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  {filterStatus === 'suspended' && (
+                    <button
+                      onClick={bulkDelete}
+                      style={{
+                        padding: '10px 16px',
+                        backgroundColor: '#dc2626',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '13px'
+                      }}
+                    >
+                      🗑 Delete All
+                    </button>
+                  )}
+                  {filterStatus === 'approved' && (
+                    <button
+                      onClick={bulkSuspend}
+                      style={{
+                        padding: '10px 16px',
+                        backgroundColor: '#8b5cf6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '13px'
+                      }}
+                    >
+                      ⏸ Suspend All
+                    </button>
+                  )}
+                  {filterStatus === 'pending' && (
+                    <button
+                      onClick={bulkApprove}
+                      style={{
+                        padding: '10px 16px',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '13px'
+                      }}
+                    >
+                      ✓ Approve All
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
