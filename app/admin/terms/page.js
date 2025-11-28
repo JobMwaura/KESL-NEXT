@@ -85,8 +85,7 @@ export default function AdminTermsPage() {
         .from('terms')
         .update({ 
           status: 'approved', 
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin-manual'
+          reviewed_at: new Date().toISOString()
         })
         .eq('id', id);
 
@@ -114,8 +113,7 @@ export default function AdminTermsPage() {
         .update({ 
           status: 'rejected', 
           rejection_reason: rejectionReason,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin-manual'
+          reviewed_at: new Date().toISOString()
         })
         .eq('id', id);
 
@@ -144,8 +142,7 @@ export default function AdminTermsPage() {
         .update({ 
           status: 'suspended', 
           rejection_reason: suspensionReason,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin-manual'
+          reviewed_at: new Date().toISOString()
         })
         .eq('id', id);
 
@@ -169,8 +166,7 @@ export default function AdminTermsPage() {
         .update({ 
           status: 'approved',
           rejection_reason: null,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin-manual'
+          reviewed_at: new Date().toISOString()
         })
         .eq('id', id);
 
@@ -186,7 +182,6 @@ export default function AdminTermsPage() {
     }
   }
 
-  // FIXED: DELETE NOW PROPERLY REMOVES TERM
   async function deleteTerm(id) {
     try {
       const { error } = await supabase
@@ -196,16 +191,10 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
-      // Close modal FIRST
       setSelectedTerm(null);
-      
-      // Then immediately remove from local state
       setTerms(terms.filter(t => t.id !== id));
-      
-      // Then reload everything
       await loadStats();
       await loadTerms();
-      
       alert('🗑 Term permanently deleted!');
     } catch (err) {
       console.error('Error deleting:', err);
@@ -234,8 +223,7 @@ export default function AdminTermsPage() {
         .from('terms')
         .update({ 
           status: 'approved',
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin-bulk'
+          reviewed_at: new Date().toISOString()
         })
         .in('id', Array.from(selectedTerms));
 
@@ -270,8 +258,7 @@ export default function AdminTermsPage() {
         .update({ 
           status: 'suspended',
           rejection_reason: reason,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin-bulk'
+          reviewed_at: new Date().toISOString()
         })
         .in('id', Array.from(selectedTerms));
 
@@ -711,7 +698,7 @@ export default function AdminTermsPage() {
           )}
         </div>
 
-        {/* Detail Modal - COMPLETE SUBMISSION REVIEW */}
+        {/* Detail Modal */}
         {selectedTerm && (
           <div style={{
             position: 'fixed',
