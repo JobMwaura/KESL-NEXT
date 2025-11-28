@@ -21,9 +21,10 @@ export default function AdminTermsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [suspensionReason, setSuspensionReason] = useState('');
   const [showBulkSelect, setShowBulkSelect] = useState(false);
   const [selectedTerms, setSelectedTerms] = useState(new Set());
-  const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0 });
+  const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, suspended: 0 });
 
   useEffect(() => {
     loadTerms();
@@ -61,8 +62,8 @@ export default function AdminTermsPage() {
 
   async function loadStats() {
     try {
-      const statuses = ['pending', 'approved', 'rejected'];
-      const newStats = { pending: 0, approved: 0, rejected: 0 };
+      const statuses = ['pending', 'approved', 'rejected', 'suspended'];
+      const newStats = { pending: 0, approved: 0, rejected: 0, suspended: 0 };
 
       for (const status of statuses) {
         const { count } = await supabase
@@ -137,6 +138,68 @@ export default function AdminTermsPage() {
     } catch (err) {
       console.error('Error rejecting:', err);
       alert('Failed to reject: ' + err.message);
+    }
+  }
+
+  async function suspendTerm(id) {
+    if (!suspensionReason.trim()) {
+      alert('Please provide a reason for suspension');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('terms')
+        .update({ 
+          status: 'suspended', 
+          rejection_reason: suspensionReason,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: 'admin-manual'
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTerms(terms.filter(t => t.id !== id));
+      setSelectedTerm(null);
+      setSuspensionReason('');
+      setStats(prev => ({
+        ...prev,
+        approved: prev.approved - 1,
+        suspended: prev.suspended + 1
+      }));
+      alert('⏸ Term suspended!');
+    } catch (err) {
+      console.error('Error suspending:', err);
+      alert('Failed to suspend: ' + err.message);
+    }
+  }
+
+  async function unsuspendTerm(id) {
+    try {
+      const { error } = await supabase
+        .from('terms')
+        .update({ 
+          status: 'approved',
+          rejection_reason: null,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: 'admin-manual'
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTerms(terms.filter(t => t.id !== id));
+      setSelectedTerm(null);
+      setStats(prev => ({
+        ...prev,
+        suspended: prev.suspended - 1,
+        approved: prev.approved + 1
+      }));
+      alert('✓ Term unsuspended and restored!');
+    } catch (err) {
+      console.error('Error unsuspending:', err);
+      alert('Failed to unsuspend: ' + err.message);
     }
   }
 
@@ -276,6 +339,7 @@ export default function AdminTermsPage() {
             {[
               { label: 'Pending', value: stats.pending, color: '#f59e0b' },
               { label: 'Approved', value: stats.approved, color: '#10b981' },
+              { label: 'Suspended', value: stats.suspended, color: '#8b5cf6' },
               { label: 'Rejected', value: stats.rejected, color: '#ef4444' }
             ].map(stat => (
               <div key={stat.label} style={{
@@ -390,7 +454,7 @@ export default function AdminTermsPage() {
 
             {/* Filter Tabs */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-              {['pending', 'approved', 'rejected'].map(status => (
+              {['pending', 'approved', 'suspended', 'rejected'].map(status => (
                 <button
                   key={status}
                   onClick={() => setFilterStatus(status)}
@@ -408,6 +472,7 @@ export default function AdminTermsPage() {
                 >
                   {status === 'pending' && '⏳ '}
                   {status === 'approved' && '✓ '}
+                  {status === 'suspended' && '⏸ '}
                   {status === 'rejected' && '✗ '}
                   {status}
                 </button>
@@ -816,6 +881,23 @@ export default function AdminTermsPage() {
                     </div>
                   )}
 
+                  {selectedTerm.status === 'suspended' && selectedTerm.rejection_reason && (
+                    <div style={{
+                      backgroundColor: '#f3e8ff',
+                      border: '1px solid #ddd6fe',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      marginBottom: '30px'
+                    }}>
+                      <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#6d28d9' }}>
+                        ⏸ Suspension Reason:
+                      </p>
+                      <p style={{ margin: 0, color: '#6d28d9', fontSize: '14px' }}>
+                        {selectedTerm.rejection_reason}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Action Buttons */}
                   {selectedTerm.status === 'pending' && (
                     <div style={{ display: 'grid', gap: '12px' }}>
@@ -891,16 +973,89 @@ export default function AdminTermsPage() {
                   )}
 
                   {selectedTerm.status === 'approved' && (
-                    <div style={{
-                      backgroundColor: '#d1fae5',
-                      border: '1px solid #6ee7b7',
-                      borderRadius: '6px',
-                      padding: '16px',
-                      color: '#065f46',
-                      textAlign: 'center',
-                      fontWeight: '600'
-                    }}>
-                      ✓ This term is approved and live
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      <div style={{
+                        backgroundColor: '#d1fae5',
+                        border: '1px solid #6ee7b7',
+                        borderRadius: '6px',
+                        padding: '16px',
+                        color: '#065f46',
+                        textAlign: 'center',
+                        fontWeight: '600',
+                        marginBottom: '12px'
+                      }}>
+                        ✓ This term is approved and live
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
+                          Suspension Reason (if suspending)
+                        </label>
+                        <textarea
+                          value={suspensionReason}
+                          onChange={(e) => setSuspensionReason(e.target.value)}
+                          placeholder="e.g., Duplicate, Needs revision, Community flagged, Requires research..."
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            minHeight: '70px',
+                            boxSizing: 'border-box',
+                            fontFamily: 'inherit'
+                          }}
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => suspendTerm(selectedTerm.id)}
+                        style={{
+                          padding: '14px 24px',
+                          backgroundColor: '#8b5cf6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '14px'
+                        }}
+                      >
+                        ⏸ Suspend Term
+                      </button>
+                    </div>
+                  )}
+
+                  {selectedTerm.status === 'suspended' && (
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      <div style={{
+                        backgroundColor: '#f3e8ff',
+                        border: '1px solid #ddd6fe',
+                        borderRadius: '6px',
+                        padding: '16px',
+                        color: '#6d28d9',
+                        textAlign: 'center',
+                        fontWeight: '600',
+                        marginBottom: '12px'
+                      }}>
+                        ⏸ This term is currently suspended
+                      </div>
+
+                      <button
+                        onClick={() => unsuspendTerm(selectedTerm.id)}
+                        style={{
+                          padding: '14px 24px',
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '14px'
+                        }}
+                      >
+                        ✓ Unsuspend & Restore
+                      </button>
                     </div>
                   )}
                 </>
