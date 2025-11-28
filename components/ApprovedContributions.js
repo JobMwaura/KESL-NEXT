@@ -286,13 +286,17 @@ function ExampleContent({ content, contribution }) {
             border: '1px solid #cbd5e1'
           }}>
             <img
-              src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${contribution.image_url}`}
+              src={getImageUrl(contribution.image_url)}
               alt="Contribution screenshot"
               style={{
                 width: '100%',
                 height: 'auto',
                 maxHeight: '400px',
                 objectFit: 'cover'
+              }}
+              onError={(e) => {
+                console.error('Image load error:', contribution.image_url);
+                e.target.style.display = 'none';
               }}
             />
           </div>
@@ -502,6 +506,15 @@ function getTypeEmoji(type) {
     relation: '🔗'
   };
   return emojis[type] || '•';
+}
+
+function getImageUrl(imagePath) {
+  if (!imagePath) return '';
+  // If it's already a full URL, return it
+  if (imagePath.startsWith('http')) return imagePath;
+  // Otherwise construct the Supabase URL
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return `${supabaseUrl}/storage/v1/object/public/${imagePath}`;
 }
 
 function getPreviewText(content, type) {
