@@ -14,12 +14,10 @@ export default function AdminTermsPage() {
   const [terms, setTerms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('pending');
+  const [filterStatus, setFilterStatus] = useState('approved');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterRisk, setFilterRisk] = useState('all');
   const [selectedTerm, setSelectedTerm] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [suspensionReason, setSuspensionReason] = useState('');
   const [showBulkSelect, setShowBulkSelect] = useState(false);
@@ -180,10 +178,10 @@ export default function AdminTermsPage() {
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       await loadStats();
-      alert('✓ Term unsuspended and restored!');
+      alert('✓ Term restored!');
     } catch (err) {
       console.error('Error unsuspending:', err);
-      alert('Failed to unsuspend: ' + err.message);
+      alert('Failed to restore: ' + err.message);
     }
   }
 
@@ -203,33 +201,6 @@ export default function AdminTermsPage() {
     } catch (err) {
       console.error('Error deleting:', err);
       alert('Failed to delete: ' + err.message);
-    }
-  }
-
-  async function saveTerm(id, data) {
-    try {
-      const { error } = await supabase
-        .from('terms')
-        .update({
-          term: data.term,
-          meaning: data.meaning,
-          category: data.category,
-          risk: data.risk
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      const updatedTerms = terms.map(t => 
-        t.id === id ? { ...t, ...data } : t
-      );
-      setTerms(updatedTerms);
-      setSelectedTerm(updatedTerms.find(t => t.id === id));
-      setIsEditing(false);
-      alert('✓ Term updated!');
-    } catch (err) {
-      console.error('Error saving:', err);
-      alert('Failed to save: ' + err.message);
     }
   }
 
@@ -548,6 +519,7 @@ export default function AdminTermsPage() {
               {terms.map(term => (
                 <div
                   key={term.id}
+                  onClick={() => setSelectedTerm(term)}
                   style={{
                     backgroundColor: 'white',
                     border: selectedTerms.has(term.id) ? '2px solid #2d5a7b' : '1px solid #e2e8f0',
@@ -571,7 +543,7 @@ export default function AdminTermsPage() {
                   }}
                 >
                   {showBulkSelect && (
-                    <div style={{ paddingTop: '4px' }}>
+                    <div style={{ paddingTop: '4px' }} onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
                         checked={selectedTerms.has(term.id)}
@@ -581,7 +553,7 @@ export default function AdminTermsPage() {
                     </div>
                   )}
 
-                  <div style={{ flex: 1, onClick: () => setSelectedTerm(term) }}>
+                  <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '10px' }}>
                       <div>
                         <h3 style={{ margin: '0 0 5px 0', color: '#1e293b', fontSize: '16px', fontWeight: '700' }}>
@@ -624,7 +596,7 @@ export default function AdminTermsPage() {
           )}
         </div>
 
-        {/* Detail Modal */}
+        {/* Detail Modal - COMPLETE SUBMISSION REVIEW */}
         {selectedTerm && (
           <div style={{
             position: 'fixed',
@@ -643,138 +615,199 @@ export default function AdminTermsPage() {
               backgroundColor: 'white',
               borderRadius: '12px',
               padding: '40px',
-              maxWidth: '800px',
+              maxWidth: '900px',
               width: '100%',
-              maxHeight: '90vh',
+              maxHeight: '95vh',
               overflow: 'auto'
             }}>
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedTerm(null)}
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '28px',
+                  cursor: 'pointer',
+                  color: '#94a3b8',
+                  padding: '0'
+                }}
+              >
+                ✕
+              </button>
+
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '30px' }}>
-                <div>
-                  <h2 style={{ margin: '0 0 10px 0', color: '#1e293b', fontSize: '28px', fontWeight: '700' }}>
-                    {isEditing ? 'Edit Term' : selectedTerm.term}
-                  </h2>
-                  {!isEditing && (
-                    <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px' }}>
-                      Submitted {new Date(selectedTerm.created_at).toLocaleDateString()}
-                    </p>
-                  )}
+              <div style={{ marginBottom: '30px' }}>
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '15px' }}>
+                  <span style={{
+                    backgroundColor: getCategoryColor(selectedTerm.category),
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}>
+                    {selectedTerm.category}
+                  </span>
+                  <span style={{
+                    backgroundColor: getRiskColor(selectedTerm.risk),
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}>
+                    {selectedTerm.risk}
+                  </span>
+                  <span style={{
+                    backgroundColor: selectedTerm.status === 'pending' ? '#f59e0b' : 
+                                     selectedTerm.status === 'approved' ? '#10b981' :
+                                     selectedTerm.status === 'suspended' ? '#8b5cf6' : '#ef4444',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}>
+                    {selectedTerm.status.toUpperCase()}
+                  </span>
                 </div>
-                <button
-                  onClick={() => {
-                    setSelectedTerm(null);
-                    setIsEditing(false);
-                    setEditData(null);
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '28px',
-                    cursor: 'pointer',
-                    color: '#94a3b8',
-                    padding: '0'
-                  }}
-                >
-                  ✕
-                </button>
+                <h2 style={{ margin: '0 0 10px 0', color: '#1e293b', fontSize: '32px', fontWeight: '700' }}>
+                  {selectedTerm.term}
+                </h2>
+                <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px' }}>
+                  Submitted {new Date(selectedTerm.created_at).toLocaleDateString()} at {new Date(selectedTerm.created_at).toLocaleTimeString()}
+                </p>
               </div>
 
-              {/* Edit Mode */}
-              {isEditing ? (
-                <div style={{ marginBottom: '30px' }}>
-                  <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b' }}>
-                      Term
-                    </label>
-                    <input
-                      type="text"
-                      value={editData.term}
-                      onChange={(e) => setEditData({ ...editData, term: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box',
-                        fontFamily: 'inherit'
-                      }}
-                    />
-                  </div>
+              {/* Full Submission Details */}
+              <div style={{ marginBottom: '30px', paddingBottom: '30px', borderBottom: '1px solid #e2e8f0' }}>
+                <h3 style={{ margin: '0 0 15px 0', color: '#1e293b', fontWeight: '700', fontSize: '16px' }}>
+                  Definition
+                </h3>
+                <p style={{ margin: '0 0 25px 0', color: '#475569', lineHeight: '1.8', fontSize: '15px' }}>
+                  {selectedTerm.meaning}
+                </p>
 
-                  <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b' }}>
-                      Meaning
-                    </label>
-                    <textarea
-                      value={editData.meaning}
-                      onChange={(e) => setEditData({ ...editData, meaning: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box',
-                        minHeight: '100px',
-                        fontFamily: 'inherit'
-                      }}
-                    />
-                  </div>
+                {selectedTerm.language && (
+                  <>
+                    <h3 style={{ margin: '0 0 8px 0', color: '#1e293b', fontWeight: '700', fontSize: '14px' }}>
+                      Language
+                    </h3>
+                    <p style={{ margin: '0 0 25px 0', color: '#475569', fontSize: '14px' }}>
+                      {selectedTerm.language}
+                    </p>
+                  </>
+                )}
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b' }}>
-                        Category
-                      </label>
-                      <select
-                        value={editData.category}
-                        onChange={(e) => setEditData({ ...editData, category: e.target.value })}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          border: '1px solid #cbd5e1',
-                          borderRadius: '6px',
-                          fontSize: '14px',
-                          boxSizing: 'border-box'
-                        }}
-                      >
-                        <option value="Derogatory">Derogatory</option>
-                        <option value="Exclusionary">Exclusionary</option>
-                        <option value="Dangerous">Dangerous</option>
-                        <option value="Coded">Coded</option>
-                      </select>
-                    </div>
+                {selectedTerm.literal_gloss && (
+                  <>
+                    <h3 style={{ margin: '0 0 8px 0', color: '#1e293b', fontWeight: '700', fontSize: '14px' }}>
+                      Literal Gloss
+                    </h3>
+                    <p style={{ margin: '0 0 25px 0', color: '#475569', fontSize: '14px' }}>
+                      {selectedTerm.literal_gloss}
+                    </p>
+                  </>
+                )}
+              </div>
 
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b' }}>
-                        Risk Level
-                      </label>
-                      <select
-                        value={editData.risk}
-                        onChange={(e) => setEditData({ ...editData, risk: e.target.value })}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          border: '1px solid #cbd5e1',
-                          borderRadius: '6px',
-                          fontSize: '14px',
-                          boxSizing: 'border-box'
-                        }}
-                      >
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                        <option value="Very High">Very High</option>
-                      </select>
-                    </div>
-                  </div>
+              {/* Example Quote */}
+              <div style={{ marginBottom: '30px', paddingBottom: '30px', borderBottom: '1px solid #e2e8f0' }}>
+                <h3 style={{ margin: '0 0 15px 0', color: '#1e293b', fontWeight: '700', fontSize: '16px' }}>
+                  Example Quote
+                </h3>
+                <div style={{
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  marginBottom: '15px',
+                  fontFamily: 'monospace',
+                  fontSize: '14px',
+                  color: '#475569',
+                  lineHeight: '1.6',
+                  whiteSpace: 'pre-wrap',
+                  wordWrap: 'break-word'
+                }}>
+                  {selectedTerm.quote || 'No quote provided'}
+                </div>
 
-                  <div style={{ display: 'flex', gap: '12px' }}>
+                <h3 style={{ margin: '0 0 8px 0', color: '#1e293b', fontWeight: '700', fontSize: '14px' }}>
+                  Platform
+                </h3>
+                <p style={{ margin: '0 0 20px 0', color: '#475569', fontSize: '14px' }}>
+                  {selectedTerm.platform || 'Not specified'}
+                </p>
+
+                {selectedTerm.date && (
+                  <>
+                    <h3 style={{ margin: '0 0 8px 0', color: '#1e293b', fontWeight: '700', fontSize: '14px' }}>
+                      Date Found
+                    </h3>
+                    <p style={{ margin: '0 0 20px 0', color: '#475569', fontSize: '14px' }}>
+                      {new Date(selectedTerm.date).toLocaleDateString()}
+                    </p>
+                  </>
+                )}
+
+                {selectedTerm.context && (
+                  <>
+                    <h3 style={{ margin: '0 0 8px 0', color: '#1e293b', fontWeight: '700', fontSize: '14px' }}>
+                      Context
+                    </h3>
+                    <p style={{ margin: 0, color: '#475569', fontSize: '14px', lineHeight: '1.6' }}>
+                      {selectedTerm.context}
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* Status Alerts */}
+              {selectedTerm.status === 'rejected' && selectedTerm.rejection_reason && (
+                <div style={{
+                  backgroundColor: '#fee2e2',
+                  border: '1px solid #fca5a5',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  marginBottom: '30px'
+                }}>
+                  <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#991b1b' }}>
+                    ✗ Rejection Reason:
+                  </p>
+                  <p style={{ margin: 0, color: '#991b1b', fontSize: '14px' }}>
+                    {selectedTerm.rejection_reason}
+                  </p>
+                </div>
+              )}
+
+              {selectedTerm.status === 'suspended' && selectedTerm.rejection_reason && (
+                <div style={{
+                  backgroundColor: '#f3e8ff',
+                  border: '1px solid #ddd6fe',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  marginBottom: '30px'
+                }}>
+                  <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#6d28d9' }}>
+                    ⏸ Suspension Reason:
+                  </p>
+                  <p style={{ margin: 0, color: '#6d28d9', fontSize: '14px' }}>
+                    {selectedTerm.rejection_reason}
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div>
+                {selectedTerm.status === 'pending' && (
+                  <div style={{ display: 'grid', gap: '12px' }}>
                     <button
-                      onClick={() => saveTerm(selectedTerm.id, editData)}
+                      onClick={() => approveTerm(selectedTerm.id)}
                       style={{
-                        padding: '12px 24px',
+                        padding: '14px 24px',
                         backgroundColor: '#10b981',
                         color: 'white',
                         border: 'none',
@@ -784,184 +817,40 @@ export default function AdminTermsPage() {
                         fontSize: '14px'
                       }}
                     >
-                      ✓ Save Changes
+                      ✓ Approve
                     </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditData(null);
-                      }}
-                      style={{
-                        padding: '12px 24px',
-                        backgroundColor: '#e2e8f0',
-                        color: '#475569',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '14px'
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* View Mode */}
-                  <div style={{ marginBottom: '30px' }}>
-                    <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
-                      <span style={{
-                        backgroundColor: getCategoryColor(selectedTerm.category),
-                        color: 'white',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600'
-                      }}>
-                        {selectedTerm.category}
-                      </span>
-                      <span style={{
-                        backgroundColor: getRiskColor(selectedTerm.risk),
-                        color: 'white',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600'
-                      }}>
-                        {selectedTerm.risk}
-                      </span>
-                    </div>
 
-                    <h3 style={{ margin: '0 0 10px 0', color: '#1e293b', fontWeight: '700' }}>
-                      Meaning
-                    </h3>
-                    <p style={{ margin: '0 0 20px 0', color: '#475569', lineHeight: '1.7' }}>
-                      {selectedTerm.meaning}
-                    </p>
-
-                    {selectedTerm.language && (
-                      <>
-                        <h3 style={{ margin: '0 0 10px 0', color: '#1e293b', fontWeight: '700' }}>
-                          Language
-                        </h3>
-                        <p style={{ margin: '0 0 20px 0', color: '#475569' }}>
-                          {selectedTerm.language}
-                        </p>
-                      </>
-                    )}
-
-                    {selectedTerm.literal_gloss && (
-                      <>
-                        <h3 style={{ margin: '0 0 10px 0', color: '#1e293b', fontWeight: '700' }}>
-                          Literal Gloss
-                        </h3>
-                        <p style={{ margin: '0 0 20px 0', color: '#475569' }}>
-                          {selectedTerm.literal_gloss}
-                        </p>
-                      </>
-                    )}
-                  </div>
-
-                  {selectedTerm.status === 'rejected' && selectedTerm.rejection_reason && (
-                    <div style={{
-                      backgroundColor: '#fee2e2',
-                      border: '1px solid #fca5a5',
-                      borderRadius: '8px',
-                      padding: '16px',
-                      marginBottom: '30px'
-                    }}>
-                      <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#991b1b' }}>
-                        Rejection Reason:
-                      </p>
-                      <p style={{ margin: 0, color: '#991b1b', fontSize: '14px' }}>
-                        {selectedTerm.rejection_reason}
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedTerm.status === 'suspended' && selectedTerm.rejection_reason && (
-                    <div style={{
-                      backgroundColor: '#f3e8ff',
-                      border: '1px solid #ddd6fe',
-                      borderRadius: '8px',
-                      padding: '16px',
-                      marginBottom: '30px'
-                    }}>
-                      <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#6d28d9' }}>
-                        ⏸ Suspension Reason:
-                      </p>
-                      <p style={{ margin: 0, color: '#6d28d9', fontSize: '14px' }}>
-                        {selectedTerm.rejection_reason}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Action Buttons - PENDING TERMS */}
-                  {selectedTerm.status === 'pending' && (
-                    <div style={{ display: 'grid', gap: '12px' }}>
-                      <button
-                        onClick={() => setIsEditing(true) || setEditData({ ...selectedTerm })}
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
+                        Reject with reason (optional)
+                      </label>
+                      <textarea
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        placeholder="e.g., Duplicate, Inaccurate, Off-topic, Spam..."
                         style={{
-                          padding: '14px 24px',
-                          backgroundColor: '#8b5cf6',
-                          color: 'white',
-                          border: 'none',
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid #cbd5e1',
                           borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '14px'
+                          fontSize: '13px',
+                          minHeight: '70px',
+                          boxSizing: 'border-box',
+                          fontFamily: 'inherit',
+                          marginBottom: '10px'
                         }}
-                      >
-                        ✏️ Edit Before Approving
-                      </button>
-
-                      <button
-                        onClick={() => approveTerm(selectedTerm.id)}
-                        style={{
-                          padding: '14px 24px',
-                          backgroundColor: '#10b981',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '14px'
-                        }}
-                      >
-                        ✓ Approve
-                      </button>
-
-                      <div style={{ marginBottom: '12px' }}>
-                        <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
-                          Rejection Reason (if rejecting)
-                        </label>
-                        <textarea
-                          value={rejectionReason}
-                          onChange={(e) => setRejectionReason(e.target.value)}
-                          placeholder="e.g., Duplicate, Inaccurate, Off-topic, Spam..."
-                          style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: '1px solid #cbd5e1',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            minHeight: '70px',
-                            boxSizing: 'border-box',
-                            fontFamily: 'inherit'
-                          }}
-                        />
-                      </div>
-
+                      />
                       <button
                         onClick={() => rejectTerm(selectedTerm.id)}
+                        disabled={!rejectionReason.trim()}
                         style={{
+                          width: '100%',
                           padding: '14px 24px',
-                          backgroundColor: '#ef4444',
+                          backgroundColor: rejectionReason.trim() ? '#ef4444' : '#cbd5e1',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: 'pointer',
+                          cursor: rejectionReason.trim() ? 'pointer' : 'not-allowed',
                           fontWeight: '600',
                           fontSize: '14px'
                         }}
@@ -969,138 +858,157 @@ export default function AdminTermsPage() {
                         ✕ Reject
                       </button>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Action Buttons - APPROVED TERMS ONLY */}
-                  {selectedTerm.status === 'approved' && (
-                    <div style={{ display: 'grid', gap: '12px' }}>
-                      <div style={{
-                        backgroundColor: '#d1fae5',
-                        border: '1px solid #6ee7b7',
-                        borderRadius: '6px',
-                        padding: '16px',
-                        color: '#065f46',
-                        textAlign: 'center',
-                        fontWeight: '600',
-                        marginBottom: '12px'
-                      }}>
-                        ✓ This term is approved and live in the lexicon
-                      </div>
+                {selectedTerm.status === 'approved' && (
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    <div style={{
+                      backgroundColor: '#d1fae5',
+                      border: '1px solid #6ee7b7',
+                      borderRadius: '6px',
+                      padding: '16px',
+                      color: '#065f46',
+                      textAlign: 'center',
+                      fontWeight: '600',
+                      marginBottom: '12px'
+                    }}>
+                      ✓ This term is approved and live
+                    </div>
 
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
-                          Suspension Reason
-                        </label>
-                        <textarea
-                          value={suspensionReason}
-                          onChange={(e) => setSuspensionReason(e.target.value)}
-                          placeholder="e.g., Duplicate, Needs revision, Community flagged, Requires research..."
-                          style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: '1px solid #cbd5e1',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            minHeight: '70px',
-                            boxSizing: 'border-box',
-                            fontFamily: 'inherit'
-                          }}
-                        />
-                      </div>
-
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#1e293b', fontSize: '13px' }}>
+                        Suspend with reason (optional)
+                      </label>
+                      <textarea
+                        value={suspensionReason}
+                        onChange={(e) => setSuspensionReason(e.target.value)}
+                        placeholder="e.g., Duplicate, Needs revision, Community flagged, Requires research..."
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '6px',
+                          fontSize: '13px',
+                          minHeight: '70px',
+                          boxSizing: 'border-box',
+                          fontFamily: 'inherit',
+                          marginBottom: '10px'
+                        }}
+                      />
                       <button
                         onClick={() => suspendTerm(selectedTerm.id)}
+                        disabled={!suspensionReason.trim()}
                         style={{
+                          width: '100%',
                           padding: '14px 24px',
-                          backgroundColor: '#8b5cf6',
+                          backgroundColor: suspensionReason.trim() ? '#8b5cf6' : '#cbd5e1',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: 'pointer',
+                          cursor: suspensionReason.trim() ? 'pointer' : 'not-allowed',
                           fontWeight: '600',
-                          fontSize: '14px'
+                          fontSize: '14px',
+                          marginBottom: '10px'
                         }}
                       >
-                        ⏸ Suspend (Hide from public)
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          if (window.confirm('⚠️ PERMANENT ACTION: This will delete this term permanently. This cannot be undone. Are you sure?')) {
-                            deleteTerm(selectedTerm.id);
-                          }
-                        }}
-                        style={{
-                          padding: '14px 24px',
-                          backgroundColor: '#dc2626',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '14px'
-                        }}
-                      >
-                        🗑 Delete Permanently
+                        ⏸ Suspend
                       </button>
                     </div>
-                  )}
 
-                  {/* Action Buttons - SUSPENDED TERMS */}
-                  {selectedTerm.status === 'suspended' && (
-                    <div style={{ display: 'grid', gap: '12px' }}>
-                      <div style={{
-                        backgroundColor: '#f3e8ff',
-                        border: '1px solid #ddd6fe',
+                    <button
+                      onClick={() => {
+                        if (window.confirm('⚠️ PERMANENT: Delete this term permanently?')) {
+                          deleteTerm(selectedTerm.id);
+                        }
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '14px 24px',
+                        backgroundColor: '#dc2626',
+                        color: 'white',
+                        border: 'none',
                         borderRadius: '6px',
-                        padding: '16px',
-                        color: '#6d28d9',
-                        textAlign: 'center',
+                        cursor: 'pointer',
                         fontWeight: '600',
-                        marginBottom: '12px'
-                      }}>
-                        ⏸ This term is currently suspended (hidden from public)
-                      </div>
+                        fontSize: '14px'
+                      }}
+                    >
+                      🗑 Delete Permanently
+                    </button>
+                  </div>
+                )}
 
-                      <button
-                        onClick={() => unsuspendTerm(selectedTerm.id)}
-                        style={{
-                          padding: '14px 24px',
-                          backgroundColor: '#10b981',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '14px'
-                        }}
-                      >
-                        ✓ Unsuspend & Restore
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          if (window.confirm('⚠️ PERMANENT ACTION: This will delete this term permanently. This cannot be undone. Are you sure?')) {
-                            deleteTerm(selectedTerm.id);
-                          }
-                        }}
-                        style={{
-                          padding: '14px 24px',
-                          backgroundColor: '#dc2626',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '14px'
-                        }}
-                      >
-                        🗑 Delete Permanently
-                      </button>
+                {selectedTerm.status === 'suspended' && (
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    <div style={{
+                      backgroundColor: '#f3e8ff',
+                      border: '1px solid #ddd6fe',
+                      borderRadius: '6px',
+                      padding: '16px',
+                      color: '#6d28d9',
+                      textAlign: 'center',
+                      fontWeight: '600',
+                      marginBottom: '12px'
+                    }}>
+                      ⏸ This term is suspended
                     </div>
-                  )}
-                </>
-              )}
+
+                    <button
+                      onClick={() => unsuspendTerm(selectedTerm.id)}
+                      style={{
+                        width: '100%',
+                        padding: '14px 24px',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        marginBottom: '10px'
+                      }}
+                    >
+                      ✓ Restore to Live
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (window.confirm('⚠️ PERMANENT: Delete this term permanently?')) {
+                          deleteTerm(selectedTerm.id);
+                        }
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '14px 24px',
+                        backgroundColor: '#dc2626',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '14px'
+                      }}
+                    >
+                      🗑 Delete Permanently
+                    </button>
+                  </div>
+                )}
+
+                {selectedTerm.status === 'rejected' && (
+                  <div style={{ 
+                    backgroundColor: '#fee2e2',
+                    border: '1px solid #fca5a5',
+                    borderRadius: '6px',
+                    padding: '16px',
+                    color: '#991b1b',
+                    textAlign: 'center',
+                    fontWeight: '600'
+                  }}>
+                    ✗ This term was rejected
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
