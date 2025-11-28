@@ -14,7 +14,7 @@ export default function AdminTermsPage() {
   const [terms, setTerms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('approved');
+  const [filterStatus, setFilterStatus] = useState('pending');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterRisk, setFilterRisk] = useState('all');
   const [selectedTerm, setSelectedTerm] = useState(null);
@@ -94,6 +94,9 @@ export default function AdminTermsPage() {
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       await loadStats();
+      if (filterStatus === 'pending') {
+        await loadTerms();
+      }
       alert('✓ Term approved!');
     } catch (err) {
       console.error('Error approving:', err);
@@ -124,6 +127,9 @@ export default function AdminTermsPage() {
       setSelectedTerm(null);
       setRejectionReason('');
       await loadStats();
+      if (filterStatus === 'pending') {
+        await loadTerms();
+      }
       alert('✓ Term rejected!');
     } catch (err) {
       console.error('Error rejecting:', err);
@@ -153,7 +159,14 @@ export default function AdminTermsPage() {
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       setSuspensionReason('');
+      
+      // Reload both stats and terms to reflect the suspension
       await loadStats();
+      // If currently viewing approved tab, reload to show updated list
+      if (filterStatus === 'approved') {
+        await loadTerms();
+      }
+      
       alert('⏸ Term suspended!');
     } catch (err) {
       console.error('Error suspending:', err);
@@ -178,6 +191,9 @@ export default function AdminTermsPage() {
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       await loadStats();
+      if (filterStatus === 'suspended') {
+        await loadTerms();
+      }
       alert('✓ Term restored!');
     } catch (err) {
       console.error('Error unsuspending:', err);
@@ -197,6 +213,7 @@ export default function AdminTermsPage() {
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       await loadStats();
+      await loadTerms();
       alert('🗑 Term permanently deleted!');
     } catch (err) {
       console.error('Error deleting:', err);
