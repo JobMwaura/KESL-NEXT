@@ -8,6 +8,7 @@ if (!supabaseUrl) {
   throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL');
 }
 
+// Use service role key if available, otherwise use anon key
 const supabaseKey = supabaseServiceRoleKey || supabaseAnonKey;
 
 if (!supabaseKey) {
@@ -18,158 +19,87 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request) {
   try {
-    const body = await request.json();
+    // Handle FormData (from the form submission)
+    const formDataBody = await request.formData();
+    const term_id = formDataBody.get('term_id');
+    const contribution_type = formDataBody.get('contribution_type');
+    const content = formDataBody.get('content');
+    const image = formDataBody.get('image');
 
-    // Validate required fields
-    const requiredFields = ['term', 'meaning', 'category', 'risk', 'language'];
-    const missingFields = requiredFields.filter(field => !body[field]);
-
-    if (missingFields.length > 0) {
+    // Validate input
+    if (!term_id || !contribution_type || !content) {
       return new Response(
         JSON.stringify({ 
-          error: 'Missing required fields',
-          missing: missingFields
+          error: 'Missing required fields: term_id, contribution_type, content'
         }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Validate category
-    const validCategories = ['Derogatory', 'Exclusionary', 'Dangerous', 'Coded'];
-    if (!validCategories.includes(body.category)) {
+    const validTypes = ['context', 'example', 'harm', 'relation'];
+    if (!validTypes.includes(contribution_type)) {
       return new Response(
-        JSON.stringify({ 
-          error: `Invalid category. Must be one of: ${validCategories.join(', ')}`
-        }),
+        JSON.stringify({ error: `Invalid contribution type. Must be one of: ${validTypes.join(', ')}` }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Validate risk level
-    const validRisks = ['Low', 'Medium', 'High', 'Very High'];
-    if (!validRisks.includes(body.risk)) {
-      return new Response(
-        JSON.stringify({ 
-          error: `Invalid risk level. Must be one of: ${validRisks.join(', ')}`
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Validate language
-    const validLanguages = ['Swahili', 'English', 'Sheng', 'Mixed'];
-    if (!validLanguages.includes(body.language)) {
-      return new Response(
-        JSON.stringify({ 
-          error: `Invalid language. Must be one of: ${validLanguages.join(', ')}`
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Validate at least one example
-    if (!body.examples || body.examples.length === 0) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'At least one example is required'
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const hasValidExample = body.examples.some(ex => ex.quote && ex.platform);
-    if (!hasValidExample) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'At least one example must have both quote and platform'
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Prepare term data for insertion
-    const termData = {
-      term: body.term,
-      literal_gloss: body.literal_gloss || null,
-      meaning: body.meaning,
-      category: body.category,
-      risk_level: body.risk,
-      language: body.language,
-      registers: body.registers || null,
-      linguistic_markers: body.linguisticMarkers || null,
-      target_group: body.targetGroup || null,
-      actor_positioning: body.actorPositioning || null,
-      speech_function: body.speechFunction || null,
-      harm_potential: body.harmPotential || null,
-      platform_dynamics: body.platformDynamics || null,
-      power_relations: body.powerRelations || null,
-      identity_politics: body.identityPolitics || null,
-      key_theme: body.keyTheme || null,
-      content_migration: body.contentMigration || null,
-      offline_consequences: body.offlineConsequences || null,
-      amplification_patterns: body.amplificationPatterns || null,
-      tags: body.tags || null,
-      sources: body.sources || null,
-      status: 'pending', // New submissions need moderation
-      submitted_at: new Date().toISOString(),
-      examples: body.examples // Store examples as JSON
+    // Prepare contribution data
+    const contributionData = {
+      term_id: term_id,
+      contribution_type: contribution_type,
+      content: content,
+      status: 'pending',
+      created_at: new Date().toISOString()
     };
 
-    // Insert the term
-    const { data: termInsert, error: termError } = await supabase
-      .from('terms')
-      .insert([termData])
+    // Handle image if present
+    let imageUrl = null;
+    if (image && image.size > 0) {
+      try {
+        const fileName = `contributions/${term_id}/${contribution_type}/${Date.now()}-${image.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('contributions')
+          .upload(fileName, image);
+
+        if (uploadError) {
+          console.warn('Image upload failed:', uploadError);
+          // Don't fail the contribution if image upload fails
+        } else {
+          imageUrl = uploadData.path;
+          contributionData.image_url = imageUrl;
+        }
+      } catch (imageErr) {
+        console.warn('Image processing error:', imageErr);
+        // Continue without image
+      }
+    }
+
+    // Insert contribution
+    const { data, error } = await supabase
+      .from('community_contributions')
+      .insert([contributionData])
       .select();
 
-    if (termError) {
-      console.error('Supabase insert error:', termError);
+    if (error) {
+      console.error('Supabase insert error:', error);
       return new Response(
         JSON.stringify({ 
-          error: 'Failed to save term to database',
-          details: termError.message 
+          error: 'Failed to save contribution to database',
+          details: error.message 
         }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    const newTerm = termInsert[0];
-
-    // Insert examples as separate records linked to the term
-    if (body.examples && body.examples.length > 0) {
-      const examplesData = body.examples.map(ex => ({
-        term_id: newTerm.id,
-        quote: ex.quote,
-        platform: ex.platform,
-        date: ex.date || null,
-        url: ex.url || null,
-        context: ex.context || null,
-        status: 'pending'
-      }));
-
-      const { error: examplesError } = await supabase
-        .from('term_examples')
-        .insert(examplesData);
-
-      if (examplesError) {
-        console.error('Examples insert error:', examplesError);
-        // Don't fail the whole submission if examples fail
-        console.warn('Warning: Examples were not saved, but term was created');
-      }
-    }
-
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Term submitted for review. It will appear in the lexicon after moderation.',
-        data: {
-          term_id: newTerm.id,
-          term: newTerm.term,
-          status: newTerm.status
-        }
+        message: 'Contribution submitted for review',
+        data: data[0]
       }),
       { status: 201, headers: { 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('API error:', error);
     return new Response(
@@ -182,30 +112,29 @@ export async function POST(request) {
   }
 }
 
-// GET endpoint to fetch terms (with filters)
+// GET endpoint to fetch approved contributions for a term
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-    const language = searchParams.get('language');
-    const risk = searchParams.get('risk');
+    const termId = searchParams.get('term_id');
+    const type = searchParams.get('type');
+
+    if (!termId) {
+      return new Response(
+        JSON.stringify({ error: 'term_id is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     let query = supabase
-      .from('terms')
+      .from('community_contributions')
       .select('*')
-      .eq('status', 'approved') // Only show approved terms publicly
+      .eq('term_id', termId)
+      .eq('status', 'approved')
       .order('created_at', { ascending: false });
 
-    if (category) {
-      query = query.eq('category', category);
-    }
-
-    if (language) {
-      query = query.eq('language', language);
-    }
-
-    if (risk) {
-      query = query.eq('risk_level', risk);
+    if (type) {
+      query = query.eq('contribution_type', type);
     }
 
     const { data, error } = await query;
@@ -213,20 +142,15 @@ export async function GET(request) {
     if (error) {
       console.error('Supabase fetch error:', error);
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch terms' }),
+        JSON.stringify({ error: 'Failed to fetch contributions' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true,
-        count: data.length,
-        data 
-      }),
+      JSON.stringify({ data }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('API error:', error);
     return new Response(
