@@ -20,6 +20,7 @@ export default function AdminTermsPage() {
   const [selectedTerm, setSelectedTerm] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [suspensionReason, setSuspensionReason] = useState('');
+  const [researchNote, setResearchNote] = useState('');
   const [showBulkSelect, setShowBulkSelect] = useState(false);
   const [selectedTerms, setSelectedTerms] = useState(new Set());
   const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, suspended: 0 });
@@ -85,13 +86,15 @@ export default function AdminTermsPage() {
         .from('terms')
         .update({ 
           status: 'approved', 
-          reviewed_at: new Date().toISOString()
+          reviewed_at: new Date().toISOString(),
+          research_note: researchNote || null
         })
         .eq('id', id);
 
       if (error) throw error;
 
       setSelectedTerm(null);
+      setResearchNote('');
       await loadStats();
       await loadTerms();
       alert('✓ Term approved!');
@@ -192,7 +195,6 @@ export default function AdminTermsPage() {
       if (error) throw error;
 
       setSelectedTerm(null);
-      setTerms(terms.filter(t => t.id !== id));
       await loadStats();
       await loadTerms();
       alert('🗑 Term permanently deleted!');
@@ -621,7 +623,10 @@ export default function AdminTermsPage() {
               {terms.map(term => (
                 <div
                   key={term.id}
-                  onClick={() => setSelectedTerm(term)}
+                  onClick={() => {
+                    setSelectedTerm(term);
+                    setResearchNote(term.research_note || '');
+                  }}
                   style={{
                     backgroundColor: 'white',
                     border: selectedTerms.has(term.id) ? '2px solid #2d5a7b' : '1px solid #e2e8f0',
@@ -865,6 +870,33 @@ export default function AdminTermsPage() {
                     </p>
                   </>
                 )}
+              </div>
+
+              {/* Research Note Field - NEW */}
+              <div style={{ marginBottom: '30px', paddingBottom: '30px', borderBottom: '1px solid #e2e8f0' }}>
+                <h3 style={{ margin: '0 0 15px 0', color: '#1e293b', fontWeight: '700', fontSize: '16px' }}>
+                  📖 Research Note (appears on public page)
+                </h3>
+                <textarea
+                  value={researchNote}
+                  onChange={(e) => setResearchNote(e.target.value)}
+                  placeholder="Add educational context or disclaimer for this term. E.g., 'This term is used in political discourse to refer to...', 'Documented for research purposes to understand language patterns in...', etc."
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    minHeight: '100px',
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    marginBottom: '10px'
+                  }}
+                />
+                <p style={{ margin: '0', color: '#94a3b8', fontSize: '12px' }}>
+                  This note will be displayed on the term's public page
+                </p>
               </div>
 
               {/* Status Alerts */}

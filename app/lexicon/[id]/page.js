@@ -349,17 +349,19 @@ export default function TermPage() {
               </div>
             </div>
 
-            {/* INFO BOX */}
-            <div style={{
-              backgroundColor: '#fef3c7',
-              border: '1px solid #f59e0b',
-              borderRadius: '8px',
-              padding: '10px'
-            }}>
-              <p style={{ margin: 0, color: '#92400e', fontSize: '11px', lineHeight: '1.5' }}>
-                <strong>📖 Research:</strong> For educational purposes to understand speech patterns.
-              </p>
-            </div>
+            {/* RESEARCH NOTE - DYNAMIC FROM DATABASE */}
+            {term.research_note && (
+              <div style={{
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                borderRadius: '8px',
+                padding: '10px'
+              }}>
+                <p style={{ margin: 0, color: '#92400e', fontSize: '11px', lineHeight: '1.5' }}>
+                  <strong>📖 Research:</strong> {term.research_note}
+                </p>
+              </div>
+            )}
           </aside>
         </div>
       </main>
