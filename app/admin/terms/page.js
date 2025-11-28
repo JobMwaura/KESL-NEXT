@@ -95,11 +95,7 @@ export default function AdminTermsPage() {
 
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
-      setStats(prev => ({
-        ...prev,
-        pending: prev.pending - 1,
-        approved: prev.approved + 1
-      }));
+      await loadStats();
       alert('✓ Term approved!');
     } catch (err) {
       console.error('Error approving:', err);
@@ -129,11 +125,7 @@ export default function AdminTermsPage() {
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       setRejectionReason('');
-      setStats(prev => ({
-        ...prev,
-        pending: prev.pending - 1,
-        rejected: prev.rejected + 1
-      }));
+      await loadStats();
       alert('✓ Term rejected!');
     } catch (err) {
       console.error('Error rejecting:', err);
@@ -163,11 +155,8 @@ export default function AdminTermsPage() {
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
       setSuspensionReason('');
-      setStats(prev => ({
-        ...prev,
-        approved: prev.approved - 1,
-        suspended: prev.suspended + 1
-      }));
+      // Reload stats to reflect the suspension count
+      await loadStats();
       alert('⏸ Term suspended!');
     } catch (err) {
       console.error('Error suspending:', err);
@@ -191,11 +180,8 @@ export default function AdminTermsPage() {
 
       setTerms(terms.filter(t => t.id !== id));
       setSelectedTerm(null);
-      setStats(prev => ({
-        ...prev,
-        suspended: prev.suspended - 1,
-        approved: prev.approved + 1
-      }));
+      // Reload stats to reflect the unsuspension
+      await loadStats();
       alert('✓ Term unsuspended and restored!');
     } catch (err) {
       console.error('Error unsuspending:', err);
@@ -260,11 +246,7 @@ export default function AdminTermsPage() {
 
       setTerms(terms.filter(t => !selectedTerms.has(t.id)));
       setSelectedTerms(new Set());
-      setStats(prev => ({
-        ...prev,
-        pending: prev.pending - selectedTerms.size,
-        approved: prev.approved + selectedTerms.size
-      }));
+      await loadStats();
       alert(`✓ ${selectedTerms.size} terms approved!`);
     } catch (err) {
       console.error('Error bulk approving:', err);
