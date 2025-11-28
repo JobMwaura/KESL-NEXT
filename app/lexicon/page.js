@@ -285,32 +285,32 @@ export default function TermPage() {
               )}
             </div>
 
-            {/* Sidebar */}
-            <aside style={{ display: 'grid', gap: '20px' }}>
-              {/* FIXED: Compact Helpful Card */}
+            {/* Sidebar - ULTRA COMPACT */}
+            <aside style={{ display: 'grid', gap: '20px', alignContent: 'start' }}>
+              {/* HELPFUL CARD - NO EXTRA SPACE */}
               <div style={{
                 backgroundColor: 'white',
                 border: '1px solid #cbd5e1',
                 borderRadius: '10px',
-                padding: '15px',
+                padding: '10px',
                 position: 'sticky',
                 top: '20px'
               }}>
-                <h4 style={{ margin: '0 0 12px 0', color: '#1e293b', textAlign: 'center', fontSize: '13px', fontWeight: '600' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#1e293b', textAlign: 'center', fontSize: '12px', fontWeight: '600' }}>
                   Is this helpful?
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '8px' }}>
                   <button
                     onClick={() => handleVote(1)}
                     style={{
-                      padding: '8px',
+                      padding: '6px',
                       backgroundColor: userVote === 1 ? '#10b981' : '#f1f5f9',
                       color: userVote === 1 ? 'white' : '#475569',
                       border: 'none',
                       borderRadius: '6px',
                       cursor: 'pointer',
                       fontWeight: '600',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       transition: 'all 0.3s ease'
                     }}
                     onMouseEnter={(e) => {
@@ -325,14 +325,14 @@ export default function TermPage() {
                   <button
                     onClick={() => handleVote(-1)}
                     style={{
-                      padding: '8px',
+                      padding: '6px',
                       backgroundColor: userVote === -1 ? '#ef4444' : '#f1f5f9',
                       color: userVote === -1 ? 'white' : '#475569',
                       border: 'none',
                       borderRadius: '6px',
                       cursor: 'pointer',
                       fontWeight: '600',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       transition: 'all 0.3s ease'
                     }}
                     onMouseEnter={(e) => {
@@ -345,8 +345,8 @@ export default function TermPage() {
                     👎 No
                   </button>
                 </div>
-                <div style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
-                  <strong style={{ color: '#475569', fontSize: '14px' }}>{votes}</strong> found this helpful
+                <div style={{ textAlign: 'center', fontSize: '11px', color: '#94a3b8', margin: 0 }}>
+                  <strong style={{ color: '#475569', fontSize: '13px' }}>{votes}</strong> found this helpful
                 </div>
               </div>
 
@@ -355,24 +355,24 @@ export default function TermPage() {
                 backgroundColor: 'white',
                 border: '1px solid #cbd5e1',
                 borderRadius: '10px',
-                padding: '20px',
+                padding: '15px',
                 position: 'sticky',
-                top: '320px'
+                top: '220px'
               }}>
-                <h4 style={{ margin: '0 0 15px 0', color: '#1e293b', fontSize: '13px', fontWeight: '700' }}>
+                <h4 style={{ margin: '0 0 12px 0', color: '#1e293b', fontSize: '12px', fontWeight: '700' }}>
                   Metadata
                 </h4>
-                <div style={{ display: 'grid', gap: '12px', fontSize: '13px' }}>
+                <div style={{ display: 'grid', gap: '10px', fontSize: '12px' }}>
                   <div>
                     <p style={{ margin: '0 0 4px 0', color: '#94a3b8', fontWeight: '600' }}>Submitted</p>
-                    <p style={{ margin: 0, color: '#475569' }}>
+                    <p style={{ margin: 0, color: '#475569', fontSize: '11px' }}>
                       {term.created_at ? new Date(term.created_at).toLocaleDateString() : 'N/A'}
                     </p>
                   </div>
                   {term.status && (
                     <div>
                       <p style={{ margin: '0 0 4px 0', color: '#94a3b8', fontWeight: '600' }}>Status</p>
-                      <p style={{ margin: 0, color: '#475569', textTransform: 'capitalize' }}>
+                      <p style={{ margin: 0, color: '#475569', fontSize: '11px', textTransform: 'capitalize' }}>
                         {term.status}
                       </p>
                     </div>
