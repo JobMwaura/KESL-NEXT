@@ -50,6 +50,7 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
       setTerms(data || []);
+      setError(null);
     } catch (err) {
       console.error('Error loading terms:', err);
       setError(err.message);
@@ -131,7 +132,6 @@ export default function AdminTermsPage() {
     }
   }
 
-  // FIXED: Always reload after suspend
   async function suspendTerm(id) {
     if (!suspensionReason.trim()) {
       alert('Please provide a reason for suspension');
@@ -151,14 +151,10 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
-      // Close modal
       setSelectedTerm(null);
       setSuspensionReason('');
-      
-      // Always reload stats and current view
       await loadStats();
       await loadTerms();
-      
       alert('⏸ Term suspended!');
     } catch (err) {
       console.error('Error suspending:', err);
@@ -166,7 +162,6 @@ export default function AdminTermsPage() {
     }
   }
 
-  // FIXED: Always reload after unsuspend
   async function unsuspendTerm(id) {
     try {
       const { error } = await supabase
@@ -191,7 +186,7 @@ export default function AdminTermsPage() {
     }
   }
 
-  // FIXED: Always reload after delete
+  // FIXED: DELETE NOW PROPERLY REMOVES TERM
   async function deleteTerm(id) {
     try {
       const { error } = await supabase
@@ -201,9 +196,16 @@ export default function AdminTermsPage() {
 
       if (error) throw error;
 
+      // Close modal FIRST
       setSelectedTerm(null);
+      
+      // Then immediately remove from local state
+      setTerms(terms.filter(t => t.id !== id));
+      
+      // Then reload everything
       await loadStats();
       await loadTerms();
+      
       alert('🗑 Term permanently deleted!');
     } catch (err) {
       console.error('Error deleting:', err);
