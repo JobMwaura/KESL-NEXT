@@ -8,7 +8,10 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export default function CommunityContributionForm({ termId, termName }) {
+export default function CommunityContributionForm({ termId, termName, relatedTermId, relatedTermName }) {
+  // Support both prop naming conventions
+  const actualTermId = termId || relatedTermId;
+  const actualTermName = termName || relatedTermName;
   const [activeTab, setActiveTab] = useState('example');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -151,7 +154,7 @@ export default function CommunityContributionForm({ termId, termName }) {
       let imageUrl = null;
       if (type === 'example' && formData.example.image) {
         try {
-          const fileName = `contributions/${termId}/${type}/${Date.now()}-${formData.example.image.name}`;
+          const fileName = `contributions/${actualTermId}/${type}/${Date.now()}-${formData.example.image.name}`;
           const { data, error: uploadError } = await supabase.storage
             .from('contributions')
             .upload(fileName, formData.example.image);
@@ -171,7 +174,7 @@ export default function CommunityContributionForm({ termId, termName }) {
         .from('community_contributions')
         .insert([
           {
-            term_id: termId,
+            term_id: actualTermId,
             contribution_type: type,
             content: content,
             image_url: imageUrl,
