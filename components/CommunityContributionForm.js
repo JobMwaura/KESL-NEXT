@@ -8,10 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export default function CommunityContributionForm({ termId, termName, relatedTermId, relatedTermName }) {
-  // Support both prop naming conventions
-  const actualTermId = termId || relatedTermId;
-  const actualTermName = termName || relatedTermName;
+export default function CommunityContributionForm({ termId, termName }) {
   const [activeTab, setActiveTab] = useState('example');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -19,6 +16,7 @@ export default function CommunityContributionForm({ termId, termName, relatedTer
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
   const [isBlurMode, setIsBlurMode] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [formData, setFormData] = useState({
     example: {
@@ -31,7 +29,6 @@ export default function CommunityContributionForm({ termId, termName, relatedTer
       imagePreview: null
     },
     context: {
-      history: '',
       emergence: '',
       evolution: ''
     },
@@ -125,6 +122,34 @@ export default function CommunityContributionForm({ termId, termName, relatedTer
     setIsBlurMode(false);
   };
 
+  async function uploadImageToStorage(file) {
+    if (!file) return null;
+
+    try {
+      setUploadingImage(true);
+      const fileName = `contributions/${termId}/${activeTab}/${Date.now()}-${file.name}`;
+      
+      const { data, error: uploadError } = await supabase.storage
+        .from('contributions')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        setError('Failed to upload image: ' + uploadError.message);
+        return null;
+      }
+
+      console.log('Image uploaded successfully:', data.path);
+      return data.path;
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      setError('Failed to upload image: ' + err.message);
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
   const handleSubmit = async (e, type) => {
     e.preventDefault();
     setLoading(true);
@@ -150,31 +175,22 @@ export default function CommunityContributionForm({ termId, termName, relatedTer
         content = JSON.stringify(formData.relation);
       }
 
-      // Upload image to Supabase Storage if present
+      // Upload image if present
       let imageUrl = null;
       if (type === 'example' && formData.example.image) {
-        try {
-          const fileName = `contributions/${actualTermId}/${type}/${Date.now()}-${formData.example.image.name}`;
-          const { data, error: uploadError } = await supabase.storage
-            .from('contributions')
-            .upload(fileName, formData.example.image);
-
-          if (uploadError) {
-            console.warn('Image upload warning:', uploadError);
-          } else {
-            imageUrl = data.path;
-          }
-        } catch (imgErr) {
-          console.warn('Image upload skipped:', imgErr);
+        console.log('Starting image upload...');
+        imageUrl = await uploadImageToStorage(formData.example.image);
+        if (!imageUrl) {
+          console.warn('Image upload failed, continuing without image');
         }
       }
 
-      // Insert contribution directly to Supabase
+      // Insert contribution to database
       const { data, error: insertError } = await supabase
         .from('community_contributions')
         .insert([
           {
-            term_id: actualTermId,
+            term_id: termId,
             contribution_type: type,
             content: content,
             image_url: imageUrl,
@@ -189,13 +205,14 @@ export default function CommunityContributionForm({ termId, termName, relatedTer
         throw new Error(insertError.message || 'Failed to save contribution');
       }
 
+      console.log('Contribution saved:', data);
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 5000);
       
       // Reset form
       setFormData({
         example: { quote: '', fullContext: '', platform: '', eventDate: '', sourceRef: '', image: null, imagePreview: null },
-        context: { history: '', emergence: '', evolution: '' },
+        context: { emergence: '', evolution: '' },
         harm: { description: '', targetedGroups: '', consequences: '' },
         relation: { relatedTerm: '', relationship: '' }
       });
@@ -392,6 +409,7 @@ export default function CommunityContributionForm({ termId, termName, relatedTer
                 onChange={handleImageUpload}
                 style={{ display: 'none' }}
                 id="image-upload"
+                disabled={uploadingImage}
               />
               <label htmlFor="image-upload" style={{ cursor: 'pointer' }}>
                 <div style={{ fontSize: '24px', marginBottom: '8px' }}>📸</div>
@@ -507,26 +525,26 @@ export default function CommunityContributionForm({ termId, termName, relatedTer
 
           <button
             type="submit"
-            disabled={loading || !formData.example.quote}
+            disabled={loading || !formData.example.quote || uploadingImage}
             style={{
               padding: '12px 20px',
-              backgroundColor: formData.example.quote ? '#2d5a7b' : '#cbd5e1',
+              backgroundColor: (formData.example.quote && !uploadingImage) ? '#2d5a7b' : '#cbd5e1',
               color: 'white',
               border: 'none',
               borderRadius: '6px',
-              cursor: formData.example.quote ? 'pointer' : 'not-allowed',
+              cursor: (formData.example.quote && !uploadingImage) ? 'pointer' : 'not-allowed',
               fontWeight: '600',
               fontSize: '14px',
               transition: 'all 0.3s ease'
             }}
             onMouseEnter={(e) => {
-              if (formData.example.quote && !loading) e.target.style.backgroundColor = '#1a3a52';
+              if (formData.example.quote && !loading && !uploadingImage) e.target.style.backgroundColor = '#1a3a52';
             }}
             onMouseLeave={(e) => {
-              if (formData.example.quote && !loading) e.target.style.backgroundColor = '#2d5a7b';
+              if (formData.example.quote && !loading && !uploadingImage) e.target.style.backgroundColor = '#2d5a7b';
             }}
           >
-            {loading ? 'Submitting...' : 'Submit Example'}
+            {loading ? 'Submitting...' : uploadingImage ? 'Uploading image...' : 'Submit Example'}
           </button>
         </form>
       )}
