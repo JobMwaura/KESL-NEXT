@@ -12,7 +12,6 @@ export default function ApprovedContributions({ termId, type = null }) {
   const [contributions, setContributions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
-  const [popupImage, setPopupImage] = useState(null);
 
   useEffect(() => {
     loadApprovedContributions();
@@ -108,10 +107,9 @@ export default function ApprovedContributions({ termId, type = null }) {
                     <span style={{
                       fontSize: '13px',
                       fontWeight: '700',
-                      color: '#475569',
+                      color: 'white',
                       textTransform: 'uppercase',
                       backgroundColor: '#2d5a7b',
-                      color: 'white',
                       padding: '4px 10px',
                       borderRadius: '4px'
                     }}>
@@ -145,7 +143,7 @@ export default function ApprovedContributions({ termId, type = null }) {
               {isExpanded && (
                 <div style={{ padding: '20px', borderTop: '1px solid #cbd5e1' }}>
                   {contribution.contribution_type === 'example' && (
-                    <ExampleContent content={content} contribution={contribution} popupImage={popupImage} setPopupImage={setPopupImage} />
+                    <ExampleContent content={content} />
                   )}
 
                   {contribution.contribution_type === 'context' && (
@@ -188,113 +186,13 @@ export default function ApprovedContributions({ termId, type = null }) {
           );
         })}
       </div>
-
-      {/* Image Popup Modal */}
-      {popupImage && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.85)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: '20px'
-          }}
-          onClick={() => setPopupImage(null)}
-        >
-          <div
-            style={{
-              position: 'relative',
-              maxWidth: '90vw',
-              maxHeight: '90vh',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Image */}
-            <img
-              src={getImageUrl(popupImage)}
-              alt="Full size contribution image"
-              style={{
-                maxWidth: '100%',
-                maxHeight: '75vh',
-                borderRadius: '8px',
-                objectFit: 'contain'
-              }}
-            />
-
-            {/* Buttons Container */}
-            <div
-              style={{
-                display: 'flex',
-                gap: '10px',
-                marginTop: '15px',
-                justifyContent: 'flex-end'
-              }}
-            >
-              {/* Download Button */}
-              <button
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = getImageUrl(popupImage);
-                  link.download = `contribution-${Date.now()}.jpg`;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }}
-                style={{
-                  padding: '10px 16px',
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '14px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
-              >
-                ⬇️ Download
-              </button>
-
-              {/* Close Button */}
-              <button
-                onClick={() => setPopupImage(null)}
-                style={{
-                  padding: '10px 16px',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '14px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
-              >
-                ✕ Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
 // ============ CONTENT TYPE COMPONENTS ============
 
-function ExampleContent({ content, contribution, popupImage, setPopupImage }) {
+function ExampleContent({ content }) {
   return (
     <div style={{ display: 'grid', gap: '20px' }}>
       {/* Quote */}
@@ -374,57 +272,6 @@ function ExampleContent({ content, contribution, popupImage, setPopupImage }) {
           </div>
         )}
       </div>
-
-      {/* Image - Thumbnail Card */}
-      {contribution.image_url && (
-        <div
-          onClick={() => setPopupImage(contribution.image_url)}
-          style={{
-            marginTop: '20px',
-            backgroundColor: '#f1f5f9',
-            border: '2px dashed #2d5a7b',
-            borderRadius: '8px',
-            padding: '20px',
-            cursor: 'pointer',
-            textAlign: 'center',
-            transition: 'all 0.3s ease',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '160px',
-            flexDirection: 'column',
-            gap: '12px'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#e0e7ff';
-            e.currentTarget.style.borderColor = '#4f46e5';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#f1f5f9';
-            e.currentTarget.style.borderColor = '#2d5a7b';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <span style={{ fontSize: '40px' }}>📸</span>
-          <div>
-            <p style={{ margin: '0', fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>
-              Screenshot Attached
-            </p>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>
-              Click to view & download
-            </p>
-          </div>
-          <div style={{
-            marginTop: '8px',
-            fontSize: '11px',
-            color: '#94a3b8',
-            fontStyle: 'italic'
-          }}>
-            → Click to enlarge
-          </div>
-        </div>
-      )}
 
       {/* Source Reference */}
       {content.sourceRef && (
@@ -629,17 +476,6 @@ function getTypeEmoji(type) {
     relation: '🔗'
   };
   return emojis[type] || '•';
-}
-
-function getImageUrl(imagePath) {
-  if (!imagePath) return '';
-  // If it's already a full URL, return it as-is
-  if (imagePath.startsWith('http')) return imagePath;
-  // If it already has the storage path structure, return as-is
-  if (imagePath.includes('/storage/v1/object/public/')) return imagePath;
-  // Otherwise construct the full URL
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  return `${supabaseUrl}/storage/v1/object/public/${imagePath}`;
 }
 
 function getPreviewText(content, type) {
