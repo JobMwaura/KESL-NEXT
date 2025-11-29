@@ -442,6 +442,36 @@ export default function TermPage() {
                     textTransform: 'uppercase',
                     margin: '0 0 4px 0'
                   }}>
+                    Citation ID
+                  </p>
+                  <p style={{
+                    fontSize: '16px',
+                    color: '#2d5a7b',
+                    margin: 0,
+                    fontWeight: '700',
+                    fontFamily: 'monospace',
+                    letterSpacing: '0.5px'
+                  }}>
+                    {term.kel_id || 'KEL-0001'}
+                  </p>
+                  <p style={{
+                    fontSize: '10px',
+                    color: '#94a3b8',
+                    margin: '4px 0 0 0',
+                    fontStyle: 'italic'
+                  }}>
+                    Use this ID to cite
+                  </p>
+                </div>
+
+                <div>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 4px 0'
+                  }}>
                     Language
                   </p>
                   <p style={{
