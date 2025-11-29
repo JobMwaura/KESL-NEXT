@@ -12,6 +12,7 @@ export default function ApprovedContributions({ termId, type = null }) {
   const [contributions, setContributions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
+  const [popupImage, setPopupImage] = useState(null);
 
   useEffect(() => {
     loadApprovedContributions();
@@ -144,7 +145,7 @@ export default function ApprovedContributions({ termId, type = null }) {
               {isExpanded && (
                 <div style={{ padding: '20px', borderTop: '1px solid #cbd5e1' }}>
                   {contribution.contribution_type === 'example' && (
-                    <ExampleContent content={content} contribution={contribution} />
+                    <ExampleContent content={content} contribution={contribution} popupImage={popupImage} setPopupImage={setPopupImage} />
                   )}
 
                   {contribution.contribution_type === 'context' && (
@@ -187,13 +188,113 @@ export default function ApprovedContributions({ termId, type = null }) {
           );
         })}
       </div>
+
+      {/* Image Popup Modal */}
+      {popupImage && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px'
+          }}
+          onClick={() => setPopupImage(null)}
+        >
+          <div
+            style={{
+              position: 'relative',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Image */}
+            <img
+              src={getImageUrl(popupImage)}
+              alt="Full size contribution image"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '75vh',
+                borderRadius: '8px',
+                objectFit: 'contain'
+              }}
+            />
+
+            {/* Buttons Container */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '10px',
+                marginTop: '15px',
+                justifyContent: 'flex-end'
+              }}
+            >
+              {/* Download Button */}
+              <button
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = getImageUrl(popupImage);
+                  link.download = `contribution-${Date.now()}.jpg`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
+              >
+                ⬇️ Download
+              </button>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setPopupImage(null)}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
+              >
+                ✕ Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ============ CONTENT TYPE COMPONENTS ============
 
-function ExampleContent({ content, contribution }) {
+function ExampleContent({ content, contribution, popupImage, setPopupImage }) {
   return (
     <div style={{ display: 'grid', gap: '20px' }}>
       {/* Quote */}
@@ -288,18 +389,26 @@ function ExampleContent({ content, contribution }) {
             <img
               src={getImageUrl(contribution.image_url)}
               alt="Contribution screenshot"
+              onClick={() => setPopupImage(contribution.image_url)}
               style={{
                 width: '100%',
                 height: 'auto',
                 maxHeight: '400px',
-                objectFit: 'cover'
+                objectFit: 'cover',
+                cursor: 'pointer',
+                transition: 'transform 0.2s'
               }}
+              onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
               onError={(e) => {
                 console.error('Image load error:', contribution.image_url);
-                e.target.style.display = 'none';
+                e.target.alt = 'Image failed to load';
               }}
             />
           </div>
+          <p style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px', textAlign: 'center' }}>
+            Click to enlarge
+          </p>
         </div>
       )}
 
@@ -510,9 +619,7 @@ function getTypeEmoji(type) {
 
 function getImageUrl(imagePath) {
   if (!imagePath) return '';
-  // If it's already a full URL, return it
   if (imagePath.startsWith('http')) return imagePath;
-  // Otherwise construct the Supabase URL
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   return `${supabaseUrl}/storage/v1/object/public/${imagePath}`;
 }
