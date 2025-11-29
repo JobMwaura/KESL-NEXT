@@ -39,7 +39,7 @@ export default function Footer() {
                   margin: '0 0 12px 0',
                   lineHeight: '1.7'
                 }}>
-                  This research has received funding from the <strong>European Research Council (ERC)</strong> under the <strong>Horizon Europe</strong> program (Grant: <strong>101122348</strong>) for the project <strong>SMALLPLATFORMS</strong>.
+                  This research has received funding from the <strong>European Research Council (ERC)</strong> under the <strong>Horizon Europe</strong> program (Grant: <strong>101122348</strong>) for the project <strong>SMALLPLATFORMS</strong>. The project is led by <strong>Prof. Sahana Udupa</strong> and based at <strong>Ludwig Maximilian University of Munich (LMU)</strong>.
                 </p>
 
                 <p style={{
@@ -48,7 +48,7 @@ export default function Footer() {
                   margin: '0',
                   lineHeight: '1.7'
                 }}>
-                  <strong>Project Lead:</strong> Dr. Job Mwaura, Kenyan researcher at LMU Department of Social and Cultural Anthropology
+                  <strong>Project Researcher:</strong> Dr. Job Mwaura, Kenyan researcher at LMU Department of Social and Cultural Anthropology
                 </p>
               </div>
             </div>
@@ -174,17 +174,22 @@ export default function Footer() {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
                   <p style={{ fontSize: '12px', color: '#cbd5e1', margin: 0 }}>
-                    <strong>Lead:</strong> Dr. Job Mwaura
+                    <strong>Project Lead:</strong> Prof. Sahana Udupa
                   </p>
                 </li>
                 <li style={{ marginBottom: '8px' }}>
                   <p style={{ fontSize: '12px', color: '#cbd5e1', margin: 0 }}>
-                    <strong>ERC Grant:</strong> 101122348
+                    <strong>Researcher:</strong> Dr. Job Mwaura
+                  </p>
+                </li>
+                <li style={{ marginBottom: '8px' }}>
+                  <p style={{ fontSize: '12px', color: '#cbd5e1', margin: 0 }}>
+                    <strong>Institution:</strong> LMU Munich
                   </p>
                 </li>
                 <li>
                   <p style={{ fontSize: '12px', color: '#cbd5e1', margin: 0 }}>
-                    <strong>Program:</strong> Horizon Europe
+                    <strong>ERC Grant:</strong> 101122348
                   </p>
                 </li>
               </ul>
