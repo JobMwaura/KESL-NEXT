@@ -375,40 +375,54 @@ function ExampleContent({ content, contribution, popupImage, setPopupImage }) {
         )}
       </div>
 
-      {/* Image */}
+      {/* Image - Thumbnail Card */}
       {contribution.image_url && (
-        <div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Screenshot / Image
-          </p>
-          <div style={{
-            borderRadius: '6px',
-            overflow: 'hidden',
-            border: '1px solid #cbd5e1'
-          }}>
-            <img
-              src={getImageUrl(contribution.image_url)}
-              alt="Contribution screenshot"
-              onClick={() => setPopupImage(contribution.image_url)}
-              style={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: '400px',
-                objectFit: 'cover',
-                cursor: 'pointer',
-                transition: 'transform 0.2s'
-              }}
-              onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
-              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-              onError={(e) => {
-                console.error('Image load error:', contribution.image_url);
-                e.target.alt = 'Image failed to load';
-              }}
-            />
+        <div
+          onClick={() => setPopupImage(contribution.image_url)}
+          style={{
+            marginTop: '20px',
+            backgroundColor: '#f1f5f9',
+            border: '2px dashed #2d5a7b',
+            borderRadius: '8px',
+            padding: '20px',
+            cursor: 'pointer',
+            textAlign: 'center',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '160px',
+            flexDirection: 'column',
+            gap: '12px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#e0e7ff';
+            e.currentTarget.style.borderColor = '#4f46e5';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.15)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#f1f5f9';
+            e.currentTarget.style.borderColor = '#2d5a7b';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <span style={{ fontSize: '40px' }}>📸</span>
+          <div>
+            <p style={{ margin: '0', fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>
+              Screenshot Attached
+            </p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+              Click to view & download
+            </p>
           </div>
-          <p style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px', textAlign: 'center' }}>
-            Click to enlarge
-          </p>
+          <div style={{
+            marginTop: '8px',
+            fontSize: '11px',
+            color: '#94a3b8',
+            fontStyle: 'italic'
+          }}>
+            → Click to enlarge
+          </div>
         </div>
       )}
 
