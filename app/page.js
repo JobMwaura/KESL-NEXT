@@ -498,11 +498,14 @@ export default function Home() {
               />
 
               {/* Key Literature */}
-              <ResourceCard
-                icon="📖"
-                title="Key Literature"
-                items={['Ethnographic methods', 'Decolonial thinking', 'Platform studies', 'Digital discourse']}
-              />
+              <a href="/key-literature" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <ResourceCard
+                  icon="📖"
+                  title="Key Literature"
+                  items={['Ethnographic methods', 'Decolonial thinking', 'Platform studies', 'Digital discourse']}
+                  isLink={true}
+                />
+              </a>
 
               {/* Published Papers */}
               <ResourceCard
@@ -704,7 +707,7 @@ function ConceptPoint({ label, text }) {
   );
 }
 
-function ResourceCard({ icon, title, items }) {
+function ResourceCard({ icon, title, items, isLink }) {
   return (
     <div style={{
       backgroundColor: 'white',
@@ -712,7 +715,7 @@ function ResourceCard({ icon, title, items }) {
       borderRadius: '10px',
       padding: '30px',
       transition: 'all 0.3s ease',
-      cursor: 'pointer'
+      cursor: isLink ? 'pointer' : 'default'
     }}
     onMouseEnter={(e) => {
       e.currentTarget.style.borderColor = '#2d5a7b';
@@ -727,6 +730,7 @@ function ResourceCard({ icon, title, items }) {
       <div style={{ fontSize: '48px', marginBottom: '15px' }}>{icon}</div>
       <h4 style={{ fontSize: '18px', color: '#1e293b', marginBottom: '20px', fontWeight: '700' }}>
         {title}
+        {isLink && ' →'}
       </h4>
       <ul style={{ margin: 0, paddingLeft: '20px' }}>
         {items.map((item, idx) => (
