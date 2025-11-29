@@ -114,8 +114,34 @@ export default function SubmitPage() {
 
   return (
     <>
-      <Header onSignInClick={() => {}} />
+      <Header />
       <main style={{ minHeight: '100vh', paddingBottom: '80px' }}>
+        {/* Breadcrumb Navigation */}
+        <nav style={{
+          padding: '20px',
+          backgroundColor: '#f8fafc',
+          borderBottom: '1px solid #e2e8f0'
+        }}>
+          <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 20px' }}>
+            <a href="/" style={{
+              textDecoration: 'none',
+              color: '#2d5a7b',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'color 0.2s',
+              padding: '6px 0'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
+            onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
+              🏠 Home
+            </a>
+            <span style={{ color: '#cbd5e1' }}>/</span>
+            <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>
+              ✏️ Submit a Term
+            </span>
+          </div>
+        </nav>
+
         <section style={{
           background: 'linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%)',
           color: 'white',
@@ -135,10 +161,10 @@ export default function SubmitPage() {
             maxWidth: '800px',
             margin: '40px auto',
             padding: '20px',
-            backgroundColor: '#d4edda',
-            borderLeft: '4px solid #28a745',
-            borderRadius: '4px',
-            color: '#155724',
+            backgroundColor: '#d1fae5',
+            border: '1px solid #6ee7b7',
+            borderRadius: '6px',
+            color: '#065f46',
             textAlign: 'center'
           }}>
             <strong style={{ fontSize: '16px' }}>✓ Success!</strong>
@@ -152,10 +178,10 @@ export default function SubmitPage() {
               <div style={{
                 marginBottom: '20px',
                 padding: '15px',
-                backgroundColor: '#ffe0e0',
-                borderLeft: '4px solid #d62828',
-                borderRadius: '4px',
-                color: '#d62828',
+                backgroundColor: '#fee2e2',
+                border: '1px solid #fca5a5',
+                borderRadius: '6px',
+                color: '#991b1b',
                 fontSize: '14px'
               }}>
                 {errors.submit}
@@ -167,16 +193,16 @@ export default function SubmitPage() {
               backgroundColor: 'white',
               borderRadius: '8px',
               padding: '30px',
-              border: '1px solid #e0e0e0',
+              border: '1px solid #e2e8f0',
               marginBottom: '25px'
             }}>
-              <h2 style={{ margin: '0 0 20px 0', color: '#1a3a52', fontSize: '18px', fontWeight: '700' }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#1e293b', fontSize: '18px', fontWeight: '700' }}>
                 Term Details
               </h2>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
-                  Term/Phrase <span style={{ color: '#d62828' }}>*</span>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
+                  Term/Phrase <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
                   type="text"
@@ -187,19 +213,19 @@ export default function SubmitPage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    border: errors.term ? '2px solid #d62828' : '1px solid #ddd',
-                    borderRadius: '4px',
+                    border: errors.term ? '2px solid #ef4444' : '1px solid #e2e8f0',
+                    borderRadius: '6px',
                     fontSize: '14px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit'
                   }}
                 />
-                {errors.term && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.term}</p>}
+                {errors.term && <p style={{ margin: '5px 0 0 0', color: '#991b1b', fontSize: '12px' }}>✗ {errors.term}</p>}
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
-                  What does it mean? <span style={{ color: '#d62828' }}>*</span>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
+                  What does it mean? <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <textarea
                   name="meaning"
@@ -209,8 +235,8 @@ export default function SubmitPage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    border: errors.meaning ? '2px solid #d62828' : '1px solid #ddd',
-                    borderRadius: '4px',
+                    border: errors.meaning ? '2px solid #ef4444' : '1px solid #e2e8f0',
+                    borderRadius: '6px',
                     fontSize: '14px',
                     boxSizing: 'border-box',
                     minHeight: '100px',
@@ -218,12 +244,12 @@ export default function SubmitPage() {
                     resize: 'vertical'
                   }}
                 />
-                {errors.meaning && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.meaning}</p>}
+                {errors.meaning && <p style={{ margin: '5px 0 0 0', color: '#991b1b', fontSize: '12px' }}>✗ {errors.meaning}</p>}
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
-                  Language <span style={{ color: '#d62828' }}>*</span>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
+                  Language <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <select
                   name="language"
@@ -232,8 +258,8 @@ export default function SubmitPage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    border: errors.language ? '2px solid #d62828' : '1px solid #ddd',
-                    borderRadius: '4px',
+                    border: errors.language ? '2px solid #ef4444' : '1px solid #e2e8f0',
+                    borderRadius: '6px',
                     fontSize: '14px',
                     boxSizing: 'border-box'
                   }}
@@ -243,11 +269,11 @@ export default function SubmitPage() {
                     <option key={lang} value={lang}>{lang}</option>
                   ))}
                 </select>
-                {errors.language && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.language}</p>}
+                {errors.language && <p style={{ margin: '5px 0 0 0', color: '#991b1b', fontSize: '12px' }}>✗ {errors.language}</p>}
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
                   Literal Gloss (optional)
                 </label>
                 <input
@@ -259,8 +285,8 @@ export default function SubmitPage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '6px',
                     fontSize: '14px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit'
@@ -270,8 +296,8 @@ export default function SubmitPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
-                    Category <span style={{ color: '#d62828' }}>*</span>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
+                    Category <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <select
                     name="category"
@@ -280,8 +306,8 @@ export default function SubmitPage() {
                     style={{
                       width: '100%',
                       padding: '12px',
-                      border: errors.category ? '2px solid #d62828' : '1px solid #ddd',
-                      borderRadius: '4px',
+                      border: errors.category ? '2px solid #ef4444' : '1px solid #e2e8f0',
+                      borderRadius: '6px',
                       fontSize: '14px',
                       boxSizing: 'border-box'
                     }}
@@ -291,12 +317,12 @@ export default function SubmitPage() {
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>
-                  {errors.category && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.category}</p>}
+                  {errors.category && <p style={{ margin: '5px 0 0 0', color: '#991b1b', fontSize: '12px' }}>✗ {errors.category}</p>}
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
-                    Risk Level <span style={{ color: '#d62828' }}>*</span>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
+                    Risk Level <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <select
                     name="risk"
@@ -305,8 +331,8 @@ export default function SubmitPage() {
                     style={{
                       width: '100%',
                       padding: '12px',
-                      border: errors.risk ? '2px solid #d62828' : '1px solid #ddd',
-                      borderRadius: '4px',
+                      border: errors.risk ? '2px solid #ef4444' : '1px solid #e2e8f0',
+                      borderRadius: '6px',
                       fontSize: '14px',
                       boxSizing: 'border-box'
                     }}
@@ -316,7 +342,7 @@ export default function SubmitPage() {
                       <option key={level} value={level}>{level}</option>
                     ))}
                   </select>
-                  {errors.risk && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.risk}</p>}
+                  {errors.risk && <p style={{ margin: '5px 0 0 0', color: '#991b1b', fontSize: '12px' }}>✗ {errors.risk}</p>}
                 </div>
               </div>
             </section>
@@ -326,16 +352,16 @@ export default function SubmitPage() {
               backgroundColor: 'white',
               borderRadius: '8px',
               padding: '30px',
-              border: '1px solid #e0e0e0',
+              border: '1px solid #e2e8f0',
               marginBottom: '25px'
             }}>
-              <h2 style={{ margin: '0 0 20px 0', color: '#1a3a52', fontSize: '18px', fontWeight: '700' }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#1e293b', fontSize: '18px', fontWeight: '700' }}>
                 Real-World Example
               </h2>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
-                  Quote (redacted) <span style={{ color: '#d62828' }}>*</span>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
+                  Quote (redacted) <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <textarea
                   name="quote"
@@ -345,8 +371,8 @@ export default function SubmitPage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    border: errors.quote ? '2px solid #d62828' : '1px solid #ddd',
-                    borderRadius: '4px',
+                    border: errors.quote ? '2px solid #ef4444' : '1px solid #e2e8f0',
+                    borderRadius: '6px',
                     fontSize: '14px',
                     boxSizing: 'border-box',
                     minHeight: '80px',
@@ -354,13 +380,13 @@ export default function SubmitPage() {
                     resize: 'vertical'
                   }}
                 />
-                {errors.quote && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.quote}</p>}
+                {errors.quote && <p style={{ margin: '5px 0 0 0', color: '#991b1b', fontSize: '12px' }}>✗ {errors.quote}</p>}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
-                    Platform <span style={{ color: '#d62828' }}>*</span>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
+                    Platform <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <select
                     name="platform"
@@ -369,8 +395,8 @@ export default function SubmitPage() {
                     style={{
                       width: '100%',
                       padding: '12px',
-                      border: errors.platform ? '2px solid #d62828' : '1px solid #ddd',
-                      borderRadius: '4px',
+                      border: errors.platform ? '2px solid #ef4444' : '1px solid #e2e8f0',
+                      borderRadius: '6px',
                       fontSize: '14px',
                       boxSizing: 'border-box'
                     }}
@@ -380,11 +406,11 @@ export default function SubmitPage() {
                       <option key={p} value={p}>{p}</option>
                     ))}
                   </select>
-                  {errors.platform && <p style={{ margin: '5px 0 0 0', color: '#d62828', fontSize: '12px' }}>✗ {errors.platform}</p>}
+                  {errors.platform && <p style={{ margin: '5px 0 0 0', color: '#991b1b', fontSize: '12px' }}>✗ {errors.platform}</p>}
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
                     Date (optional)
                   </label>
                   <input
@@ -395,8 +421,8 @@ export default function SubmitPage() {
                     style={{
                       width: '100%',
                       padding: '12px',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '6px',
                       fontSize: '14px',
                       boxSizing: 'border-box'
                     }}
@@ -405,7 +431,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1a3a52' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b' }}>
                   Context (optional)
                 </label>
                 <textarea
@@ -416,8 +442,8 @@ export default function SubmitPage() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '6px',
                     fontSize: '14px',
                     boxSizing: 'border-box',
                     minHeight: '70px',
@@ -430,14 +456,14 @@ export default function SubmitPage() {
 
             {/* Privacy Notice */}
             <section style={{
-              backgroundColor: '#f0f4f8',
-              borderLeft: '4px solid #1a3a52',
+              backgroundColor: '#ecfdf5',
+              borderLeft: '4px solid #10b981',
               padding: '20px',
-              borderRadius: '4px',
+              borderRadius: '6px',
               marginBottom: '25px'
             }}>
-              <p style={{ margin: 0, color: '#3c4b7c', fontSize: '13px', lineHeight: '1.6' }}>
-                <strong>ℹ️ Privacy:</strong> All quotes will be redacted to protect privacy. Do not include real names, usernames, specific identifying dates, or locations. Your submission will be reviewed before publication.
+              <p style={{ margin: 0, color: '#065f46', fontSize: '13px', lineHeight: '1.6' }}>
+                <strong>🔒 Privacy:</strong> All quotes will be redacted to protect privacy. Do not include real names, usernames, specific identifying dates, or locations. Your submission will be reviewed before publication.
               </p>
             </section>
 
@@ -447,17 +473,17 @@ export default function SubmitPage() {
                 type="reset"
                 style={{
                   padding: '12px 30px',
-                  backgroundColor: '#f0f0f0',
-                  color: '#1a3a52',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#1e293b',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '6px',
                   cursor: 'pointer',
                   fontWeight: '600',
                   fontSize: '14px',
                   transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#e0e0e0'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#f0f0f0'}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#e2e8f0'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#f1f5f9'}
               >
                 Clear
               </button>
@@ -465,17 +491,17 @@ export default function SubmitPage() {
                 type="submit"
                 style={{
                   padding: '12px 40px',
-                  backgroundColor: '#1a3a52',
+                  backgroundColor: '#2d5a7b',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '4px',
+                  borderRadius: '6px',
                   cursor: 'pointer',
                   fontWeight: '600',
                   fontSize: '14px',
                   transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#2d5a7b'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#1a3a52'}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#1a3a52'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#2d5a7b'}
               >
                 Submit Term
               </button>
