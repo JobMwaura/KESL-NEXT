@@ -60,7 +60,7 @@ export default function Footer() {
           </div>
 
           {/* How to Cite */}
-          <div style={{ marginBottom: '60px' }}>
+          <div>
             <h2 style={{
               fontSize: '24px',
               color: '#1e293b',
@@ -112,95 +112,6 @@ export default function Footer() {
               }}>
                 Note: Include access date and specific term IDs when citing individual terms.
               </p>
-            </div>
-          </div>
-
-          {/* Publication Requirements */}
-          <div style={{ marginBottom: '60px' }}>
-            <h2 style={{
-              fontSize: '24px',
-              color: '#1e293b',
-              fontWeight: '700',
-              marginBottom: '20px'
-            }}>
-              Publication & Open Access Requirements
-            </h2>
-
-            <div style={{
-              backgroundColor: '#ecfdf5',
-              border: '1px solid #86efac',
-              borderRadius: '8px',
-              padding: '24px'
-            }}>
-              <p style={{
-                color: '#065f46',
-                fontSize: '14px',
-                margin: '0 0 16px 0',
-                fontWeight: '600'
-              }}>
-                ✓ Open Access Commitment
-              </p>
-
-              <p style={{
-                color: '#065f46',
-                fontSize: '14px',
-                margin: '0 0 16px 0'
-              }}>
-                All research using this platform must be published in open access journals. The Horizon Europe program requires that all research outputs be openly accessible.
-              </p>
-
-              <p style={{
-                color: '#065f46',
-                fontSize: '14px',
-                margin: '0 0 16px 0',
-                fontWeight: '600'
-              }}>
-                Required Acknowledgment for Publications:
-              </p>
-
-              <div style={{
-                backgroundColor: 'white',
-                border: '1px solid #86efac',
-                padding: '14px',
-                borderRadius: '6px',
-                marginBottom: '16px',
-                fontSize: '13px',
-                color: '#065f46',
-                lineHeight: '1.6'
-              }}>
-                <p style={{ margin: 0 }}>
-                  "This research has received funding from the European Research Council (Grant Agreement Number: 101122348) under the Horizon Europe program for the project, SMALLPLATFORMS. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Council Executive Agency. Neither the European Union nor the granting authority can be held responsible for them."
-                </p>
-              </div>
-
-              <p style={{
-                color: '#065f46',
-                fontSize: '14px',
-                margin: '0 0 12px 0',
-                fontWeight: '600'
-              }}>
-                If not publishing in open access:
-              </p>
-
-              <p style={{
-                color: '#065f46',
-                fontSize: '13px',
-                margin: '0 0 12px 0'
-              }}>
-                Send the accepted version to LMU Open Access Repository with metadata including SMALLPLATFORMS acronym, grant number, Horizon Europe, and European Research Council.
-              </p>
-
-              <div style={{
-                backgroundColor: 'white',
-                border: '1px solid #86efac',
-                padding: '12px 14px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                color: '#065f46',
-                fontFamily: 'monospace'
-              }}>
-                open-access@ub.uni-muenchen.de
-              </div>
             </div>
           </div>
         </div>
