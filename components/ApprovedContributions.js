@@ -633,7 +633,11 @@ function getTypeEmoji(type) {
 
 function getImageUrl(imagePath) {
   if (!imagePath) return '';
+  // If it's already a full URL, return it as-is
   if (imagePath.startsWith('http')) return imagePath;
+  // If it already has the storage path structure, return as-is
+  if (imagePath.includes('/storage/v1/object/public/')) return imagePath;
+  // Otherwise construct the full URL
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   return `${supabaseUrl}/storage/v1/object/public/${imagePath}`;
 }
