@@ -64,7 +64,8 @@ export default function LexiconPage() {
       const query = searchTerm.toLowerCase();
       filtered = filtered.filter(t =>
         (t.term && t.term.toLowerCase().includes(query)) ||
-        (t.meaning && t.meaning.toLowerCase().includes(query))
+        (t.meaning && t.meaning.toLowerCase().includes(query)) ||
+        (t.kel_id && t.kel_id.toLowerCase().includes(query))
       );
     }
 
@@ -149,7 +150,7 @@ export default function LexiconPage() {
             {/* Search Bar */}
             <input
               type="text"
-              placeholder="Search terms or definitions..."
+              placeholder="Search terms, definitions, or KEL IDs (e.g., KEL-0001)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -331,6 +332,22 @@ function TermCard({ term, getCategoryColor, getRiskColor }) {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.borderColor = '#cbd5e1';
       }}>
+        {/* KEL ID Badge */}
+        <div style={{
+          display: 'inline-block',
+          backgroundColor: '#f0f4f8',
+          color: '#2d5a7b',
+          padding: '4px 10px',
+          borderRadius: '4px',
+          fontSize: '11px',
+          fontWeight: '700',
+          fontFamily: 'monospace',
+          marginBottom: '8px',
+          width: 'fit-content'
+        }}>
+          {term.kel_id || 'KEL-????'}
+        </div>
+
         <div style={{ marginBottom: '12px' }}>
           <h3 style={{ margin: '0 0 6px 0', fontSize: '20px', color: '#1e293b', fontWeight: '700' }}>
             {term.term}
