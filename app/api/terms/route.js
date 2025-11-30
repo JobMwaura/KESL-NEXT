@@ -24,29 +24,65 @@ export async function POST(request) {
       );
     }
 
-    // Only insert fields that exist in your table schema
-    // Omit: id (auto-generated), created_by (uuid), created_at (auto timestamp), updated_at (auto timestamp)
+    // Validate examples exist
+    if (!body.examples || body.examples.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'At least one example is required'
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate harms
+    const hasHarm = body.harms && Object.values(body.harms).some(v => v);
+    if (!hasHarm) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'At least one harm type must be documented'
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Prepare term data for insertion
     const termData = {
       term: body.term.trim(),
+      variants: body.variants || [],  // ✅ NOW CAPTURES VARIANTS
       meaning: body.meaning.trim(),
       category: body.category,
       risk: body.risk,
       language: body.language,
       literal_gloss: body.literal_gloss || null,
       status: 'pending',
-      // Optional fields (set to null if not provided)
+      
+      // Store examples as JSON array
+      examples: body.examples || [],  // ✅ NOW CAPTURES EXAMPLES
+      
+      // Store harms as JSON object
+      harms: body.harms || {},  // ✅ NOW CAPTURES HARMS
+      harm_details: body.harm_details || {},  // ✅ HARM CONTEXT
+      
+      // Optional fields
       migration: body.migration || null,
       tags: body.tags || [],
       context_history: body.context_history || null,
-      harm_description: body.harm_description || null,
       related_terms: body.related_terms || [],
+      
+      // Admin fields (stay null until reviewed)
       rejection_reason: null,
       reviewed_at: null,
       reviewed_by: null,
-      submission_ip: null
+      submission_ip: request.headers.get('x-forwarded-for') || null
     };
 
-    console.log('Inserting term:', termData);
+    console.log('Inserting term:', {
+      term: termData.term,
+      variants: termData.variants.length,
+      examples: termData.examples.length,
+      harms: Object.keys(termData.harms).length,
+      status: termData.status
+    });
 
     // Insert into terms table
     const { data, error } = await supabase
@@ -66,7 +102,7 @@ export async function POST(request) {
       );
     }
 
-    console.log('Term inserted successfully:', data);
+    console.log('Term inserted successfully:', data[0].id);
 
     return new Response(
       JSON.stringify({
@@ -75,7 +111,8 @@ export async function POST(request) {
         data: {
           id: data[0].id,
           term: data[0].term,
-          status: data[0].status
+          status: data[0].status,
+          createdAt: data[0].created_at
         }
       }),
       { status: 201, headers: { 'Content-Type': 'application/json' } }
