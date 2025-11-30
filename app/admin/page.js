@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, autoMergeModerationItem, approveModerationItem, rejectModerationItem } from '@/lib/supabase';
 
 export default function AdminDashboard() {
   const [adminTab, setAdminTab] = useState('submissions');
@@ -253,11 +253,13 @@ function SubmissionsTab({ setError, setSuccess }) {
   const handleApprove = async (termId) => {
     try {
       setApproving(true);
+      
+      // Update the term status to approved
       const { error: err } = await supabase
         .from('terms')
         .update({
           status: 'approved',
-          research_note: researchNote || null,
+          research_note: researchNote,
           reviewed_at: new Date().toISOString()
         })
         .eq('id', termId);
@@ -266,9 +268,11 @@ function SubmissionsTab({ setError, setSuccess }) {
 
       setSelectedTerm(null);
       setResearchNote('');
-      setSuccess('Term approved! ✓');
+      setRejectReason('');
+      setSuccess('✓ Term approved and published!');
       await loadTerms();
     } catch (err) {
+      console.error('Error approving term:', err);
       setError('Failed to approve: ' + err.message);
     } finally {
       setApproving(false);
@@ -598,18 +602,24 @@ function ContributionsTab({ setError, setSuccess }) {
   const handleApprove = async (itemId) => {
     try {
       setApproving(itemId);
-      const { error: err } = await supabase
-        .from('moderation_queue')
-        .update({
-          status: 'approved',
-          approved_at: new Date().toISOString()
-        })
-        .eq('id', itemId);
-
-      if (err) throw err;
-      setSuccess('Contribution approved! ✓');
+      
+      console.log('🔄 PHASE 5: Starting auto-merge and approval for:', itemId);
+      
+      // Step 1: Auto-merge the contribution into the term
+      console.log('Step 1: Auto-merging contribution...');
+      await autoMergeModerationItem(itemId);
+      console.log('✓ Contribution merged into term');
+      
+      // Step 2: Update status to approved
+      console.log('Step 2: Updating status to approved...');
+      await approveModerationItem(itemId);
+      console.log('✓ Status updated to approved');
+      
+      setSuccess('✓ Contribution approved and merged!');
       await loadItems();
+      
     } catch (err) {
+      console.error('❌ Error approving contribution:', err);
       setError('Failed to approve: ' + err.message);
     } finally {
       setApproving(null);
@@ -619,18 +629,17 @@ function ContributionsTab({ setError, setSuccess }) {
   const handleReject = async (itemId) => {
     try {
       setRejecting(itemId);
-      const { error: err } = await supabase
-        .from('moderation_queue')
-        .update({
-          status: 'rejected',
-          approved_at: new Date().toISOString()
-        })
-        .eq('id', itemId);
+      
+      console.log('Rejecting contribution:', itemId);
+      
+      const { error: err } = await rejectModerationItem(itemId, 'Rejected by admin');
 
       if (err) throw err;
+      
       setSuccess('Contribution rejected.');
       await loadItems();
     } catch (err) {
+      console.error('Error rejecting contribution:', err);
       setError('Failed to reject: ' + err.message);
     } finally {
       setRejecting(null);
@@ -956,10 +965,10 @@ function TermCard({ term, onClick }) {
 
 function ContributionCard({ item, onApprove, onReject, approving, rejecting }) {
   const typeIcon = {
-    example: 'ðŸ"Œ',
-    context: 'ðŸ"š',
-    harm: 'âš ï¸',
-    relation: 'ðŸ"—'
+    example: '📌',
+    context: '📚',
+    harm: '⚠️',
+    relation: '🔗'
   }[item.type] || '📝';
 
   return (
@@ -983,7 +992,7 @@ function ContributionCard({ item, onApprove, onReject, approving, rejecting }) {
             •
           </span>
           <span style={{ fontSize: '12px', color: '#64748b' }}>
-            Term: {item.term_id?.substring(0, 8)}...
+            {new Date(item.created_at).toLocaleDateString()}
           </span>
         </div>
         <div style={{
@@ -993,15 +1002,18 @@ function ContributionCard({ item, onApprove, onReject, approving, rejecting }) {
           padding: '12px',
           fontSize: '13px',
           color: '#475569',
-          fontFamily: 'monospace'
+          fontFamily: 'monospace',
+          overflow: 'auto',
+          maxHeight: '120px'
         }}>
           {JSON.stringify(item.data, null, 2)}
         </div>
       </div>
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
         <button
           onClick={onApprove}
           disabled={approving}
+          title="Approve and auto-merge into term"
           style={{
             padding: '8px 16px',
             backgroundColor: '#10b981',
@@ -1011,14 +1023,16 @@ function ContributionCard({ item, onApprove, onReject, approving, rejecting }) {
             fontSize: '12px',
             fontWeight: '600',
             cursor: approving ? 'not-allowed' : 'pointer',
-            opacity: approving ? 0.7 : 1
+            opacity: approving ? 0.7 : 1,
+            whiteSpace: 'nowrap'
           }}
         >
-          {approving ? '...' : '✓'}
+          {approving ? '⏳' : '✓ Approve'}
         </button>
         <button
           onClick={onReject}
           disabled={rejecting}
+          title="Reject contribution"
           style={{
             padding: '8px 16px',
             backgroundColor: '#ef4444',
@@ -1028,10 +1042,11 @@ function ContributionCard({ item, onApprove, onReject, approving, rejecting }) {
             fontSize: '12px',
             fontWeight: '600',
             cursor: rejecting ? 'not-allowed' : 'pointer',
-            opacity: rejecting ? 0.7 : 1
+            opacity: rejecting ? 0.7 : 1,
+            whiteSpace: 'nowrap'
           }}
         >
-          {rejecting ? '...' : '✕'}
+          {rejecting ? '⏳' : '✕ Reject'}
         </button>
       </div>
     </div>
