@@ -24,6 +24,7 @@ import {
 } from '@/lib/constants';
 
 export default function SubmitPage() {
+  const defaultCategory = CATEGORY_OPTIONS?.[0]?.value || 'slur';
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -34,7 +35,7 @@ export default function SubmitPage() {
     term: '',
     variants: [],
     language: 'sheng',
-    category: 'derogatory',
+    category: defaultCategory,
     risk: 'medium',
     literal_gloss: '',
     definition: '',
@@ -299,7 +300,7 @@ export default function SubmitPage() {
           term: '',
           variants: [],
           language: 'sheng',
-          category: 'derogatory',
+          category: defaultCategory,
           risk: 'medium',
           literal_gloss: '',
           definition: '',

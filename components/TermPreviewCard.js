@@ -20,7 +20,7 @@ export default function TermPreviewCard({
   const {
     term = 'Your term',
     language = 'English',
-    category = 'derogatory',
+    category = 'slur',
     risk = 'medium',
     literal_gloss = '',
     definition = 'Your definition will appear here',
@@ -29,13 +29,13 @@ export default function TermPreviewCard({
     date_observed = 'Date'
   } = formData;
 
-  const categoryConfig = CATEGORIES[Object.keys(CATEGORIES).find(
-    key => CATEGORIES[key].id === category
-  )] || CATEGORIES.DEROGATORY;
+  const categoryConfig = Object.values(CATEGORIES).find(
+    cat => cat.id === category
+  ) || Object.values(CATEGORIES)[0];
 
-  const riskConfig = RISK_LEVELS[Object.keys(RISK_LEVELS).find(
-    key => RISK_LEVELS[key].id === risk
-  )] || RISK_LEVELS.MEDIUM;
+  const riskConfig = Object.values(RISK_LEVELS).find(
+    riskLevel => riskLevel.id === risk
+  ) || RISK_LEVELS.MEDIUM;
 
   return (
     <div className="preview-card-container">
