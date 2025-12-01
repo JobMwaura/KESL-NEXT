@@ -1,30 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import ApprovedContributions from '@/components/ApprovedContributions';
-import CommunityContributionForm from '@/components/CommunityContributionForm';
 import ContributeModal from '@/components/ContributeModal';
-import ExampleSection from '@/components/ExampleSection';
-import HarmSection from '@/components/HarmSection';
-import PlatformMigration from '@/components/PlatformMigration';
-import VariantsSection from '@/components/VariantsSection';
-import VersionBadge from '@/components/VersionBadge';
 import { fetchTermById } from '@/lib/supabase';
 
 export default function TermPage() {
   const params = useParams();
-  const router = useRouter();
   const [term, setTerm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
   const [votes, setVotes] = useState(0);
   const [userVote, setUserVote] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({
+    harms: true,
+    examples: true,
+    variants: true,
+    platforms: true
+  });
 
   useEffect(() => {
     async function loadTerm() {
@@ -32,7 +29,7 @@ export default function TermPage() {
         setLoading(true);
         const data = await fetchTermById(params.id);
         setTerm(data);
-        setVotes(data.helpful_count || 0);
+        setVotes(data?.helpful_count || 0);
       } catch (err) {
         console.error('Error loading term:', err);
         setError('Failed to load term');
@@ -56,14 +53,29 @@ export default function TermPage() {
     setModalType(null);
   };
 
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const handleVote = (value) => {
+    if (userVote === value) {
+      setVotes(votes - value);
+      setUserVote(0);
+    } else {
+      setVotes(votes - userVote + value);
+      setUserVote(value);
+    }
+  };
+
   if (loading) {
     return (
       <>
         <Header />
         <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{
-            textAlign: 'center'
-          }}>
+          <div style={{ textAlign: 'center' }}>
             <div style={{
               display: 'inline-block',
               width: '40px',
@@ -107,13 +119,9 @@ export default function TermPage() {
               fontSize: '14px',
               transition: 'all 0.3s ease'
             }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#1a3a52';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = '#2d5a7b';
-            }}>
-              â† Back to Lexicon
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#1a3a52'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#2d5a7b'}>
+              Back to Lexicon
             </button>
           </a>
         </main>
@@ -122,15 +130,9 @@ export default function TermPage() {
     );
   }
 
-  const handleVote = (value) => {
-    if (userVote === value) {
-      setVotes(votes - value);
-      setUserVote(0);
-    } else {
-      setVotes(votes - userVote + value);
-      setUserVote(value);
-    }
-  };
+  const harms = Array.isArray(term.harms) ? term.harms : Object.values(term.harms || {}).filter(h => h);
+  const examples = Array.isArray(term.examples) ? term.examples : [];
+  const variants = Array.isArray(term.variants) ? term.variants : [];
 
   return (
     <>
@@ -149,12 +151,9 @@ export default function TermPage() {
               color: '#2d5a7b',
               fontSize: '14px',
               fontWeight: '500',
-              transition: 'color 0.2s',
-              padding: '6px 0'
-            }}
-            onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
-            onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
-              ðŸ  Home
+              transition: 'color 0.2s'
+            }}>
+              Home
             </a>
             <span style={{ color: '#cbd5e1' }}>/</span>
             <a href="/lexicon" style={{
@@ -162,12 +161,9 @@ export default function TermPage() {
               color: '#2d5a7b',
               fontSize: '14px',
               fontWeight: '500',
-              transition: 'color 0.2s',
-              padding: '6px 0'
-            }}
-            onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
-            onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
-              ðŸ“– Lexicon
+              transition: 'color 0.2s'
+            }}>
+              Lexicon
             </a>
             <span style={{ color: '#cbd5e1' }}>/</span>
             <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>
@@ -179,9 +175,9 @@ export default function TermPage() {
         {/* Main Content */}
         <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 320px', gap: '40px' }}>
           
-          {/* Left Column - Main Content */}
+          {/* Left Column */}
           <div>
-            {/* Header Section - UPDATED WITH PHASE 6 */}
+            {/* Header Section */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #cbd5e1',
@@ -189,32 +185,22 @@ export default function TermPage() {
               padding: '40px',
               marginBottom: '40px'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '20px', marginBottom: '20px' }}>
-                <div style={{ flex: 1 }}>
-                  <h1 style={{
-                    fontSize: '52px',
-                    color: '#1e293b',
-                    margin: '0 0 10px 0',
-                    fontWeight: '700'
-                  }}>
-                    {term.term}
-                  </h1>
-                  
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#94a3b8',
-                    margin: '0 0 20px 0'
-                  }}>
-                    {term.language}
-                  </p>
-                </div>
-                {/* PHASE 6: Version Badge */}
-                <VersionBadge 
-                  versionNumber={term.version_number || 1}
-                  termId={term.id}
-                  size="medium"
-                />
-              </div>
+              <h1 style={{
+                fontSize: '52px',
+                color: '#1e293b',
+                margin: '0 0 20px 0',
+                fontWeight: '700'
+              }}>
+                {term.term}
+              </h1>
+              
+              <p style={{
+                fontSize: '16px',
+                color: '#94a3b8',
+                margin: '0 0 20px 0'
+              }}>
+                {term.language}
+              </p>
 
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
                 <span style={{
@@ -247,374 +233,199 @@ export default function TermPage() {
                     fontSize: '13px',
                     fontWeight: '700'
                   }}>
-                    {getConfidenceIcon(term.confidence_level)} Confidence
+                    {getConfidenceIcon(term.confidence_level)} {capitalizeFirst(term.confidence_level)}
                   </span>
                 )}
               </div>
-
-              {/* PHASE 6: View Version History Button */}
-              <button
-                onClick={() => router.push(`/lexicon/${term.id}/versions`)}
-                style={{
-                  padding: '10px 16px',
-                  backgroundColor: '#dbeafe',
-                  color: '#0c4a6e',
-                  border: '1px solid #0284c7',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  transition: 'all 0.2s',
-                  display: 'inline-block'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#bfdbfe';
-                  e.target.style.boxShadow = '0 2px 4px rgba(2, 132, 199, 0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#dbeafe';
-                  e.target.style.boxShadow = 'none';
-                }}
-              >
-                ðŸ“… View Version History
-              </button>
             </div>
 
-            {/* Tabs */}
+            {/* Definition Section */}
             <div style={{
-              display: 'flex',
-              gap: '0',
-              borderBottom: '2px solid #e2e8f0',
-              marginBottom: '30px',
-              flexWrap: 'wrap'
+              backgroundColor: 'white',
+              border: '1px solid #cbd5e1',
+              borderRadius: '10px',
+              padding: '40px',
+              marginBottom: '40px'
             }}>
-              {[
-                { id: 'overview', label: 'ðŸ“– Overview', icon: 'ðŸ“–' },
-                { id: 'context', label: 'ðŸ“š Context', icon: 'ðŸ“š' },
-                { id: 'community', label: 'ðŸ’¬ Community', icon: 'ðŸ’¬' },
-                { id: 'contribute', label: 'âœï¸ Contribute', icon: 'âœï¸' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    padding: '16px 20px',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    borderBottom: activeTab === tab.id ? '3px solid #2d5a7b' : '3px solid transparent',
-                    color: activeTab === tab.id ? '#2d5a7b' : '#94a3b8',
-                    cursor: 'pointer',
-                    fontWeight: activeTab === tab.id ? '700' : '500',
-                    fontSize: '14px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (activeTab !== tab.id) e.target.style.color = '#64748b';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (activeTab !== tab.id) e.target.style.color = '#94a3b8';
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              <h2 style={{ fontSize: '20px', color: '#1e293b', margin: '0 0 20px 0', fontWeight: '700' }}>
+                Definition
+              </h2>
+              <p style={{
+                fontSize: '16px',
+                color: '#475569',
+                lineHeight: '1.8',
+                margin: 0
+              }}>
+                {term.meaning}
+              </p>
+
+              {term.literal_gloss && (
+                <>
+                  <h3 style={{ fontSize: '16px', color: '#1e293b', marginTop: '30px', marginBottom: '12px', fontWeight: '700' }}>
+                    Literal Gloss
+                  </h3>
+                  <p style={{
+                    fontSize: '15px',
+                    color: '#475569',
+                    lineHeight: '1.7',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    margin: 0
+                  }}>
+                    {term.literal_gloss}
+                  </p>
+                </>
+              )}
             </div>
 
-            {/* Overview Tab */}
-            {activeTab === 'overview' && (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '30px'
-              }}>
-                {/* Definition Section */}
+            {/* Documented Harms */}
+            {harms && harms.length > 0 && (
+              <div style={{ marginBottom: '40px' }}>
                 <div style={{
                   backgroundColor: 'white',
                   border: '1px solid #cbd5e1',
                   borderRadius: '10px',
-                  padding: '40px'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '20px'
-                  }}>
-                    <h2 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '700' }}>
-                      Definition
-                    </h2>
+                  padding: '20px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => toggleSection('harms')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>
+                      Heart Documented Harms ({harms.length})
+                    </h3>
+                    <span style={{ color: '#94a3b8', fontSize: '16px' }}>{expandedSections.harms ? '▼' : '▶'}</span>
                   </div>
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#475569',
-                    lineHeight: '1.8',
-                    marginBottom: '30px'
-                  }}>
-                    {term.meaning}
-                  </p>
-
-                  {term.literal_gloss && (
-                    <>
-                      <h3 style={{ fontSize: '18px', color: '#1e293b', marginTop: '30px', marginBottom: '15px', fontWeight: '700' }}>
-                        Literal Gloss
-                      </h3>
-                      <p style={{
-                        fontSize: '15px',
-                        color: '#475569',
-                        lineHeight: '1.7',
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        padding: '16px'
-                      }}>
-                        {term.literal_gloss}
-                      </p>
-                    </>
-                  )}
                 </div>
-
-                {/* Harms Section */}
-                {term.harms && Object.values(term.harms).some(v => v) && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>ðŸ’” Documented Harms</h3>
-                      <button
-                        onClick={() => openContributionModal('harm')}
-                        style={{
-                          padding: '8px 16px',
-                          backgroundColor: '#fee2e2',
-                          color: '#991b1b',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '13px',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = '#fecaca';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = '#fee2e2';
-                        }}
-                      >
-                        + Add Harm
-                      </button>
-                    </div>
-                    <HarmSection 
-                      harms={term.harms}
-                      harm_details={term.harm_details}
-                    />
-                  </div>
-                )}
-
-                {/* Platform Migration Section */}
-                {term.examples && term.examples.length > 0 && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>ðŸŒ Platforms & Migration</h3>
-                      <button
-                        onClick={() => openContributionModal('example')}
-                        style={{
-                          padding: '8px 16px',
-                          backgroundColor: '#dbeafe',
-                          color: '#0c4a6e',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '13px',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = '#bfdbfe';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = '#dbeafe';
-                        }}
-                      >
-                        + Add Example
-                      </button>
-                    </div>
-                    <PlatformMigration 
-                      examples={term.examples}
-                      migration={term.migration}
-                    />
-                  </div>
-                )}
-
-                {/* Variants Section */}
-                {(term.variants?.length > 0 || term.related_terms?.length > 0) && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>ðŸ”¤ Variants & Related</h3>
-                      <button
-                        onClick={() => openContributionModal('relation')}
-                        style={{
-                          padding: '8px 16px',
-                          backgroundColor: '#e0e7ff',
-                          color: '#3730a3',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '13px',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = '#c7d2e8';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = '#e0e7ff';
-                        }}
-                      >
-                        + Add Related
-                      </button>
-                    </div>
-                    <VariantsSection 
-                      variants={term.variants}
-                      related_terms={term.related_terms}
-                      currentTermId={term.id}
-                    />
-                  </div>
-                )}
-
-                {/* Examples Section */}
-                {term.examples && term.examples.length > 0 && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>ðŸ’¬ Examples</h3>
-                    </div>
-                    <ExampleSection 
-                      examples={term.examples}
-                      termId={term.id}
-                    />
-                  </div>
-                )}
-
-                {/* Empty State - No Examples */}
-                {(!term.examples || term.examples.length === 0) && (
-                  <div style={{
-                    backgroundColor: '#f8fafc',
-                    border: '2px dashed #cbd5e1',
-                    borderRadius: '10px',
-                    padding: '40px',
-                    textAlign: 'center'
-                  }}>
-                    <p style={{
-                      fontSize: '16px',
-                      color: '#64748b',
-                      margin: '0 0 16px 0'
-                    }}>
-                      No examples documented yet. Help us by adding one!
-                    </p>
-                    <button
-                      onClick={() => openContributionModal('example')}
-                      style={{
-                        padding: '12px 24px',
-                        backgroundColor: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '14px',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = '#2563eb';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = '#3b82f6';
-                      }}
-                    >
-                      ðŸ’¬ Add First Example
-                    </button>
+                {expandedSections.harms && (
+                  <div style={{ marginTop: '12px', backgroundColor: '#fff5f5', border: '1px solid #fed7d7', borderRadius: '8px', padding: '16px' }}>
+                    {harms.map((harm, idx) => (
+                      <div key={idx} style={{ marginBottom: idx < harms.length - 1 ? '16px' : 0, paddingBottom: idx < harms.length - 1 ? '16px' : 0, borderBottom: idx < harms.length - 1 ? '1px solid #fed7d7' : 'none' }}>
+                        <h4 style={{ margin: '0 0 8px 0', color: '#991b1b', fontWeight: '600' }}>
+                          {typeof harm === 'object' ? harm.title || harm.harm || 'Documented Harm' : harm}
+                        </h4>
+                        <p style={{ margin: 0, color: '#742a2a', fontSize: '14px', lineHeight: '1.5' }}>
+                          {typeof harm === 'object' ? harm.description || harm.details || harm.context || JSON.stringify(harm).slice(0, 200) : harm}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
             )}
 
-            {/* Context Tab */}
-            {activeTab === 'context' && (
-              <div style={{
-                backgroundColor: 'white',
-                border: '1px solid #cbd5e1',
-                borderRadius: '10px',
-                padding: '40px'
-              }}>
+            {/* Examples */}
+            {examples && examples.length > 0 && (
+              <div style={{ marginBottom: '40px' }}>
                 <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '20px'
-                }}>
-                  <h2 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '700' }}>
-                    Context & Examples
-                  </h2>
-                  <button
-                    onClick={() => openContributionModal('context')}
-                    style={{
-                      padding: '10px 18px',
-                      backgroundColor: '#dbeafe',
-                      color: '#0c4a6e',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: '600',
-                      fontSize: '13px',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#bfdbfe';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#dbeafe';
-                    }}
-                  >
-                    + Add Context
-                  </button>
+                  backgroundColor: 'white',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '10px',
+                  padding: '20px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => toggleSection('examples')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>
+                      Chat Bubble Examples ({examples.length})
+                    </h3>
+                    <span style={{ color: '#94a3b8', fontSize: '16px' }}>{expandedSections.examples ? '▼' : '▶'}</span>
+                  </div>
                 </div>
-                
-                {term.context_history ? (
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#475569',
-                    lineHeight: '1.8',
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    padding: '20px'
-                  }}>
-                    {term.context_history}
-                  </p>
-                ) : (
-                  <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '15px' }}>
-                    No context documented yet. Be the first to contribute!
-                  </p>
+                {expandedSections.examples && (
+                  <div style={{ marginTop: '12px', backgroundColor: '#dbeafe', border: '1px solid #93c5fd', borderRadius: '8px', padding: '16px' }}>
+                    {examples.map((example, idx) => (
+                      <div key={idx} style={{ marginBottom: idx < examples.length - 1 ? '16px' : 0, paddingBottom: idx < examples.length - 1 ? '16px' : 0, borderBottom: idx < examples.length - 1 ? '1px solid #93c5fd' : 'none' }}>
+                        <p style={{ margin: '0 0 8px 0', color: '#1e40af', fontSize: '14px', fontStyle: 'italic', lineHeight: '1.6' }}>
+                          "{typeof example === 'object' ? example.text || example.quote || example.example || JSON.stringify(example).slice(0, 150) : example}"
+                        </p>
+                        {typeof example === 'object' && example.source && (
+                          <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '12px' }}>
+                            {example.source}
+                            {example.date && ` - ${example.date}`}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
+              </div>
+            )}
 
-                {/* Community contributions for context */}
-                <div style={{ marginTop: '30px' }}>
-                  <ApprovedContributions termId={params.id} type="context" />
+            {/* Variants */}
+            {variants && variants.length > 0 && (
+              <div style={{ marginBottom: '40px' }}>
+                <div style={{
+                  backgroundColor: 'white',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '10px',
+                  padding: '20px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => toggleSection('variants')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>
+                      Memo Variants & Related ({variants.length})
+                    </h3>
+                    <span style={{ color: '#94a3b8', fontSize: '16px' }}>{expandedSections.variants ? '▼' : '▶'}</span>
+                  </div>
                 </div>
+                {expandedSections.variants && (
+                  <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {variants.map((variant, idx) => (
+                      <span key={idx} style={{
+                        backgroundColor: '#f0f9ff',
+                        border: '1px solid #bfdbfe',
+                        color: '#1e40af',
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        fontSize: '13px'
+                      }}>
+                        {typeof variant === 'object' ? variant.name || variant.term || JSON.stringify(variant).slice(0, 50) : variant}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Community Tab */}
-            {activeTab === 'community' && (
-              <div>
-                <ApprovedContributions termId={params.id} />
+            {/* No Content State */}
+            {(!harms || harms.length === 0) && (!examples || examples.length === 0) && (!variants || variants.length === 0) && (
+              <div style={{
+                backgroundColor: '#f8fafc',
+                border: '2px dashed #cbd5e1',
+                borderRadius: '10px',
+                padding: '40px',
+                textAlign: 'center',
+                marginBottom: '40px'
+              }}>
+                <p style={{ fontSize: '16px', color: '#64748b', margin: '0 0 16px 0' }}>
+                  No additional content documented yet.
+                </p>
+                <button
+                  onClick={() => openContributionModal('example')}
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
+                >
+                  Help improve this entry
+                </button>
               </div>
-            )}
-
-            {/* Contribute Tab */}
-            {activeTab === 'contribute' && (
-              <CommunityContributionForm termId={params.id} termName={term.term} />
             )}
           </div>
 
-          {/* Right Sidebar - UPDATED WITH PHASE 6 VERSION INFO */}
+          {/* Right Sidebar */}
           <aside>
             {/* Helpful Card */}
             <div style={{
@@ -636,10 +447,7 @@ export default function TermPage() {
                 Is this helpful?
               </p>
 
-              <div style={{
-                display: 'flex',
-                gap: '8px'
-              }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   onClick={() => handleVote(1)}
                   style={{
@@ -667,7 +475,7 @@ export default function TermPage() {
                     }
                   }}
                 >
-                  ðŸ‘ Yes
+                  Thumbs Up Yes
                 </button>
                 <button
                   onClick={() => handleVote(-1)}
@@ -696,7 +504,7 @@ export default function TermPage() {
                     }
                   }}
                 >
-                  ðŸ‘Ž No
+                  Thumbs Down No
                 </button>
               </div>
 
@@ -710,12 +518,13 @@ export default function TermPage() {
               </p>
             </div>
 
-            {/* Metadata Card - UPDATED WITH PHASE 6 VERSION INFO */}
+            {/* Metadata Card */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #cbd5e1',
               borderRadius: '10px',
-              padding: '24px'
+              padding: '24px',
+              marginBottom: '20px'
             }}>
               <h3 style={{
                 fontSize: '14px',
@@ -723,39 +532,32 @@ export default function TermPage() {
                 color: '#1e293b',
                 marginBottom: '16px'
               }}>
-                Metadata
+                Information
               </h3>
 
               <div style={{ display: 'grid', gap: '14px' }}>
-                <div>
-                  <p style={{
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                    margin: '0 0 4px 0'
-                  }}>
-                    Citation ID
-                  </p>
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#2d5a7b',
-                    margin: 0,
-                    fontWeight: '700',
-                    fontFamily: 'monospace',
-                    letterSpacing: '0.5px'
-                  }}>
-                    {term.kel_id || 'KEL-0001'}
-                  </p>
-                  <p style={{
-                    fontSize: '10px',
-                    color: '#94a3b8',
-                    margin: '4px 0 0 0',
-                    fontStyle: 'italic'
-                  }}>
-                    Use this ID to cite
-                  </p>
-                </div>
+                {term.kel_id && (
+                  <div>
+                    <p style={{
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      color: '#94a3b8',
+                      textTransform: 'uppercase',
+                      margin: '0 0 4px 0'
+                    }}>
+                      KEL ID
+                    </p>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#2d5a7b',
+                      margin: 0,
+                      fontWeight: '700',
+                      fontFamily: 'monospace'
+                    }}>
+                      {term.kel_id}
+                    </p>
+                  </div>
+                )}
 
                 <div>
                   <p style={{
@@ -817,44 +619,27 @@ export default function TermPage() {
                   </p>
                 </div>
 
-                {/* PHASE 6: Version Info Section */}
-                <div style={{
-                  paddingTop: '14px',
-                  borderTop: '1px solid #e2e8f0'
-                }}>
-                  <p style={{
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                    margin: '0 0 4px 0'
-                  }}>
-                    Version
-                  </p>
-                  <p style={{
-                    fontSize: '14px',
-                    color: '#1e293b',
-                    margin: '0 0 8px 0',
-                    fontWeight: '500'
-                  }}>
-                    v{term.version_number || 1}
-                  </p>
-                  <button
-                    onClick={() => router.push(`/lexicon/${term.id}/versions`)}
-                    style={{
-                      fontSize: '12px',
-                      color: '#0284c7',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontWeight: '600',
-                      padding: '0',
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    View all versions â†’
-                  </button>
-                </div>
+                {term.version_number && (
+                  <div>
+                    <p style={{
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      color: '#94a3b8',
+                      textTransform: 'uppercase',
+                      margin: '0 0 4px 0'
+                    }}>
+                      Version
+                    </p>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#1e293b',
+                      margin: 0,
+                      fontWeight: '500'
+                    }}>
+                      v{term.version_number}
+                    </p>
+                  </div>
+                )}
 
                 {term.confidence_level && (
                   <div>
@@ -873,30 +658,32 @@ export default function TermPage() {
                       margin: 0,
                       fontWeight: '500'
                     }}>
-                      {getConfidenceIcon(term.confidence_level)} {capitalizeFirst(term.confidence_level)}
+                      {capitalizeFirst(term.confidence_level)}
                     </p>
                   </div>
                 )}
 
-                <div>
-                  <p style={{
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                    margin: '0 0 4px 0'
-                  }}>
-                    Submitted
-                  </p>
-                  <p style={{
-                    fontSize: '14px',
-                    color: '#1e293b',
-                    margin: 0,
-                    fontWeight: '500'
-                  }}>
-                    {new Date(term.created_at).toLocaleDateString()}
-                  </p>
-                </div>
+                {term.created_at && (
+                  <div>
+                    <p style={{
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      color: '#94a3b8',
+                      textTransform: 'uppercase',
+                      margin: '0 0 4px 0'
+                    }}>
+                      Submitted
+                    </p>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#1e293b',
+                      margin: 0,
+                      fontWeight: '500'
+                    }}>
+                      {new Date(term.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -905,8 +692,7 @@ export default function TermPage() {
               backgroundColor: '#f8fafc',
               border: '2px solid #3b82f6',
               borderRadius: '10px',
-              padding: '20px',
-              marginTop: '20px'
+              padding: '20px'
             }}>
               <h3 style={{
                 fontSize: '14px',
@@ -922,7 +708,7 @@ export default function TermPage() {
                 margin: '0 0 12px 0',
                 lineHeight: '1.5'
               }}>
-                Help improve this entry by adding examples, context, or related terms.
+                Help improve this entry by adding examples or context.
               </p>
               <div style={{ display: 'grid', gap: '8px' }}>
                 <button
@@ -949,7 +735,7 @@ export default function TermPage() {
                     e.target.style.borderColor = '#cbd5e1';
                   }}
                 >
-                  ðŸ’¬ Add Example
+                  Chat Bubble Add Example
                 </button>
                 <button
                   onClick={() => openContributionModal('context')}
@@ -975,7 +761,7 @@ export default function TermPage() {
                     e.target.style.borderColor = '#cbd5e1';
                   }}
                 >
-                  ðŸ“š Add Context
+                  Book Add Context
                 </button>
                 <button
                   onClick={() => openContributionModal('harm')}
@@ -1001,33 +787,7 @@ export default function TermPage() {
                     e.target.style.borderColor = '#cbd5e1';
                   }}
                 >
-                  ðŸ’” Describe Harm
-                </button>
-                <button
-                  onClick={() => openContributionModal('relation')}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    backgroundColor: 'white',
-                    color: '#3730a3',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    fontSize: '12px',
-                    transition: 'all 0.2s',
-                    textAlign: 'center'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#e0e7ff';
-                    e.target.style.borderColor = '#3730a3';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'white';
-                    e.target.style.borderColor = '#cbd5e1';
-                  }}
-                >
-                  ðŸ”— Add Related Term
+                  Alarm Describe Harm
                 </button>
               </div>
             </div>
@@ -1089,15 +849,16 @@ function getConfidenceColor(confidence) {
 }
 
 function getConfidenceIcon(confidence) {
+  if (!confidence) return 'Circle';
   const icons = {
-    'low': 'ðŸŸ¡',
-    'medium': 'ðŸŸ ',
-    'high': 'ðŸŸ¢',
-    'Low': 'ðŸŸ¡',
-    'Medium': 'ðŸŸ ',
-    'High': 'ðŸŸ¢'
+    'low': 'Yellow Circle',
+    'medium': 'Orange Circle',
+    'high': 'Green Circle',
+    'Low': 'Yellow Circle',
+    'Medium': 'Orange Circle',
+    'High': 'Green Circle'
   };
-  return icons[confidence] || 'â“';
+  return icons[confidence] || 'Circle';
 }
 
 function capitalizeFirst(str) {
