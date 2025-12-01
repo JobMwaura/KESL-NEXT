@@ -25,6 +25,7 @@ export default function VersionHistoryPage() {
   const [comparison, setComparison] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showSnapshot, setShowSnapshot] = useState(false);
 
   // Fetch term and versions
   useEffect(() => {
@@ -392,34 +393,53 @@ export default function VersionHistoryPage() {
                 backgroundColor: 'white',
                 borderRadius: '8px',
                 border: '1px solid #e2e8f0',
-                padding: '20px'
-              }}
-            >
-              <h2
-                style={{
-                  margin: '0 0 16px 0',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  color: '#1e293b'
-                }}
-              >
-                📋 Full Snapshot
-              </h2>
+              padding: '20px'
+            }}
+          >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    color: '#1e293b'
+                  }}
+                >
+                  📋 Full Snapshot
+                </h2>
+                <button
+                  onClick={() => setShowSnapshot(!showSnapshot)}
+                  style={{
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0',
+                    backgroundColor: showSnapshot ? '#f8fafc' : '#e2e8f0',
+                    color: '#334155',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '12px'
+                  }}
+                >
+                  {showSnapshot ? 'Hide raw JSON' : 'Show raw JSON'}
+                </button>
+              </div>
 
-              <pre
-                style={{
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '6px',
-                  padding: '12px',
-                  overflow: 'auto',
-                  fontSize: '12px',
-                  color: '#1e293b',
-                  lineHeight: '1.4'
-                }}
-              >
-                {JSON.stringify(selectedVersion.snapshot, null, 2)}
-              </pre>
+              {showSnapshot && (
+                <pre
+                  style={{
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '6px',
+                    padding: '12px',
+                    overflow: 'auto',
+                    fontSize: '12px',
+                    color: '#1e293b',
+                    lineHeight: '1.4'
+                  }}
+                >
+                  {JSON.stringify(selectedVersion.snapshot, null, 2)}
+                </pre>
+              )}
             </div>
           )}
         </div>
