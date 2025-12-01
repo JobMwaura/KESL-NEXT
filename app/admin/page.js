@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, autoMergeModerationItem, approveModerationItem, rejectModerationItem } from '@/lib/supabase';
+import { supabase, autoMergeModerationItem, approveModerationItem, rejectModerationItem, createVersion } from '@/lib/supabase';
 
 export default function AdminDashboard() {
   const [adminTab, setAdminTab] = useState('submissions');
@@ -265,6 +265,11 @@ function SubmissionsTab({ setError, setSuccess }) {
         .eq('id', termId);
 
       if (err) throw err;
+
+      // PHASE 6: Create initial version for new approved term
+      await createVersion(termId, {
+        message: 'Initial term submission approved'
+      });
 
       setSelectedTerm(null);
       setResearchNote('');

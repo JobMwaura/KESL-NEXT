@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ApprovedContributions from '@/components/ApprovedContributions';
@@ -11,10 +11,12 @@ import ExampleSection from '@/components/ExampleSection';
 import HarmSection from '@/components/HarmSection';
 import PlatformMigration from '@/components/PlatformMigration';
 import VariantsSection from '@/components/VariantsSection';
+import VersionBadge from '@/components/VersionBadge';
 import { fetchTermById } from '@/lib/supabase';
 
 export default function TermPage() {
   const params = useParams();
+  const router = useRouter();
   const [term, setTerm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -179,7 +181,7 @@ export default function TermPage() {
           
           {/* Left Column - Main Content */}
           <div>
-            {/* Header Section */}
+            {/* Header Section - UPDATED WITH PHASE 6 */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #cbd5e1',
@@ -187,24 +189,34 @@ export default function TermPage() {
               padding: '40px',
               marginBottom: '40px'
             }}>
-              <h1 style={{
-                fontSize: '52px',
-                color: '#1e293b',
-                margin: '0 0 10px 0',
-                fontWeight: '700'
-              }}>
-                {term.term}
-              </h1>
-              
-              <p style={{
-                fontSize: '16px',
-                color: '#94a3b8',
-                margin: '0 0 20px 0'
-              }}>
-                {term.language}
-              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ flex: 1 }}>
+                  <h1 style={{
+                    fontSize: '52px',
+                    color: '#1e293b',
+                    margin: '0 0 10px 0',
+                    fontWeight: '700'
+                  }}>
+                    {term.term}
+                  </h1>
+                  
+                  <p style={{
+                    fontSize: '16px',
+                    color: '#94a3b8',
+                    margin: '0 0 20px 0'
+                  }}>
+                    {term.language}
+                  </p>
+                </div>
+                {/* PHASE 6: Version Badge */}
+                <VersionBadge 
+                  versionNumber={term.version_number || 1}
+                  termId={term.id}
+                  size="medium"
+                />
+              </div>
 
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
                 <span style={{
                   backgroundColor: getCategoryColor(term.category),
                   color: 'white',
@@ -239,6 +251,33 @@ export default function TermPage() {
                   </span>
                 )}
               </div>
+
+              {/* PHASE 6: View Version History Button */}
+              <button
+                onClick={() => router.push(`/lexicon/${term.id}/versions`)}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#dbeafe',
+                  color: '#0c4a6e',
+                  border: '1px solid #0284c7',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  transition: 'all 0.2s',
+                  display: 'inline-block'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#bfdbfe';
+                  e.target.style.boxShadow = '0 2px 4px rgba(2, 132, 199, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#dbeafe';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                📅 View Version History
+              </button>
             </div>
 
             {/* Tabs */}
@@ -575,7 +614,7 @@ export default function TermPage() {
             )}
           </div>
 
-          {/* Right Sidebar */}
+          {/* Right Sidebar - UPDATED WITH PHASE 6 VERSION INFO */}
           <aside>
             {/* Helpful Card */}
             <div style={{
@@ -671,7 +710,7 @@ export default function TermPage() {
               </p>
             </div>
 
-            {/* Metadata Card */}
+            {/* Metadata Card - UPDATED WITH PHASE 6 VERSION INFO */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #cbd5e1',
@@ -776,6 +815,45 @@ export default function TermPage() {
                   }}>
                     {term.risk}
                   </p>
+                </div>
+
+                {/* PHASE 6: Version Info Section */}
+                <div style={{
+                  paddingTop: '14px',
+                  borderTop: '1px solid #e2e8f0'
+                }}>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 4px 0'
+                  }}>
+                    Version
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    margin: '0 0 8px 0',
+                    fontWeight: '500'
+                  }}>
+                    v{term.version_number || 1}
+                  </p>
+                  <button
+                    onClick={() => router.push(`/lexicon/${term.id}/versions`)}
+                    style={{
+                      fontSize: '12px',
+                      color: '#0284c7',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      padding: '0',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    View all versions →
+                  </button>
                 </div>
 
                 {term.confidence_level && (
