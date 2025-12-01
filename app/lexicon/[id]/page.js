@@ -13,12 +13,7 @@ export default function TermPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [expandedSections, setExpandedSections] = useState({
-    context: false,
-    examples: true,
-    harms: true,
-    variants: false
-  });
+  const [expandedExamples, setExpandedExamples] = useState({});
   const [votes, setVotes] = useState(0);
   const [userVote, setUserVote] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -58,10 +53,10 @@ export default function TermPage() {
     setModalType(null);
   };
 
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({
+  const toggleExample = (idx) => {
+    setExpandedExamples(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [idx]: !prev[idx]
     }));
   };
 
@@ -230,14 +225,16 @@ export default function TermPage() {
               {term.literal_gloss && (
                 <div style={{
                   backgroundColor: '#f0f9ff',
-                  border: '1px solid #bfdbfe',
+                  border: '2px solid #0284c7',
                   borderRadius: '8px',
-                  padding: '12px 16px',
+                  padding: '16px',
                   color: '#0c4a6e',
-                  fontSize: '14px',
-                  fontStyle: 'italic'
+                  fontSize: '15px'
                 }}>
-                  <strong>Literal Gloss:</strong> {term.literal_gloss}
+                  <strong style={{ color: '#0c4a6e' }}>Literal Gloss:</strong>
+                  <p style={{ margin: '8px 0 0 0', lineHeight: '1.6' }}>
+                    {term.literal_gloss}
+                  </p>
                 </div>
               )}
             </div>
@@ -309,44 +306,27 @@ export default function TermPage() {
                   </p>
                 </div>
 
-                {/* Ethnographic Context - Expandable */}
+                {/* Context Section */}
                 {term.context_full && (
-                  <div>
-                    <div
-                      onClick={() => toggleSection('context')}
-                      style={{
-                        backgroundColor: 'white',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: expandedSections.context ? '12px 12px 0 0' : '12px',
-                        padding: '20px 24px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                      }}
-                    >
-                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>
-                        🎯 Ethnographic Context
-                      </h3>
-                      <span style={{ color: '#94a3b8', fontSize: '20px' }}>
-                        {expandedSections.context ? '▼' : '▶'}
-                      </span>
+                  <div style={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '24px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                  }}>
+                    <h3 style={{ fontSize: '16px', color: '#1e293b', margin: '0 0 16px 0', fontWeight: '700' }}>
+                      🎯 Context & Why It's Derogatory Here
+                    </h3>
+                    <div style={{
+                      color: '#475569',
+                      lineHeight: '1.8',
+                      fontSize: '15px',
+                      whiteSpace: 'pre-wrap',
+                      wordWrap: 'break-word'
+                    }}>
+                      {term.context_full}
                     </div>
-                    {expandedSections.context && (
-                      <div style={{
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderTop: 'none',
-                        borderRadius: '0 0 12px 12px',
-                        padding: '24px',
-                        color: '#475569',
-                        lineHeight: '1.8',
-                        fontSize: '15px'
-                      }}>
-                        {term.context_full}
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -365,85 +345,154 @@ export default function TermPage() {
                   padding: '24px',
                   borderBottom: examples.length > 0 ? '1px solid #e2e8f0' : 'none'
                 }}>
-                  <h2 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>
+                  <h2 style={{ margin: '0 0 24px 0', fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>
                     💬 Examples ({examples.length})
                   </h2>
                   {examples.length === 0 ? (
                     <p style={{ color: '#94a3b8', margin: 0 }}>No examples documented yet.</p>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                       {examples.map((example, idx) => (
                         <div key={idx} style={{
-                          paddingTop: idx > 0 ? '24px' : 0,
+                          paddingTop: idx > 0 ? '32px' : 0,
                           borderTop: idx > 0 ? '1px solid #e2e8f0' : 'none'
                         }}>
-                          {/* Quote */}
-                          <p style={{
-                            margin: '0 0 12px 0',
-                            color: '#1e40af',
-                            fontSize: '15px',
-                            fontStyle: 'italic',
-                            lineHeight: '1.6',
-                            backgroundColor: '#eff6ff',
-                            border: '1px solid #bfdbfe',
-                            borderRadius: '8px',
-                            padding: '12px 16px'
-                          }}>
-                            "{typeof example === 'object' ? example.quote || example.text || JSON.stringify(example) : example}"
-                          </p>
+                          {/* Platform Badge & Metadata */}
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+                            {example.platform && (
+                              <span style={{
+                                backgroundColor: getPlatformColor(example.platform),
+                                color: 'white',
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                fontSize: '12px',
+                                fontWeight: '700',
+                                textTransform: 'capitalize'
+                              }}>
+                                {example.platform_name || example.platform}
+                              </span>
+                            )}
+                            {example.date && (
+                              <span style={{ color: '#64748b', fontSize: '13px', fontWeight: '500' }}>
+                                {new Date(example.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                              </span>
+                            )}
+                          </div>
 
-                          {/* Platform, Date, URL */}
-                          {typeof example === 'object' && (
-                            <>
-                              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap' }}>
-                                {example.platform && (
-                                  <span style={{
-                                    backgroundColor: getPlatformColor(example.platform),
-                                    color: 'white',
-                                    padding: '4px 10px',
-                                    borderRadius: '4px',
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    textTransform: 'capitalize'
-                                  }}>
-                                    {example.platform_name || example.platform}
-                                  </span>
-                                )}
-                                {example.date && (
-                                  <span style={{ color: '#64748b', fontSize: '13px', fontWeight: '500' }}>
-                                    {new Date(example.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                                  </span>
-                                )}
-                              </div>
-
-                              {/* URL Link */}
-                              {example.url && (
-                                <a href={example.url} target="_blank" rel="noopener noreferrer" style={{
-                                  display: 'inline-block',
-                                  color: '#0284c7',
-                                  fontSize: '13px',
-                                  textDecoration: 'underline',
-                                  marginBottom: '12px'
-                                }}>
-                                  View original source →
-                                </a>
+                          {/* Engagement Metrics */}
+                          {(example.engagement_metrics || example.likes || example.comments || example.reposts) && (
+                            <div style={{
+                              display: 'flex',
+                              gap: '16px',
+                              marginBottom: '16px',
+                              padding: '12px 16px',
+                              backgroundColor: '#f1f5f9',
+                              borderRadius: '8px',
+                              flexWrap: 'wrap',
+                              fontSize: '13px',
+                              color: '#64748b'
+                            }}>
+                              {(example.engagement_metrics?.views || example.views) && (
+                                <span>👁️ {example.engagement_metrics?.views || example.views} views</span>
                               )}
-
-                              {/* Context */}
-                              {example.context && (
-                                <p style={{
-                                  color: '#64748b',
-                                  fontSize: '14px',
-                                  lineHeight: '1.6',
-                                  margin: 0,
-                                  backgroundColor: '#f1f5f9',
-                                  padding: '12px 16px',
-                                  borderRadius: '8px'
-                                }}>
-                                  {example.context}
-                                </p>
+                              {(example.engagement_metrics?.likes || example.likes) && (
+                                <span>❤️ {example.engagement_metrics?.likes || example.likes} likes</span>
                               )}
-                            </>
+                              {(example.engagement_metrics?.comments || example.comments) && (
+                                <span>💬 {example.engagement_metrics?.comments || example.comments} comments</span>
+                              )}
+                              {(example.engagement_metrics?.reposts || example.reposts || example.shares) && (
+                                <span>🔄 {example.engagement_metrics?.reposts || example.reposts || example.shares} reposts</span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Full Post Content */}
+                          {(example.full_post || example.post_content) && (
+                            <div style={{
+                              backgroundColor: '#f8fafc',
+                              border: '2px solid #cbd5e1',
+                              borderRadius: '8px',
+                              padding: '16px',
+                              marginBottom: '16px',
+                              color: '#1e293b',
+                              lineHeight: '1.6',
+                              fontSize: '14px',
+                              whiteSpace: 'pre-wrap',
+                              wordWrap: 'break-word'
+                            }}>
+                              <strong style={{ display: 'block', marginBottom: '8px', color: '#2d5a7b' }}>Full Post:</strong>
+                              {example.full_post || example.post_content}
+                            </div>
+                          )}
+
+                          {/* Direct Quote Highlight */}
+                          {example.quote && (
+                            <div style={{
+                              backgroundColor: '#eff6ff',
+                              borderLeft: '4px solid #0284c7',
+                              padding: '12px 16px',
+                              marginBottom: '16px',
+                              color: '#1e40af',
+                              fontSize: '14px',
+                              fontStyle: 'italic',
+                              lineHeight: '1.6'
+                            }}>
+                              <strong>Key Quote:</strong> "{example.quote}"
+                            </div>
+                          )}
+
+                          {/* URL Link */}
+                          {example.url && (
+                            <div style={{
+                              marginBottom: '16px'
+                            }}>
+                              <a href={example.url} target="_blank" rel="noopener noreferrer" style={{
+                                display: 'inline-block',
+                                color: '#0284c7',
+                                fontSize: '13px',
+                                textDecoration: 'underline',
+                                fontWeight: '600'
+                              }}>
+                                View original post →
+                              </a>
+                            </div>
+                          )}
+
+                          {/* Context */}
+                          {example.context && (
+                            <div style={{
+                              backgroundColor: '#fef3c7',
+                              border: '1px solid #fcd34d',
+                              borderRadius: '8px',
+                              padding: '12px 16px',
+                              color: '#92400e',
+                              fontSize: '13px',
+                              lineHeight: '1.6'
+                            }}>
+                              <strong>Context:</strong> {example.context}
+                            </div>
+                          )}
+
+                          {/* Expand Button if Needed */}
+                          {(example.full_post || example.post_content) && (
+                            <div style={{ marginTop: '12px' }}>
+                              <button
+                                onClick={() => toggleExample(idx)}
+                                style={{
+                                  backgroundColor: 'white',
+                                  border: '1px solid #cbd5e1',
+                                  color: '#2d5a7b',
+                                  padding: '8px 12px',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: '600'
+                                }}
+                              >
+                                {expandedExamples[idx] ? '▼ Less' : '▶ More'}
+                              </button>
+                            </div>
                           )}
                         </div>
                       ))}
@@ -498,7 +547,7 @@ export default function TermPage() {
                           {/* Harm Title */}
                           <h4 style={{
                             margin: '8px 0 12px 0',
-                            fontSize: '15px',
+                            fontSize: '16px',
                             fontWeight: '700',
                             color: '#1e293b'
                           }}>
@@ -508,7 +557,7 @@ export default function TermPage() {
                           {/* Harm Description */}
                           {harm.description && (
                             <p style={{
-                              color: '#64748b',
+                              color: '#475569',
                               fontSize: '14px',
                               lineHeight: '1.6',
                               margin: '0 0 12px 0',
@@ -525,7 +574,7 @@ export default function TermPage() {
                             <p style={{
                               color: '#64748b',
                               fontSize: '13px',
-                              margin: 0,
+                              margin: '0 0 12px 0',
                               fontStyle: 'italic'
                             }}>
                               <strong>Impact:</strong> {harm.impact}
@@ -537,7 +586,7 @@ export default function TermPage() {
                             <p style={{
                               color: '#991b1b',
                               fontSize: '13px',
-                              margin: '8px 0 0 0',
+                              margin: 0,
                               padding: '8px 12px',
                               backgroundColor: '#fef2f2',
                               borderRadius: '4px',
@@ -688,6 +737,7 @@ export default function TermPage() {
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
               padding: '24px',
+              marginBottom: '20px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
             }}>
               <h3 style={{
@@ -813,7 +863,6 @@ export default function TermPage() {
               border: '2px solid #3b82f6',
               borderRadius: '12px',
               padding: '20px',
-              marginTop: '20px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
             }}>
               <h3 style={{
