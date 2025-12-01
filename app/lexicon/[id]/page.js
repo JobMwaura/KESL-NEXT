@@ -113,7 +113,7 @@ export default function TermPage() {
             onMouseLeave={(e) => {
               e.target.style.backgroundColor = '#2d5a7b';
             }}>
-              ← Back to Lexicon
+              â† Back to Lexicon
             </button>
           </a>
         </main>
@@ -154,7 +154,7 @@ export default function TermPage() {
             }}
             onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
             onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
-              🏠 Home
+              ðŸ  Home
             </a>
             <span style={{ color: '#cbd5e1' }}>/</span>
             <a href="/lexicon" style={{
@@ -167,7 +167,7 @@ export default function TermPage() {
             }}
             onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
             onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
-              📖 Lexicon
+              ðŸ“– Lexicon
             </a>
             <span style={{ color: '#cbd5e1' }}>/</span>
             <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>
@@ -276,7 +276,7 @@ export default function TermPage() {
                   e.target.style.boxShadow = 'none';
                 }}
               >
-                📅 View Version History
+                ðŸ“… View Version History
               </button>
             </div>
 
@@ -289,10 +289,10 @@ export default function TermPage() {
               flexWrap: 'wrap'
             }}>
               {[
-                { id: 'overview', label: '📖 Overview', icon: '📖' },
-                { id: 'context', label: '📚 Context', icon: '📚' },
-                { id: 'community', label: '💬 Community', icon: '💬' },
-                { id: 'contribute', label: '✏️ Contribute', icon: '✏️' }
+                { id: 'overview', label: 'ðŸ“– Overview', icon: 'ðŸ“–' },
+                { id: 'context', label: 'ðŸ“š Context', icon: 'ðŸ“š' },
+                { id: 'community', label: 'ðŸ’¬ Community', icon: 'ðŸ’¬' },
+                { id: 'contribute', label: 'âœï¸ Contribute', icon: 'âœï¸' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -377,7 +377,7 @@ export default function TermPage() {
                 {term.harms && Object.values(term.harms).some(v => v) && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>💔 Documented Harms</h3>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>ðŸ’” Documented Harms</h3>
                       <button
                         onClick={() => openContributionModal('harm')}
                         style={{
@@ -412,7 +412,7 @@ export default function TermPage() {
                 {term.examples && term.examples.length > 0 && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>🌐 Platforms & Migration</h3>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>ðŸŒ Platforms & Migration</h3>
                       <button
                         onClick={() => openContributionModal('example')}
                         style={{
@@ -447,7 +447,7 @@ export default function TermPage() {
                 {(term.variants?.length > 0 || term.related_terms?.length > 0) && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>🔤 Variants & Related</h3>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>ðŸ”¤ Variants & Related</h3>
                       <button
                         onClick={() => openContributionModal('relation')}
                         style={{
@@ -483,7 +483,7 @@ export default function TermPage() {
                 {term.examples && term.examples.length > 0 && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>💬 Examples</h3>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>ðŸ’¬ Examples</h3>
                     </div>
                     <ExampleSection 
                       examples={term.examples}
@@ -528,7 +528,7 @@ export default function TermPage() {
                         e.target.style.backgroundColor = '#3b82f6';
                       }}
                     >
-                      💬 Add First Example
+                      ðŸ’¬ Add First Example
                     </button>
                   </div>
                 )}
@@ -667,7 +667,7 @@ export default function TermPage() {
                     }
                   }}
                 >
-                  👍 Yes
+                  ðŸ‘ Yes
                 </button>
                 <button
                   onClick={() => handleVote(-1)}
@@ -696,7 +696,7 @@ export default function TermPage() {
                     }
                   }}
                 >
-                  👎 No
+                  ðŸ‘Ž No
                 </button>
               </div>
 
@@ -852,7 +852,7 @@ export default function TermPage() {
                       textDecoration: 'underline'
                     }}
                   >
-                    View all versions →
+                    View all versions â†’
                   </button>
                 </div>
 
@@ -949,7 +949,7 @@ export default function TermPage() {
                     e.target.style.borderColor = '#cbd5e1';
                   }}
                 >
-                  💬 Add Example
+                  ðŸ’¬ Add Example
                 </button>
                 <button
                   onClick={() => openContributionModal('context')}
@@ -975,7 +975,7 @@ export default function TermPage() {
                     e.target.style.borderColor = '#cbd5e1';
                   }}
                 >
-                  📚 Add Context
+                  ðŸ“š Add Context
                 </button>
                 <button
                   onClick={() => openContributionModal('harm')}
@@ -1001,7 +1001,7 @@ export default function TermPage() {
                     e.target.style.borderColor = '#cbd5e1';
                   }}
                 >
-                  💔 Describe Harm
+                  ðŸ’” Describe Harm
                 </button>
                 <button
                   onClick={() => openContributionModal('relation')}
@@ -1027,7 +1027,7 @@ export default function TermPage() {
                     e.target.style.borderColor = '#cbd5e1';
                   }}
                 >
-                  🔗 Add Related Term
+                  ðŸ”— Add Related Term
                 </button>
               </div>
             </div>
@@ -1090,14 +1090,14 @@ function getConfidenceColor(confidence) {
 
 function getConfidenceIcon(confidence) {
   const icons = {
-    'low': '🟡',
-    'medium': '🟠',
-    'high': '🟢',
-    'Low': '🟡',
-    'Medium': '🟠',
-    'High': '🟢'
+    'low': 'ðŸŸ¡',
+    'medium': 'ðŸŸ ',
+    'high': 'ðŸŸ¢',
+    'Low': 'ðŸŸ¡',
+    'Medium': 'ðŸŸ ',
+    'High': 'ðŸŸ¢'
   };
-  return icons[confidence] || '❓';
+  return icons[confidence] || 'â“';
 }
 
 function capitalizeFirst(str) {
