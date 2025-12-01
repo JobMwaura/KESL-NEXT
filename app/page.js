@@ -114,8 +114,8 @@ export default function Home() {
         <section style={{ padding: '60px 20px', maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
             <StatBox number="30+" label="Terms Documented" color="#10b981" />
-            <StatBox number="8+" label="Platforms Analyzed" color="#3b82f6" />
-            <StatBox number="100+" label="FGD & Interviews" color="#f59e0b" />
+            <StatBox number="5+" label="Platforms Analyzed" color="#3b82f6" />
+            <StatBox number="30+" label="FGD & Interviews" color="#f59e0b" />
             <StatBox number="1000+" label="Content Items" color="#7c3aed" />
           </div>
         </section>
