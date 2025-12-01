@@ -120,13 +120,13 @@ export async function GET(request) {
     }
 
     let query = supabase
-      .from('community_contributions')
+      .from('moderation_queue')
       .select('*')
       .eq('term_id', termId)
       .eq('status', 'approved');
 
     if (type) {
-      query = query.eq('contribution_type', type);
+      query = query.eq('type', type);
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });
@@ -138,8 +138,36 @@ export async function GET(request) {
       );
     }
 
+    // Normalize records for the client
+    const contributions = (data || []).map((item) => {
+      const normalized = {
+        ...item,
+        contribution_type: item.type,
+        type: item.type,
+        content: item.content || '',
+        platform: item.platform,
+        source: item.source_url
+      };
+
+      // Prefer data payload fields when present
+      if (item.data) {
+        normalized.content =
+          item.content ||
+          item.data.context ||
+          item.data.harm_description ||
+          item.data.quote ||
+          item.data.relation_type ||
+          '';
+        normalized.platform = item.platform || item.data.platform;
+        normalized.date_observed = item.date_observed || item.data.date_observed;
+        normalized.source = item.source || item.data.source_url;
+      }
+
+      return normalized;
+    });
+
     return new Response(
-      JSON.stringify({ contributions: data || [] }),
+      JSON.stringify({ contributions }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
 
