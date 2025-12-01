@@ -4,7 +4,14 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ApprovedContributions from '@/components/ApprovedContributions';
+import CommunityContributionForm from '@/components/CommunityContributionForm';
 import ContributeModal from '@/components/ContributeModal';
+import ExampleSection from '@/components/ExampleSection';
+import HarmSection from '@/components/HarmSection';
+import PlatformMigration from '@/components/PlatformMigration';
+import VariantsSection from '@/components/VariantsSection';
+import VersionBadge from '@/components/VersionBadge';
 import { fetchTermById } from '@/lib/supabase';
 
 export default function TermPage() {
@@ -14,7 +21,8 @@ export default function TermPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [expandedSections, setExpandedSections] = useState({});
+  const [votes, setVotes] = useState(0);
+  const [userVote, setUserVote] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
 
@@ -24,6 +32,7 @@ export default function TermPage() {
         setLoading(true);
         const data = await fetchTermById(params.id);
         setTerm(data);
+        setVotes(data.helpful_count || 0);
       } catch (err) {
         console.error('Error loading term:', err);
         setError('Failed to load term');
@@ -37,13 +46,6 @@ export default function TermPage() {
     }
   }, [params.id]);
 
-  const toggleSection = (sectionId) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionId]: !prev[sectionId]
-    }));
-  };
-
   const openContributionModal = (type) => {
     setModalType(type);
     setModalOpen(true);
@@ -54,49 +56,14 @@ export default function TermPage() {
     setModalType(null);
   };
 
-  // Helper functions for colors
-  const getCategoryColor = (category) => {
-    const colors = {
-      'Derogatory': '#dc2626',
-      'Exclusionary': '#f97316',
-      'Dangerous': '#991b1b',
-      'Coded': '#7c3aed'
-    };
-    return colors[category] || '#6b7280';
-  };
-
-  const getRiskColor = (risk) => {
-    const colors = {
-      'Low': '#10b981',
-      'Medium': '#f59e0b',
-      'High': '#ef4444',
-      'Very High': '#991b1b'
-    };
-    return colors[risk] || '#6b7280';
-  };
-
-  const getPlatformColor = (platform) => {
-    const colors = {
-      'reddit': '#ff4500',
-      'Reddit': '#ff4500',
-      'telegram': '#0088cc',
-      'Telegram': '#0088cc',
-      'kenyatalk': '#8b5cf6',
-      'KenyaTalk': '#8b5cf6',
-      'x': '#000000',
-      'X': '#000000',
-      'tiktok': '#00f7ef',
-      'TikTok': '#00f7ef'
-    };
-    return colors[platform] || '#6b7280';
-  };
-
   if (loading) {
     return (
       <>
         <Header />
         <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ textAlign: 'center' }}>
+          <div style={{
+            textAlign: 'center'
+          }}>
             <div style={{
               display: 'inline-block',
               width: '40px',
@@ -137,9 +104,16 @@ export default function TermPage() {
               borderRadius: '6px',
               cursor: 'pointer',
               fontWeight: '600',
-              fontSize: '14px'
+              fontSize: '14px',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#1a3a52';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#2d5a7b';
             }}>
-              Back to Lexicon
+              ← Back to Lexicon
             </button>
           </a>
         </main>
@@ -148,709 +122,985 @@ export default function TermPage() {
     );
   }
 
+  const handleVote = (value) => {
+    if (userVote === value) {
+      setVotes(votes - value);
+      setUserVote(0);
+    } else {
+      setVotes(votes - userVote + value);
+      setUserVote(value);
+    }
+  };
+
   return (
     <>
       <Header />
-      <main style={{ padding: '40px 20px', maxWidth: '1400px', margin: '0 auto' }}>
-        {/* Header Section */}
-        <div style={{ marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '42px', fontWeight: 'bold', color: '#1e293b', marginBottom: '12px' }}>
-            {term.term}
-          </h1>
-          <p style={{ fontSize: '16px', color: '#64748b', marginBottom: '20px' }}>
-            {term.language || 'Language not specified'}
-          </p>
-
-          {/* Badges - FIXED field names from database */}
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
-            {term.category && (
-              <span style={{
-                padding: '8px 16px',
-                backgroundColor: getCategoryColor(term.category),
-                color: 'white',
-                borderRadius: '20px',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {term.category}
-              </span>
-            )}
-            {term.risk && (
-              <span style={{
-                padding: '8px 16px',
-                backgroundColor: getRiskColor(term.risk),
-                color: 'white',
-                borderRadius: '20px',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                Risk: {term.risk}
-              </span>
-            )}
-            {term.confidence_level && (
-              <span style={{
-                padding: '8px 16px',
-                backgroundColor: '#f59e0b',
-                color: 'white',
-                borderRadius: '20px',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                Confidence: {term.confidence_level}%
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Context Box */}
-        {term.context_summary && (
-          <div style={{
-            backgroundColor: '#eff6ff',
-            border: '2px solid #0284c7',
-            borderRadius: '8px',
-            padding: '20px',
-            marginBottom: '30px'
-          }}>
-            <p style={{ fontSize: '16px', color: '#1e293b', lineHeight: '1.6', margin: 0 }}>
-              <strong>Quick Context:</strong> {term.context_summary}
-            </p>
-          </div>
-        )}
-
-        {/* Tab Navigation */}
-        <div style={{
-          display: 'flex',
-          gap: '30px',
-          borderBottom: '2px solid #e2e8f0',
-          marginBottom: '30px',
-          overflowX: 'auto',
-          paddingBottom: '0'
+      <main style={{ minHeight: '100vh', paddingBottom: '60px' }}>
+        {/* Breadcrumb Navigation */}
+        <nav style={{
+          padding: '20px',
+          backgroundColor: '#f8fafc',
+          borderBottom: '1px solid #e2e8f0',
+          marginBottom: '40px'
         }}>
-          {[
-            { id: 'overview', label: '📖 Overview', icon: '📖' },
-            { id: 'platforms', label: '🌐 Platforms', icon: '🌐' },
-            { id: 'examples', label: '💬 Examples', icon: '💬' },
-            { id: 'harms', label: '⚠️ Harms', icon: '⚠️' },
-            { id: 'variants', label: '🔗 Variants', icon: '🔗' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                borderBottom: activeTab === tab.id ? '3px solid #2d5a7b' : '3px solid transparent',
-                color: activeTab === tab.id ? '#2d5a7b' : '#94a3b8',
-                cursor: 'pointer',
-                fontWeight: activeTab === tab.id ? '600' : '400',
-                fontSize: '14px',
-                transition: 'all 0.3s ease',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+          <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <a href="/" style={{
+              textDecoration: 'none',
+              color: '#2d5a7b',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'color 0.2s',
+              padding: '6px 0'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
+            onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
+              🏠 Home
+            </a>
+            <span style={{ color: '#cbd5e1' }}>/</span>
+            <a href="/lexicon" style={{
+              textDecoration: 'none',
+              color: '#2d5a7b',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'color 0.2s',
+              padding: '6px 0'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
+            onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
+              📖 Lexicon
+            </a>
+            <span style={{ color: '#cbd5e1' }}>/</span>
+            <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>
+              {term.term}
+            </span>
+          </div>
+        </nav>
 
-        {/* OVERVIEW TAB */}
-        {activeTab === 'overview' && (
-          <div style={{ maxWidth: '900px' }}>
-            {/* Literal Gloss */}
-            {term.literal_gloss && (
-              <div style={{
-                backgroundColor: '#f0f9ff',
-                border: '2px solid #0284c7',
-                borderRadius: '8px',
-                padding: '20px',
-                marginBottom: '30px'
-              }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', marginTop: 0 }}>Literal Gloss</h3>
-                <p style={{ fontSize: '15px', color: '#1e293b', lineHeight: '1.6', margin: 0 }}>
-                  {term.literal_gloss}
-                </p>
+        {/* Main Content */}
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 320px', gap: '40px' }}>
+          
+          {/* Left Column - Main Content */}
+          <div>
+            {/* Header Section - UPDATED WITH PHASE 6 */}
+            <div style={{
+              backgroundColor: 'white',
+              border: '1px solid #cbd5e1',
+              borderRadius: '10px',
+              padding: '40px',
+              marginBottom: '40px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ flex: 1 }}>
+                  <h1 style={{
+                    fontSize: '52px',
+                    color: '#1e293b',
+                    margin: '0 0 10px 0',
+                    fontWeight: '700'
+                  }}>
+                    {term.term}
+                  </h1>
+                  
+                  <p style={{
+                    fontSize: '16px',
+                    color: '#94a3b8',
+                    margin: '0 0 20px 0'
+                  }}>
+                    {term.language}
+                  </p>
+                </div>
+                {/* PHASE 6: Version Badge */}
+                <VersionBadge 
+                  versionNumber={term.version_number || 1}
+                  termId={term.id}
+                  size="medium"
+                />
               </div>
-            )}
 
-            {/* Definition */}
-            <div style={{ marginBottom: '30px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', marginBottom: '12px' }}>
-                📚 Definition
-              </h3>
-              <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.8', marginBottom: 0 }}>
-                {term.meaning || term.definition || 'Definition not available'}
-              </p>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
+                <span style={{
+                  backgroundColor: getCategoryColor(term.category),
+                  color: 'white',
+                  padding: '8px 14px',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  textTransform: 'capitalize'
+                }}>
+                  {term.category}
+                </span>
+                <span style={{
+                  backgroundColor: getRiskColor(term.risk),
+                  color: 'white',
+                  padding: '8px 14px',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: '700'
+                }}>
+                  Risk: {term.risk}
+                </span>
+                {term.confidence_level && (
+                  <span style={{
+                    backgroundColor: getConfidenceColor(term.confidence_level),
+                    color: 'white',
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '700'
+                  }}>
+                    {getConfidenceIcon(term.confidence_level)} Confidence
+                  </span>
+                )}
+              </div>
+
+              {/* PHASE 6: View Version History Button */}
+              <button
+                onClick={() => router.push(`/lexicon/${term.id}/versions`)}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#dbeafe',
+                  color: '#0c4a6e',
+                  border: '1px solid #0284c7',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  transition: 'all 0.2s',
+                  display: 'inline-block'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#bfdbfe';
+                  e.target.style.boxShadow = '0 2px 4px rgba(2, 132, 199, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#dbeafe';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                📅 View Version History
+              </button>
             </div>
 
-            {/* Full Context */}
-            {term.context_full && (
-              <div style={{ marginBottom: '30px' }}>
+            {/* Tabs */}
+            <div style={{
+              display: 'flex',
+              gap: '0',
+              borderBottom: '2px solid #e2e8f0',
+              marginBottom: '30px',
+              flexWrap: 'wrap'
+            }}>
+              {[
+                { id: 'overview', label: '📖 Overview', icon: '📖' },
+                { id: 'context', label: '📚 Context', icon: '📚' },
+                { id: 'community', label: '💬 Community', icon: '💬' },
+                { id: 'contribute', label: '✏️ Contribute', icon: '✏️' }
+              ].map(tab => (
                 <button
-                  onClick={() => toggleSection('fullContext')}
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
                   style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '6px',
-                    textAlign: 'left',
+                    padding: '16px 20px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderBottom: activeTab === tab.id ? '3px solid #2d5a7b' : '3px solid transparent',
+                    color: activeTab === tab.id ? '#2d5a7b' : '#94a3b8',
                     cursor: 'pointer',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    color: '#1e293b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
+                    fontWeight: activeTab === tab.id ? '700' : '500',
+                    fontSize: '14px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== tab.id) e.target.style.color = '#64748b';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== tab.id) e.target.style.color = '#94a3b8';
                   }}
                 >
-                  {expandedSections.fullContext ? '▼' : '▶'} Show Full Context
+                  {tab.label}
                 </button>
-                {expandedSections.fullContext && (
+              ))}
+            </div>
+
+            {/* Overview Tab */}
+            {activeTab === 'overview' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '30px'
+              }}>
+                {/* Definition Section */}
+                <div style={{
+                  backgroundColor: 'white',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '10px',
+                  padding: '40px'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px'
+                  }}>
+                    <h2 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '700' }}>
+                      Definition
+                    </h2>
+                  </div>
+                  <p style={{
+                    fontSize: '16px',
+                    color: '#475569',
+                    lineHeight: '1.8',
+                    marginBottom: '30px'
+                  }}>
+                    {term.meaning}
+                  </p>
+
+                  {term.literal_gloss && (
+                    <>
+                      <h3 style={{ fontSize: '18px', color: '#1e293b', marginTop: '30px', marginBottom: '15px', fontWeight: '700' }}>
+                        Literal Gloss
+                      </h3>
+                      <p style={{
+                        fontSize: '15px',
+                        color: '#475569',
+                        lineHeight: '1.7',
+                        backgroundColor: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        padding: '16px'
+                      }}>
+                        {term.literal_gloss}
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                {/* Harms Section */}
+                {term.harms && Object.values(term.harms).some(v => v) && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>💔 Documented Harms</h3>
+                      <button
+                        onClick={() => openContributionModal('harm')}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: '#fee2e2',
+                          color: '#991b1b',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '13px',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#fecaca';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = '#fee2e2';
+                        }}
+                      >
+                        + Add Harm
+                      </button>
+                    </div>
+                    <HarmSection 
+                      harms={term.harms}
+                      harm_details={term.harm_details}
+                    />
+                  </div>
+                )}
+
+                {/* Platform Migration Section */}
+                {term.examples && term.examples.length > 0 && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>🌐 Platforms & Migration</h3>
+                      <button
+                        onClick={() => openContributionModal('example')}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: '#dbeafe',
+                          color: '#0c4a6e',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '13px',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#bfdbfe';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = '#dbeafe';
+                        }}
+                      >
+                        + Add Example
+                      </button>
+                    </div>
+                    <PlatformMigration 
+                      examples={term.examples}
+                      migration={term.migration}
+                    />
+                  </div>
+                )}
+
+                {/* Variants Section */}
+                {(term.variants?.length > 0 || term.related_terms?.length > 0) && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>🔤 Variants & Related</h3>
+                      <button
+                        onClick={() => openContributionModal('relation')}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: '#e0e7ff',
+                          color: '#3730a3',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '13px',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#c7d2e8';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = '#e0e7ff';
+                        }}
+                      >
+                        + Add Related
+                      </button>
+                    </div>
+                    <VariantsSection 
+                      variants={term.variants}
+                      related_terms={term.related_terms}
+                      currentTermId={term.id}
+                    />
+                  </div>
+                )}
+
+                {/* Examples Section */}
+                {term.examples && term.examples.length > 0 && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>💬 Examples</h3>
+                    </div>
+                    <ExampleSection 
+                      examples={term.examples}
+                      termId={term.id}
+                    />
+                  </div>
+                )}
+
+                {/* Empty State - No Examples */}
+                {(!term.examples || term.examples.length === 0) && (
                   <div style={{
                     backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderTop: 'none',
-                    borderRadius: '0 0 6px 6px',
-                    padding: '16px',
-                    marginTop: 0
+                    border: '2px dashed #cbd5e1',
+                    borderRadius: '10px',
+                    padding: '40px',
+                    textAlign: 'center'
                   }}>
-                    <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
-                      {term.context_full}
+                    <p style={{
+                      fontSize: '16px',
+                      color: '#64748b',
+                      margin: '0 0 16px 0'
+                    }}>
+                      No examples documented yet. Help us by adding one!
                     </p>
+                    <button
+                      onClick={() => openContributionModal('example')}
+                      style={{
+                        padding: '12px 24px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#2563eb';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#3b82f6';
+                      }}
+                    >
+                      💬 Add First Example
+                    </button>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Registers/Tone */}
-            {term.registers && (
-              <div style={{ marginBottom: '30px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '12px' }}>
-                  🎭 Registers & Tone
-                </h3>
+            {/* Context Tab */}
+            {activeTab === 'context' && (
+              <div style={{
+                backgroundColor: 'white',
+                border: '1px solid #cbd5e1',
+                borderRadius: '10px',
+                padding: '40px'
+              }}>
                 <div style={{
-                  backgroundColor: '#fef2f2',
-                  border: '1px solid #fee2e2',
-                  borderRadius: '6px',
-                  padding: '16px'
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '20px'
                 }}>
-                  <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.7', margin: 0 }}>
-                    {term.registers}
+                  <h2 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '700' }}>
+                    Context & Examples
+                  </h2>
+                  <button
+                    onClick={() => openContributionModal('context')}
+                    style={{
+                      padding: '10px 18px',
+                      backgroundColor: '#dbeafe',
+                      color: '#0c4a6e',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      fontSize: '13px',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#bfdbfe';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = '#dbeafe';
+                    }}
+                  >
+                    + Add Context
+                  </button>
+                </div>
+                
+                {term.context_history ? (
+                  <p style={{
+                    fontSize: '16px',
+                    color: '#475569',
+                    lineHeight: '1.8',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '20px'
+                  }}>
+                    {term.context_history}
+                  </p>
+                ) : (
+                  <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '15px' }}>
+                    No context documented yet. Be the first to contribute!
+                  </p>
+                )}
+
+                {/* Community contributions for context */}
+                <div style={{ marginTop: '30px' }}>
+                  <ApprovedContributions termId={params.id} type="context" />
+                </div>
+              </div>
+            )}
+
+            {/* Community Tab */}
+            {activeTab === 'community' && (
+              <div>
+                <ApprovedContributions termId={params.id} />
+              </div>
+            )}
+
+            {/* Contribute Tab */}
+            {activeTab === 'contribute' && (
+              <CommunityContributionForm termId={params.id} termName={term.term} />
+            )}
+          </div>
+
+          {/* Right Sidebar - UPDATED WITH PHASE 6 VERSION INFO */}
+          <aside>
+            {/* Helpful Card */}
+            <div style={{
+              backgroundColor: 'white',
+              border: '2px solid #cbd5e1',
+              borderRadius: '10px',
+              padding: '24px',
+              marginBottom: '20px',
+              position: 'sticky',
+              top: '20px'
+            }}>
+              <p style={{
+                fontSize: '14px',
+                fontWeight: '700',
+                color: '#1e293b',
+                marginBottom: '16px',
+                textAlign: 'center'
+              }}>
+                Is this helpful?
+              </p>
+
+              <div style={{
+                display: 'flex',
+                gap: '8px'
+              }}>
+                <button
+                  onClick={() => handleVote(1)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: userVote === 1 ? '#10b981' : '#f1f5f9',
+                    color: userVote === 1 ? 'white' : '#64748b',
+                    border: `2px solid ${userVote === 1 ? '#10b981' : '#e2e8f0'}`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (userVote !== 1) {
+                      e.target.style.backgroundColor = '#e2e8f0';
+                      e.target.style.borderColor = '#cbd5e1';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (userVote !== 1) {
+                      e.target.style.backgroundColor = '#f1f5f9';
+                      e.target.style.borderColor = '#e2e8f0';
+                    }
+                  }}
+                >
+                  👍 Yes
+                </button>
+                <button
+                  onClick={() => handleVote(-1)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: userVote === -1 ? '#ef4444' : '#f1f5f9',
+                    color: userVote === -1 ? 'white' : '#64748b',
+                    border: `2px solid ${userVote === -1 ? '#ef4444' : '#e2e8f0'}`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (userVote !== -1) {
+                      e.target.style.backgroundColor = '#e2e8f0';
+                      e.target.style.borderColor = '#cbd5e1';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (userVote !== -1) {
+                      e.target.style.backgroundColor = '#f1f5f9';
+                      e.target.style.borderColor = '#e2e8f0';
+                    }
+                  }}
+                >
+                  👎 No
+                </button>
+              </div>
+
+              <p style={{
+                fontSize: '12px',
+                color: '#94a3b8',
+                margin: '12px 0 0 0',
+                textAlign: 'center'
+              }}>
+                {votes} found helpful
+              </p>
+            </div>
+
+            {/* Metadata Card - UPDATED WITH PHASE 6 VERSION INFO */}
+            <div style={{
+              backgroundColor: 'white',
+              border: '1px solid #cbd5e1',
+              borderRadius: '10px',
+              padding: '24px'
+            }}>
+              <h3 style={{
+                fontSize: '14px',
+                fontWeight: '700',
+                color: '#1e293b',
+                marginBottom: '16px'
+              }}>
+                Metadata
+              </h3>
+
+              <div style={{ display: 'grid', gap: '14px' }}>
+                <div>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 4px 0'
+                  }}>
+                    Citation ID
+                  </p>
+                  <p style={{
+                    fontSize: '16px',
+                    color: '#2d5a7b',
+                    margin: 0,
+                    fontWeight: '700',
+                    fontFamily: 'monospace',
+                    letterSpacing: '0.5px'
+                  }}>
+                    {term.kel_id || 'KEL-0001'}
+                  </p>
+                  <p style={{
+                    fontSize: '10px',
+                    color: '#94a3b8',
+                    margin: '4px 0 0 0',
+                    fontStyle: 'italic'
+                  }}>
+                    Use this ID to cite
+                  </p>
+                </div>
+
+                <div>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 4px 0'
+                  }}>
+                    Language
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    margin: 0,
+                    fontWeight: '500'
+                  }}>
+                    {term.language}
+                  </p>
+                </div>
+
+                <div>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 4px 0'
+                  }}>
+                    Category
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    margin: 0,
+                    fontWeight: '500'
+                  }}>
+                    {term.category}
+                  </p>
+                </div>
+
+                <div>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 4px 0'
+                  }}>
+                    Risk Level
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    margin: 0,
+                    fontWeight: '500'
+                  }}>
+                    {term.risk}
+                  </p>
+                </div>
+
+                {/* PHASE 6: Version Info Section */}
+                <div style={{
+                  paddingTop: '14px',
+                  borderTop: '1px solid #e2e8f0'
+                }}>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 4px 0'
+                  }}>
+                    Version
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    margin: '0 0 8px 0',
+                    fontWeight: '500'
+                  }}>
+                    v{term.version_number || 1}
+                  </p>
+                  <button
+                    onClick={() => router.push(`/lexicon/${term.id}/versions`)}
+                    style={{
+                      fontSize: '12px',
+                      color: '#0284c7',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      padding: '0',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    View all versions →
+                  </button>
+                </div>
+
+                {term.confidence_level && (
+                  <div>
+                    <p style={{
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      color: '#94a3b8',
+                      textTransform: 'uppercase',
+                      margin: '0 0 4px 0'
+                    }}>
+                      Data Confidence
+                    </p>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#1e293b',
+                      margin: 0,
+                      fontWeight: '500'
+                    }}>
+                      {getConfidenceIcon(term.confidence_level)} {capitalizeFirst(term.confidence_level)}
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 4px 0'
+                  }}>
+                    Submitted
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    margin: 0,
+                    fontWeight: '500'
+                  }}>
+                    {new Date(term.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
-            )}
-          </div>
-        )}
-
-        {/* PLATFORMS TAB - DATA PROPERLY SEPARATED */}
-        {activeTab === 'platforms' && (
-          <div style={{ maxWidth: '900px' }}>
-            {term.platform_dynamics ? (
-              <>
-                {/* Summary */}
-                {typeof term.platform_dynamics === 'object' && term.platform_dynamics.summary && (
-                  <div style={{
-                    backgroundColor: '#f0fdf4',
-                    border: '2px solid #16a34a',
-                    borderRadius: '8px',
-                    padding: '20px',
-                    marginBottom: '30px'
-                  }}>
-                    <p style={{ fontSize: '15px', color: '#1e293b', lineHeight: '1.7', margin: 0 }}>
-                      {term.platform_dynamics.summary}
-                    </p>
-                  </div>
-                )}
-
-                {/* Migration Pattern */}
-                {typeof term.platform_dynamics === 'object' && Array.isArray(term.platform_dynamics.migration) && (
-                  <div style={{ marginBottom: '30px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', marginBottom: '20px' }}>
-                      📱 Platform Migration Pattern
-                    </h3>
-
-                    {term.platform_dynamics.migration.map((step, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          backgroundColor: 'white',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '8px',
-                          padding: '20px',
-                          marginBottom: '15px',
-                          overflow: 'hidden'
-                        }}
-                      >
-                        {/* Step Header */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                          <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '32px',
-                            height: '32px',
-                            backgroundColor: getPlatformColor(step.platform),
-                            color: 'white',
-                            borderRadius: '50%',
-                            fontWeight: 'bold',
-                            fontSize: '14px'
-                          }}>
-                            {idx + 1}
-                          </span>
-                          <div>
-                            <h4 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', margin: 0 }}>
-                              {step.platform_name || step.platform}
-                            </h4>
-                            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
-                              {step.date_range || step.date}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Details Grid */}
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                          gap: '16px',
-                          marginBottom: '16px'
-                        }}>
-                          {step.characteristics && (
-                            <div style={{
-                              backgroundColor: '#f8fafc',
-                              padding: '12px',
-                              borderRadius: '6px'
-                            }}>
-                              <p style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', margin: '0 0 8px 0' }}>CHARACTERISTICS</p>
-                              <ul style={{ fontSize: '13px', color: '#475569', margin: 0, paddingLeft: '20px' }}>
-                                {Object.entries(step.characteristics).map(([key, val]) => (
-                                  <li key={key} style={{ marginBottom: '4px' }}>
-                                    <strong>{key}:</strong> {val}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          {step.discourse_level && (
-                            <div style={{
-                              backgroundColor: '#fef2f2',
-                              padding: '12px',
-                              borderRadius: '6px'
-                            }}>
-                              <p style={{ fontSize: '12px', color: '#991b1b', fontWeight: '600', margin: '0 0 8px 0' }}>DISCOURSE LEVEL</p>
-                              <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>
-                                {step.discourse_level}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Mechanism */}
-                        {step.mechanism && (
-                          <div style={{
-                            backgroundColor: '#f0f9ff',
-                            borderLeft: '4px solid #0284c7',
-                            padding: '12px',
-                            borderRadius: '4px'
-                          }}>
-                            <p style={{ fontSize: '12px', color: '#0284c7', fontWeight: '600', margin: '0 0 6px 0' }}>HOW IT SPREAD</p>
-                            <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>
-                              {step.mechanism}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Key Mechanisms */}
-                {typeof term.platform_dynamics === 'object' && term.platform_dynamics.key_mechanisms && (
-                  <div>
-                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '16px' }}>
-                      🔑 Key Mechanisms
-                    </h3>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                      gap: '12px'
-                    }}>
-                      {Object.entries(term.platform_dynamics.key_mechanisms).map(([key, val]) => (
-                        <div key={key} style={{
-                          backgroundColor: '#f3e8ff',
-                          border: '1px solid #e9d5ff',
-                          borderRadius: '6px',
-                          padding: '12px'
-                        }}>
-                          <p style={{ fontSize: '12px', fontWeight: '600', color: '#7c3aed', margin: '0 0 6px 0' }}>
-                            {key.replace(/_/g, ' ').toUpperCase()}
-                          </p>
-                          <p style={{ fontSize: '12px', color: '#475569', margin: 0 }}>
-                            {val}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p style={{ color: '#94a3b8' }}>Platform dynamics data not yet available for this term.</p>
-            )}
-          </div>
-        )}
-
-        {/* EXAMPLES TAB - ONLY EXAMPLES + ENGAGEMENT METRICS */}
-        {activeTab === 'examples' && (
-          <div style={{ maxWidth: '900px' }}>
-            {term.examples_detailed && term.examples_detailed.length > 0 ? (
-              term.examples_detailed.map((example, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    padding: '20px',
-                    marginBottom: '20px'
-                  }}
-                >
-                  {/* Platform Badge + Date */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <span style={{
-                      padding: '4px 12px',
-                      backgroundColor: getPlatformColor(example.platform),
-                      color: 'white',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: '600'
-                    }}>
-                      {example.platform_name || example.platform}
-                    </span>
-                    <span style={{ fontSize: '13px', color: '#94a3b8' }}>
-                      {example.date}
-                    </span>
-                  </div>
-
-                  {/* ENGAGEMENT METRICS - NOW IN EXAMPLES TAB */}
-                  {example.engagement_metrics && (
-                    <div style={{
-                      display: 'flex',
-                      gap: '20px',
-                      backgroundColor: '#f8fafc',
-                      padding: '12px',
-                      borderRadius: '6px',
-                      marginBottom: '16px',
-                      fontSize: '13px',
-                      flexWrap: 'wrap'
-                    }}>
-                      {example.engagement_metrics.views && <div>👁️ <strong>{example.engagement_metrics.views}</strong> views</div>}
-                      {example.engagement_metrics.likes && <div>❤️ <strong>{example.engagement_metrics.likes}</strong> likes</div>}
-                      {example.engagement_metrics.comments && <div>💬 <strong>{example.engagement_metrics.comments}</strong> comments</div>}
-                      {example.engagement_metrics.reposts && <div>🔄 <strong>{example.engagement_metrics.reposts}</strong> reposts</div>}
-                    </div>
-                  )}
-
-                  {/* Key Quote */}
-                  {example.quote && (
-                    <div style={{
-                      backgroundColor: '#dbeafe',
-                      borderLeft: '4px solid #0284c7',
-                      padding: '12px',
-                      borderRadius: '4px',
-                      marginBottom: '16px'
-                    }}>
-                      <p style={{ fontSize: '14px', color: '#1e293b', fontStyle: 'italic', margin: 0 }}>
-                        "{example.quote}"
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Full Post */}
-                  {example.full_post && (
-                    <div style={{
-                      backgroundColor: '#1e293b',
-                      color: '#e2e8f0',
-                      padding: '12px',
-                      borderRadius: '6px',
-                      fontFamily: 'monospace',
-                      fontSize: '12px',
-                      lineHeight: '1.6',
-                      overflowX: 'auto',
-                      marginBottom: '16px'
-                    }}>
-                      <p style={{ margin: 0, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-                        {example.full_post}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Context */}
-                  {example.context && (
-                    <div style={{
-                      backgroundColor: '#fef3c7',
-                      border: '1px solid #fcd34d',
-                      borderRadius: '6px',
-                      padding: '12px'
-                    }}>
-                      <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.6', margin: 0 }}>
-                        {example.context}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* URL */}
-                  {example.url && (
-                    <div style={{ marginTop: '12px' }}>
-                      <a
-                        href={example.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          fontSize: '13px',
-                          color: '#0284c7',
-                          textDecoration: 'none',
-                          fontWeight: '600'
-                        }}
-                      >
-                        View original post →
-                      </a>
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p style={{ color: '#94a3b8' }}>No examples available yet for this term.</p>
-            )}
-          </div>
-        )}
-
-        {/* HARMS TAB */}
-        {activeTab === 'harms' && (
-          <div style={{ maxWidth: '900px' }}>
-            <div style={{
-              backgroundColor: '#fef3c7',
-              border: '1px solid #fcd34d',
-              borderRadius: '6px',
-              padding: '16px',
-              marginBottom: '30px'
-            }}>
-              <p style={{ fontSize: '14px', color: '#1e293b', lineHeight: '1.6', margin: 0 }}>
-                <strong>How does this term cause harm?</strong> Rather than waiting for you to ask, we've documented the specific mechanisms of harm below so you understand the impact.
-              </p>
             </div>
 
-            {term.harms_detailed && term.harms_detailed.length > 0 ? (
-              term.harms_detailed.map((harm, idx) => (
-                <div
-                  key={idx}
+            {/* Quick Contribute Card */}
+            <div style={{
+              backgroundColor: '#f8fafc',
+              border: '2px solid #3b82f6',
+              borderRadius: '10px',
+              padding: '20px',
+              marginTop: '20px'
+            }}>
+              <h3 style={{
+                fontSize: '14px',
+                fontWeight: '700',
+                color: '#1e293b',
+                marginBottom: '12px'
+              }}>
+                Quick Contribute
+              </h3>
+              <p style={{
+                fontSize: '12px',
+                color: '#64748b',
+                margin: '0 0 12px 0',
+                lineHeight: '1.5'
+              }}>
+                Help improve this entry by adding examples, context, or related terms.
+              </p>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                <button
+                  onClick={() => openContributionModal('example')}
                   style={{
+                    width: '100%',
+                    padding: '10px',
                     backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    padding: '20px',
-                    marginBottom: '20px'
+                    color: '#0c4a6e',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '12px',
+                    transition: 'all 0.2s',
+                    textAlign: 'center'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#dbeafe';
+                    e.target.style.borderColor = '#0c4a6e';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'white';
+                    e.target.style.borderColor = '#cbd5e1';
                   }}
                 >
-                  {/* Harm Type Badge */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                    <span style={{
-                      padding: '6px 12px',
-                      backgroundColor: '#fbbf24',
-                      color: '#78350f',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: '600'
-                    }}>
-                      {harm.type}
-                    </span>
-                  </div>
-
-                  {/* Harm Title */}
-                  <h4 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '12px' }}>
-                    {harm.title}
-                  </h4>
-
-                  {/* How it causes harm */}
-                  {harm.description && (
-                    <div style={{
-                      backgroundColor: '#fef2f2',
-                      borderLeft: '4px solid #dc2626',
-                      padding: '12px',
-                      borderRadius: '4px',
-                      marginBottom: '16px'
-                    }}>
-                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#991b1b', margin: '0 0 6px 0' }}>
-                        HOW IT CAUSES HARM
-                      </p>
-                      <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6', margin: 0 }}>
-                        {harm.description}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Who is impacted */}
-                  {harm.impact && (
-                    <div style={{
-                      backgroundColor: '#fce7f3',
-                      padding: '12px',
-                      borderRadius: '6px',
-                      marginBottom: '16px'
-                    }}>
-                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#831843', margin: '0 0 6px 0' }}>
-                        WHO IS IMPACTED
-                      </p>
-                      <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>
-                        {harm.impact}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Evidence */}
-                  {harm.evidence && (
-                    <div style={{
-                      backgroundColor: '#fee2e2',
-                      borderLeft: '4px solid #991b1b',
-                      padding: '12px',
-                      borderRadius: '4px'
-                    }}>
-                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#991b1b', margin: '0 0 6px 0' }}>
-                        EVIDENCE FROM THE FIELD
-                      </p>
-                      <p style={{ fontSize: '13px', color: '#475569', fontStyle: 'italic', margin: 0 }}>
-                        "{harm.evidence}"
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p style={{ color: '#94a3b8' }}>Harm analysis not yet available for this term.</p>
-            )}
-          </div>
-        )}
-
-        {/* VARIANTS TAB */}
-        {activeTab === 'variants' && (
-          <div style={{ maxWidth: '900px' }}>
-            {term.variants && term.variants.length > 0 ? (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                gap: '16px'
-              }}>
-                {term.variants.map((variant, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      backgroundColor: 'white',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '8px',
-                      padding: '16px',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    <h4 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                      {variant}
-                    </h4>
-                    <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>
-                      Related variant of this term
-                    </p>
-                  </div>
-                ))}
+                  💬 Add Example
+                </button>
+                <button
+                  onClick={() => openContributionModal('context')}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    backgroundColor: 'white',
+                    color: '#0c4a6e',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '12px',
+                    transition: 'all 0.2s',
+                    textAlign: 'center'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#dbeafe';
+                    e.target.style.borderColor = '#0c4a6e';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'white';
+                    e.target.style.borderColor = '#cbd5e1';
+                  }}
+                >
+                  📚 Add Context
+                </button>
+                <button
+                  onClick={() => openContributionModal('harm')}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    backgroundColor: 'white',
+                    color: '#991b1b',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '12px',
+                    transition: 'all 0.2s',
+                    textAlign: 'center'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#fee2e2';
+                    e.target.style.borderColor = '#991b1b';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'white';
+                    e.target.style.borderColor = '#cbd5e1';
+                  }}
+                >
+                  💔 Describe Harm
+                </button>
+                <button
+                  onClick={() => openContributionModal('relation')}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    backgroundColor: 'white',
+                    color: '#3730a3',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '12px',
+                    transition: 'all 0.2s',
+                    textAlign: 'center'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#e0e7ff';
+                    e.target.style.borderColor = '#3730a3';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'white';
+                    e.target.style.borderColor = '#cbd5e1';
+                  }}
+                >
+                  🔗 Add Related Term
+                </button>
               </div>
-            ) : (
-              <p style={{ color: '#94a3b8' }}>No variants documented yet for this term.</p>
-            )}
-          </div>
-        )}
-
-        {/* Contribute Section - BUTTONS FULLY FUNCTIONAL */}
-        <div style={{
-          marginTop: '50px',
-          padding: '30px',
-          backgroundColor: '#f0f9ff',
-          border: '2px solid #0284c7',
-          borderRadius: '8px',
-          maxWidth: '900px'
-        }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', marginTop: 0 }}>
-            Contribute
-          </h3>
-          <p style={{ fontSize: '14px', color: '#475569', marginBottom: '16px' }}>
-            Help improve this entry with more examples or context.
-          </p>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => openContributionModal('example')}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#2d5a7b',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '14px',
-                transition: 'background-color 0.3s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#1a3a52'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#2d5a7b'}
-            >
-              💬 Add Example
-            </button>
-            <button
-              onClick={() => openContributionModal('context')}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#2d5a7b',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '14px',
-                transition: 'background-color 0.3s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#1a3a52'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#2d5a7b'}
-            >
-              📝 Add Context
-            </button>
-            <button
-              onClick={() => openContributionModal('harm')}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#2d5a7b',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '14px',
-                transition: 'background-color 0.3s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#1a3a52'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#2d5a7b'}
-            >
-              ⚠️ Describe Harm
-            </button>
-          </div>
+            </div>
+          </aside>
         </div>
       </main>
 
       {/* Contribution Modal */}
-      {modalOpen && (
-        <ContributeModal
-          termId={term.id}
-          modalType={modalType}
-          onClose={closeContributionModal}
-        />
-      )}
+      <ContributeModal
+        isOpen={modalOpen}
+        onClose={closeContributionModal}
+        termId={term?.id}
+        termName={term?.term}
+        type={modalType}
+      />
 
       <Footer />
     </>
   );
+}
+
+// Helper functions
+function getCategoryColor(cat) {
+  const colors = {
+    'derogatory': '#dc2626',
+    'exclusionary': '#f97316',
+    'dangerous': '#991b1b',
+    'coded': '#7c3aed',
+    'Derogatory': '#dc2626',
+    'Exclusionary': '#f97316',
+    'Dangerous': '#991b1b',
+    'Coded': '#7c3aed'
+  };
+  return colors[cat] || '#2d5a7b';
+}
+
+function getRiskColor(risk) {
+  const colors = {
+    'low': '#10b981',
+    'medium': '#f59e0b',
+    'high': '#ef4444',
+    'Low': '#10b981',
+    'Medium': '#f59e0b',
+    'High': '#ef4444'
+  };
+  return colors[risk] || '#94a3b8';
+}
+
+function getConfidenceColor(confidence) {
+  const colors = {
+    'low': '#f59e0b',
+    'medium': '#3b82f6',
+    'high': '#10b981',
+    'Low': '#f59e0b',
+    'Medium': '#3b82f6',
+    'High': '#10b981'
+  };
+  return colors[confidence] || '#94a3b8';
+}
+
+function getConfidenceIcon(confidence) {
+  const icons = {
+    'low': '🟡',
+    'medium': '🟠',
+    'high': '🟢',
+    'Low': '🟡',
+    'Medium': '🟠',
+    'High': '🟢'
+  };
+  return icons[confidence] || '❓';
+}
+
+function capitalizeFirst(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
