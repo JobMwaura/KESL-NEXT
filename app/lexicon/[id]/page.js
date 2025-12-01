@@ -578,17 +578,25 @@ export default function TermPage() {
                 </div>
                 
                 {term.context_history ? (
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#475569',
-                    lineHeight: '1.8',
+                  <div style={{
+                    display: 'grid',
+                    gap: '12px',
                     backgroundColor: '#f8fafc',
                     border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     padding: '20px'
                   }}>
-                    {term.context_history}
-                  </p>
+                    <h4 style={{
+                      margin: 0,
+                      fontSize: '14px',
+                      color: '#475569',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.6px'
+                    }}>
+                      Context Details
+                    </h4>
+                    {renderContextBlocks(term.context_full || term.context_history)}
+                  </div>
                 ) : (
                   <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '15px' }}>
                     No context documented yet. Be the first to contribute!
@@ -1208,4 +1216,41 @@ function getConfidenceIcon(confidence) {
 function capitalizeFirst(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+// Render context text with basic URL linking and paragraph breaks
+function renderContextBlocks(text) {
+  if (!text) return null;
+
+  const blocks = text.split(/\n\s*\n/);
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+  return blocks.map((block, idx) => (
+    <p
+      key={idx}
+      style={{
+        margin: 0,
+        fontSize: '15px',
+        lineHeight: 1.7,
+        color: '#1f2937'
+      }}
+    >
+      {block.split(urlRegex).map((part, i) => {
+        const isUrl = /^https?:\/\//.test(part);
+        return isUrl ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#0ea5e9', textDecoration: 'underline' }}
+          >
+            {part}
+          </a>
+        ) : (
+          part
+        );
+      })}
+    </p>
+  ));
 }
