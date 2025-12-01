@@ -1,498 +1,365 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { fetchTermContributions } from '@/lib/supabase';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
-
-export default function ApprovedContributions({ termId, type = null }) {
+/**
+ * ApprovedContributions Component
+ * Displays approved community contributions for a specific term
+ * 
+ * Props:
+ * - termId: ID of the term
+ * - type: Type of contributions to show ('context', 'harm', 'example', 'relation', or undefined for all)
+ */
+export default function ApprovedContributions({ termId, type }) {
   const [contributions, setContributions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadApprovedContributions();
+    async function loadContributions() {
+      try {
+        setLoading(true);
+        const data = await fetchTermContributions(termId, type);
+        setContributions(data || []);
+      } catch (err) {
+        console.error('Error loading contributions:', err);
+        setError('Failed to load contributions');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (termId) {
+      loadContributions();
+    }
   }, [termId, type]);
 
-  async function loadApprovedContributions() {
-    try {
-      setLoading(true);
-      let query = supabase
-        .from('community_contributions')
-        .select('*')
-        .eq('term_id', termId)
-        .eq('status', 'approved')
-        .order('helpful_count', { ascending: false });
-
-      if (type) {
-        query = query.eq('contribution_type', type);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      setContributions(data || []);
-    } catch (err) {
-      console.error('Error loading contributions:', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (loading) return <p style={{ color: '#94a3b8' }}>Loading contributions...</p>;
-  if (contributions.length === 0) return null;
-
-  const parseContent = (content) => {
-    try {
-      return typeof content === 'string' ? JSON.parse(content) : content;
-    } catch {
-      return {};
-    }
-  };
-
-  return (
-    <div style={{ marginTop: '30px' }}>
-      <h3 style={{
-        margin: '0 0 20px 0',
-        fontSize: '18px',
-        color: '#1e293b',
-        fontWeight: '700',
-        paddingBottom: '10px',
-        borderBottom: '2px solid #2d5a7b'
+  if (loading) {
+    return (
+      <div style={{
+        padding: '24px',
+        textAlign: 'center',
+        color: '#94a3b8'
       }}>
-        💬 Community Contributions
-      </h3>
-
-      <div style={{ display: 'grid', gap: '20px' }}>
-        {contributions.map((contribution) => {
-          const content = parseContent(contribution.content);
-          const isExpanded = expandedId === contribution.id;
-
-          return (
-            <div
-              key={contribution.id}
-              style={{
-                backgroundColor: '#f8fafc',
-                border: '2px solid #cbd5e1',
-                borderRadius: '10px',
-                overflow: 'hidden',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#2d5a7b';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(45, 90, 123, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              {/* Header */}
-              <div
-                onClick={() => setExpandedId(isExpanded ? null : contribution.id)}
-                style={{
-                  backgroundColor: '#f1f5f9',
-                  padding: '16px',
-                  borderBottom: isExpanded ? '1px solid #cbd5e1' : 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{
-                      fontSize: '13px',
-                      fontWeight: '700',
-                      color: 'white',
-                      textTransform: 'uppercase',
-                      backgroundColor: '#2d5a7b',
-                      padding: '4px 10px',
-                      borderRadius: '4px'
-                    }}>
-                      {getTypeEmoji(contribution.contribution_type)} {contribution.contribution_type}
-                    </span>
-                    <span style={{
-                      fontSize: '11px',
-                      color: '#94a3b8'
-                    }}>
-                      {new Date(contribution.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  
-                  {/* Preview text */}
-                  <p style={{
-                    margin: 0,
-                    fontSize: '13px',
-                    color: '#64748b',
-                    lineHeight: '1.5'
-                  }}>
-                    {getPreviewText(content, contribution.contribution_type)}
-                  </p>
-                </div>
-
-                <div style={{ marginLeft: '15px', fontSize: '20px', color: '#2d5a7b' }}>
-                  {isExpanded ? '▼' : '▶'}
-                </div>
-              </div>
-
-              {/* Expanded Content */}
-              {isExpanded && (
-                <div style={{ padding: '20px', borderTop: '1px solid #cbd5e1' }}>
-                  {contribution.contribution_type === 'example' && (
-                    <ExampleContent content={content} />
-                  )}
-
-                  {contribution.contribution_type === 'context' && (
-                    <ContextContent content={content} />
-                  )}
-
-                  {contribution.contribution_type === 'harm' && (
-                    <HarmContent content={content} />
-                  )}
-
-                  {contribution.contribution_type === 'relation' && (
-                    <RelationContent content={content} />
-                  )}
-
-                  {/* Helpful Counter */}
-                  <div style={{
-                    marginTop: '20px',
-                    paddingTop: '15px',
-                    borderTop: '1px solid #e2e8f0',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
-                    <span style={{
-                      fontSize: '12px',
-                      color: '#94a3b8'
-                    }}>
-                      👍 {contribution.helpful_count || 0} found helpful
-                    </span>
-                    <span style={{
-                      fontSize: '11px',
-                      color: '#cbd5e1'
-                    }}>
-                      Submitted by community member
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        <div style={{
+          display: 'inline-block',
+          width: '30px',
+          height: '30px',
+          border: '3px solid #e2e8f0',
+          borderTop: '3px solid #2d5a7b',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          marginBottom: '12px'
+        }} />
+        <p style={{ margin: '0', fontSize: '14px' }}>Loading contributions...</p>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-// ============ CONTENT TYPE COMPONENTS ============
-
-function ExampleContent({ content }) {
-  return (
-    <div style={{ display: 'grid', gap: '20px' }}>
-      {/* Quote */}
-      {content.quote && (
-        <div>
-          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Quote
-          </p>
-          <div style={{
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0',
-            borderLeft: '4px solid #2d5a7b',
-            borderRadius: '4px',
-            padding: '12px',
-            fontSize: '14px',
-            fontStyle: 'italic',
-            color: '#1e293b',
-            lineHeight: '1.6'
-          }}>
-            "{content.quote}"
-          </div>
-        </div>
-      )}
-
-      {/* Full Context */}
-      {content.fullContext && (
-        <div>
-          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Full Context
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '13px',
-            color: '#475569',
-            lineHeight: '1.6',
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '4px',
-            padding: '12px'
-          }}>
-            {content.fullContext}
-          </p>
-        </div>
-      )}
-
-      {/* Platform & Date */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-        {content.platform && (
-          <div>
-            <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-              Platform
-            </p>
-            <p style={{
-              margin: 0,
-              fontSize: '13px',
-              color: '#1e293b',
-              fontWeight: '600'
-            }}>
-              {content.platform}
-            </p>
-          </div>
-        )}
-
-        {content.eventDate && (
-          <div>
-            <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-              Date Found
-            </p>
-            <p style={{
-              margin: 0,
-              fontSize: '13px',
-              color: '#1e293b',
-              fontWeight: '600'
-            }}>
-              {new Date(content.eventDate).toLocaleDateString()}
-            </p>
-          </div>
-        )}
+  if (error) {
+    return (
+      <div style={{
+        backgroundColor: '#fee2e2',
+        border: '1px solid #fecaca',
+        borderRadius: '8px',
+        padding: '16px',
+        color: '#991b1b'
+      }}>
+        <p style={{ margin: 0, fontSize: '14px' }}>
+          ⚠️ {error}
+        </p>
       </div>
+    );
+  }
 
-      {/* Source Reference */}
-      {content.sourceRef && (
-        <div>
-          <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Source Reference
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '12px',
-            color: '#475569',
-            wordBreak: 'break-all'
-          }}>
-            {content.sourceRef}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
+  if (!contributions || contributions.length === 0) {
+    return (
+      <div style={{
+        backgroundColor: '#f8fafc',
+        border: '2px dashed #cbd5e1',
+        borderRadius: '10px',
+        padding: '40px',
+        textAlign: 'center'
+      }}>
+        <p style={{
+          fontSize: '16px',
+          color: '#64748b',
+          margin: '0 0 16px 0'
+        }}>
+          {type ? `No ${type} contributions yet.` : 'No contributions yet.'}
+        </p>
+        <p style={{
+          fontSize: '14px',
+          color: '#94a3b8',
+          margin: 0
+        }}>
+          Be the first to contribute! Use the Contribute tab to add context, examples, or harms.
+        </p>
+      </div>
+    );
+  }
 
-function ContextContent({ content }) {
   return (
-    <div style={{ display: 'grid', gap: '20px' }}>
-      {content.emergence && (
-        <div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            When & Where It Emerged
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '13px',
-            color: '#475569',
-            lineHeight: '1.6',
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '4px',
-            padding: '12px'
-          }}>
-            {content.emergence}
-          </p>
-        </div>
-      )}
-
-      {content.evolution && (
-        <div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            How It Has Evolved
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '13px',
-            color: '#475569',
-            lineHeight: '1.6',
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '4px',
-            padding: '12px'
-          }}>
-            {content.evolution}
-          </p>
-        </div>
-      )}
-
-      {content.history && (
-        <div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Historical Context
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '13px',
-            color: '#475569',
-            lineHeight: '1.6',
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '4px',
-            padding: '12px'
-          }}>
-            {content.history}
-          </p>
-        </div>
-      )}
+    <div style={{
+      display: 'grid',
+      gap: '20px'
+    }}>
+      {contributions.map((contribution) => (
+        <ContributionCard 
+          key={contribution.id} 
+          contribution={contribution}
+          type={type}
+        />
+      ))}
     </div>
   );
 }
 
-function HarmContent({ content }) {
-  return (
-    <div style={{ display: 'grid', gap: '20px' }}>
-      {content.description && (
-        <div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '12px', fontWeight: '700', color: '#991b1b', textTransform: 'uppercase' }}>
-            ⚠️ How It Causes Harm
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '13px',
-            color: '#475569',
-            lineHeight: '1.6',
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fca5a5',
-            borderRadius: '4px',
-            padding: '12px'
-          }}>
-            {content.description}
-          </p>
-        </div>
-      )}
+/**
+ * Individual Contribution Card
+ */
+function ContributionCard({ contribution, type }) {
+  const [showFull, setShowFull] = useState(false);
 
-      {content.targetedGroups && (
-        <div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '12px', fontWeight: '700', color: '#991b1b', textTransform: 'uppercase' }}>
-            👥 Targeted Groups
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '13px',
-            color: '#475569',
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '4px',
-            padding: '12px'
-          }}>
-            {content.targetedGroups}
-          </p>
-        </div>
-      )}
-
-      {content.consequences && (
-        <div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '12px', fontWeight: '700', color: '#991b1b', textTransform: 'uppercase' }}>
-            Real-World Consequences
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '13px',
-            color: '#475569',
-            lineHeight: '1.6',
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '4px',
-            padding: '12px'
-          }}>
-            {content.consequences}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function RelationContent({ content }) {
-  return (
-    <div style={{ display: 'grid', gap: '15px' }}>
-      {content.relatedTerm && (
-        <div>
-          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Related Term
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '16px',
-            color: '#2d5a7b',
-            fontWeight: '700'
-          }}>
-            {content.relatedTerm}
-          </p>
-        </div>
-      )}
-
-      {content.relationship && (
-        <div>
-          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Relationship Type
-          </p>
-          <div style={{
-            backgroundColor: '#e0e7ff',
-            border: '1px solid #c7d2fe',
-            borderRadius: '4px',
-            padding: '10px 12px',
-            fontSize: '13px',
-            color: '#4f46e5',
-            fontWeight: '600',
-            textTransform: 'capitalize'
-          }}>
-            {content.relationship}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============ HELPER FUNCTIONS ============
-
-function getTypeEmoji(type) {
-  const emojis = {
-    example: '📋',
-    context: '📚',
-    harm: '⚠️',
-    relation: '🔗'
+  const getTypeColor = (contType) => {
+    const colors = {
+      context: { bg: '#dbeafe', border: '#0284c7', text: '#0c4a6e', icon: '📚' },
+      harm: { bg: '#fee2e2', border: '#dc2626', text: '#991b1b', icon: '💔' },
+      example: { bg: '#dbeafe', border: '#0284c7', text: '#0c4a6e', icon: '💬' },
+      relation: { bg: '#e0e7ff', border: '#4f46e5', text: '#3730a3', icon: '🔗' },
+      other: { bg: '#f3e8ff', border: '#7c3aed', text: '#5b21b6', icon: '📝' }
+    };
+    return colors[contType] || colors.other;
   };
-  return emojis[type] || '•';
+
+  const typeConfig = getTypeColor(contribution.type || type);
+  const contentPreview = contribution.content?.slice(0, 200);
+  const isLongContent = contribution.content && contribution.content.length > 200;
+
+  return (
+    <div style={{
+      backgroundColor: 'white',
+      border: `2px solid ${typeConfig.border}`,
+      borderRadius: '10px',
+      padding: '24px',
+      transition: 'all 0.3s ease'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+      e.currentTarget.style.transform = 'translateY(-2px)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.boxShadow = 'none';
+      e.currentTarget.style.transform = 'translateY(0)';
+    }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '16px'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <span style={{
+            backgroundColor: typeConfig.bg,
+            color: typeConfig.text,
+            padding: '8px 14px',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontWeight: '700',
+            whiteSpace: 'nowrap'
+          }}>
+            {typeConfig.icon} {capitalizeFirst(contribution.type || type || 'Contribution')}
+          </span>
+          
+          {contribution.contributor && (
+            <span style={{
+              fontSize: '13px',
+              color: '#94a3b8',
+              fontStyle: 'italic'
+            }}>
+              by {contribution.contributor}
+            </span>
+          )}
+        </div>
+
+        {contribution.status && (
+          <span style={{
+            fontSize: '12px',
+            color: contribution.status === 'approved' ? '#10b981' : '#f59e0b',
+            fontWeight: '600',
+            backgroundColor: contribution.status === 'approved' ? '#ecfdf5' : '#fffbeb',
+            padding: '4px 12px',
+            borderRadius: '4px'
+          }}>
+            ✓ {capitalizeFirst(contribution.status)}
+          </span>
+        )}
+      </div>
+
+      {/* Title/Subject (if present) */}
+      {contribution.title && (
+        <h4 style={{
+          fontSize: '16px',
+          fontWeight: '700',
+          color: '#1e293b',
+          margin: '0 0 12px 0'
+        }}>
+          {contribution.title}
+        </h4>
+      )}
+
+      {/* Content */}
+      <div style={{
+        fontSize: '15px',
+        color: '#475569',
+        lineHeight: '1.7',
+        backgroundColor: '#f8fafc',
+        padding: '16px',
+        borderRadius: '8px',
+        marginBottom: '12px',
+        borderLeft: `4px solid ${typeConfig.border}`
+      }}>
+        {showFull ? contribution.content : contentPreview}
+        {isLongContent && !showFull && '...'}
+      </div>
+
+      {/* Show More/Less */}
+      {isLongContent && (
+        <button
+          onClick={() => setShowFull(!showFull)}
+          style={{
+            fontSize: '13px',
+            color: typeConfig.text,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '600',
+            padding: '0',
+            marginBottom: '12px',
+            textDecoration: 'underline'
+          }}
+        >
+          {showFull ? '▲ Show less' : '▼ Read more'}
+        </button>
+      )}
+
+      {/* Metadata */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '16px',
+        fontSize: '12px',
+        color: '#94a3b8',
+        paddingTop: '12px',
+        borderTop: '1px solid #e2e8f0'
+      }}>
+        {contribution.created_at && (
+          <span>
+            📅 {new Date(contribution.created_at).toLocaleDateString()}
+          </span>
+        )}
+        
+        {contribution.category && (
+          <span>
+            🏷️ {capitalizeFirst(contribution.category)}
+          </span>
+        )}
+
+        {contribution.language && (
+          <span>
+            🌐 {contribution.language}
+          </span>
+        )}
+
+        {contribution.source && (
+          <span>
+            📌 {capitalizeFirst(contribution.source)}
+          </span>
+        )}
+      </div>
+
+      {/* Additional Fields based on type */}
+      {contribution.type === 'harm' && contribution.affected_groups && (
+        <div style={{
+          marginTop: '12px',
+          padding: '12px',
+          backgroundColor: '#fee2e2',
+          borderRadius: '6px',
+          fontSize: '13px',
+          color: '#991b1b'
+        }}>
+          <strong>Affected Groups:</strong> {contribution.affected_groups}
+        </div>
+      )}
+
+      {contribution.type === 'example' && contribution.platform && (
+        <div style={{
+          marginTop: '12px',
+          padding: '12px',
+          backgroundColor: typeConfig.bg,
+          borderRadius: '6px',
+          fontSize: '13px',
+          color: typeConfig.text,
+          fontWeight: '600'
+        }}>
+          Platform: {capitalizeFirst(contribution.platform)}
+        </div>
+      )}
+
+      {contribution.url && (
+        <div style={{
+          marginTop: '12px'
+        }}>
+          <a
+            href={contribution.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: '13px',
+              color: '#0284c7',
+              textDecoration: 'none',
+              fontWeight: '600',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 12px',
+              backgroundColor: '#dbeafe',
+              borderRadius: '6px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#bfdbfe';
+              e.target.style.color = '#0c4a6e';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#dbeafe';
+              e.target.style.color = '#0284c7';
+            }}
+          >
+            🔗 View Source
+          </a>
+        </div>
+      )}
+    </div>
+  );
 }
 
-function getPreviewText(content, type) {
-  if (type === 'example') {
-    if (content.quote) return `"${content.quote.substring(0, 80)}${content.quote.length > 80 ? '...' : ''}"`;
-    return 'Example contribution';
-  }
-  if (type === 'context') {
-    if (content.emergence) return `Emerged: ${content.emergence.substring(0, 80)}...`;
-    return 'Context contribution';
-  }
-  if (type === 'harm') {
-    if (content.description) return `${content.description.substring(0, 80)}...`;
-    return 'Harm description';
-  }
-  if (type === 'relation') {
-    return `Related to: ${content.relatedTerm || 'another term'}`;
-  }
-  return 'Community contribution';
+/**
+ * Capitalize first letter
+ */
+function capitalizeFirst(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }

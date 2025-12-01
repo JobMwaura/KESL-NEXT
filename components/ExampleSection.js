@@ -1,285 +1,563 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-/**
- * ExampleSection Component
- * Accordion showing all examples where a term has been used
- * 
- * Props:
- * - examples: Array of example objects with { quote, platform, date_observed, source_url }
- * - termId: ID of the term (for tracking)
- * - isInitiallyOpen: Start expanded or collapsed (default: false)
- */
-export default function ExampleSection({ 
-  examples = [], 
-  termId = '',
-  isInitiallyOpen = false 
-}) {
-  const [isOpen, setIsOpen] = useState(isInitiallyOpen);
+export default function ExampleSection({ examples, termId }) {
+  const [expandedExample, setExpandedExample] = useState(null);
+
+  const getPlatformColor = (platform) => {
+    const colors = {
+      'reddit': '#ff4500',
+      'Reddit': '#ff4500',
+      'telegram': '#0088cc',
+      'Telegram': '#0088cc',
+      'tiktok': '#00f7ef',
+      'TikTok': '#00f7ef',
+      'x': '#000000',
+      'X': '#000000',
+      'twitter': '#1DA1F2',
+      'Twitter': '#1DA1F2'
+    };
+    return colors[platform] || '#6b7280';
+  };
+
+  const getPlatformIcon = (platform) => {
+    const icons = {
+      'reddit': '🔴',
+      'Reddit': '🔴',
+      'telegram': '✈️',
+      'Telegram': '✈️',
+      'tiktok': '🎵',
+      'TikTok': '🎵',
+      'x': '𝕏',
+      'X': '𝕏',
+      'twitter': '𝕏',
+      'Twitter': '𝕏'
+    };
+    return icons[platform] || '📱';
+  };
 
   if (!examples || examples.length === 0) {
     return (
       <div style={{
         backgroundColor: '#f8fafc',
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        padding: '20px',
+        border: '2px dashed #cbd5e1',
+        borderRadius: '10px',
+        padding: '40px',
         textAlign: 'center'
       }}>
-        <p style={{
-          color: '#94a3b8',
-          fontSize: '14px',
-          margin: 0,
-          fontStyle: 'italic'
-        }}>
-          No examples documented yet. Be the first to contribute!
+        <p style={{ fontSize: '16px', color: '#64748b', margin: 0 }}>
+          No examples documented yet. Help us by adding one!
         </p>
       </div>
     );
   }
 
   return (
-    <div style={{
-      border: '1px solid #e2e8f0',
-      borderRadius: '8px',
-      overflow: 'hidden',
-      backgroundColor: 'white'
-    }}>
-      {/* Accordion Header */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          width: '100%',
-          padding: '16px 20px',
-          backgroundColor: isOpen ? 'white' : '#f8fafc',
-          border: 'none',
-          borderBottom: isOpen ? '1px solid #e2e8f0' : 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          transition: 'all 0.3s ease',
-          textAlign: 'left'
-        }}
-        onMouseEnter={(e) => {
-          if (!isOpen) e.currentTarget.style.backgroundColor = '#f1f5f9';
-        }}
-        onMouseLeave={(e) => {
-          if (!isOpen) e.currentTarget.style.backgroundColor = '#f8fafc';
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{
-            fontSize: '14px',
-            fontWeight: '700',
-            color: '#1e293b',
-            transition: 'transform 0.3s ease',
-            transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-            display: 'inline-block'
+    <div style={{ display: 'grid', gap: '24px' }}>
+      {examples.map((example, idx) => (
+        <div
+          key={idx}
+          style={{
+            backgroundColor: 'white',
+            border: '1px solid #cbd5e1',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            transition: 'all 0.2s'
+          }}
+        >
+          {/* Header with Platform and Date */}
+          <div style={{
+            padding: '20px 24px',
+            borderBottom: '1px solid #e2e8f0',
+            backgroundColor: '#f8fafc'
           }}>
-            ▶
-          </span>
-          <span style={{
-            fontSize: '16px',
-            fontWeight: '700',
-            color: '#1e293b'
-          }}>
-            💬 Examples ({examples.length})
-          </span>
-        </div>
-        <span style={{
-          fontSize: '12px',
-          color: '#94a3b8',
-          fontWeight: '600'
-        }}>
-          {isOpen ? '▲ Hide' : '▼ Show'}
-        </span>
-      </button>
-
-      {/* Accordion Content */}
-      {isOpen && (
-        <div style={{
-          padding: '0',
-          backgroundColor: 'white',
-          maxHeight: '600px',
-          overflow: 'auto'
-        }}>
-          {examples.map((example, index) => (
-            <div
-              key={example.id || index}
-              style={{
-                padding: '20px',
-                borderBottom: index < examples.length - 1 ? '1px solid #e2e8f0' : 'none',
-                backgroundColor: index % 2 === 0 ? 'white' : '#f8fafc'
-              }}
-            >
-              {/* Example Number */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                marginBottom: '12px'
-              }}>
-                <span style={{
-                  backgroundColor: '#e2e8f0',
-                  color: '#475569',
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  display: 'flex',
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'start',
+              gap: '16px'
+            }}>
+              <div style={{ flex: 1 }}>
+                {/* Platform Badge */}
+                <div style={{
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '12px',
-                  fontWeight: '700'
+                  gap: '8px',
+                  marginBottom: '12px'
                 }}>
-                  {index + 1}
-                </span>
-                <PlatformBadge platform={example.platform} />
-              </div>
+                  <span style={{
+                    padding: '6px 12px',
+                    backgroundColor: getPlatformColor(example.platform),
+                    color: 'white',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    {getPlatformIcon(example.platform)} {example.platform}
+                  </span>
+                </div>
 
-              {/* Quote */}
-              <blockquote style={{
-                margin: '0 0 12px 0',
-                padding: '12px',
-                backgroundColor: '#f0fdf4',
-                borderLeft: '3px solid #10b981',
-                fontSize: '14px',
-                color: '#1e293b',
-                fontStyle: 'italic',
-                lineHeight: '1.6',
-                wordWrap: 'break-word',
-                overflowWrap: 'break-word'
-              }}>
-                "{redactQuote(example.quote)}"
-              </blockquote>
+                {/* Date */}
+                <p style={{
+                  fontSize: '14px',
+                  color: '#94a3b8',
+                  margin: '0 0 12px 0'
+                }}>
+                  📅 {example.date || example.posted_date || 'Date not specified'}
+                </p>
 
-              {/* Metadata */}
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '12px',
-                alignItems: 'center',
-                fontSize: '12px',
-                color: '#64748b'
-              }}>
-                <span>📅 {formatDate(example.date_observed)}</span>
-                
-                {example.source_url && (
+                {/* Thread/Post Title */}
+                {example.thread_title && (
+                  <p style={{
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: '#1e293b',
+                    margin: '0 0 8px 0'
+                  }}>
+                    {example.thread_title}
+                  </p>
+                )}
+
+                {/* Link */}
+                {example.url && (
                   <a
-                    href={example.source_url}
+                    href={example.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      color: '#2d5a7b',
+                      fontSize: '12px',
+                      color: '#0284c7',
                       textDecoration: 'none',
-                      fontWeight: '600',
-                      transition: 'color 0.2s',
-                      padding: '4px 8px',
-                      backgroundColor: '#dbeafe',
-                      borderRadius: '4px'
+                      wordBreak: 'break-all',
+                      display: 'inline-block'
                     }}
-                    onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
-                    onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}
                   >
-                    🔗 View Source
+                    🔗 View original post
                   </a>
                 )}
               </div>
+
+              {/* Engagement Metrics */}
+              {example.engagement_metrics && (
+                <div style={{
+                  backgroundColor: 'white',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  minWidth: '180px',
+                  textAlign: 'right'
+                }}>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    margin: '0 0 12px 0',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Engagement
+                  </p>
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {example.engagement_metrics.upvotes && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>👍 Upvotes</span>
+                        <span style={{
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          color: '#10b981'
+                        }}>
+                          {example.engagement_metrics.upvotes}
+                        </span>
+                      </div>
+                    )}
+                    {example.engagement_metrics.views && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>👁️ Views</span>
+                        <span style={{
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          color: '#0284c7'
+                        }}>
+                          {example.engagement_metrics.views}
+                        </span>
+                      </div>
+                    )}
+                    {example.engagement_metrics.comments && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>💬 Comments</span>
+                        <span style={{
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          color: '#f59e0b'
+                        }}>
+                          {example.engagement_metrics.comments}
+                        </span>
+                      </div>
+                    )}
+                    {example.engagement_metrics.reposts && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>🔄 Reposts</span>
+                        <span style={{
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          color: '#8b5cf6'
+                        }}>
+                          {example.engagement_metrics.reposts}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
+          </div>
+
+          {/* Content */}
+          <div style={{ padding: '24px' }}>
+            {/* Full Post Content */}
+            {example.full_post && (
+              <div style={{
+                backgroundColor: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '16px',
+                fontFamily: 'system-ui, -apple-system, monospace',
+                fontSize: '14px',
+                color: '#1e293b',
+                lineHeight: '1.7',
+                whiteSpace: 'pre-wrap',
+                wordWrap: 'break-word'
+              }}>
+                {example.full_post}
+              </div>
+            )}
+
+            {/* Context/Notes */}
+            {example.context && (
+              <div style={{
+                backgroundColor: '#fef3c7',
+                border: '1px solid #fcd34d',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '16px'
+              }}>
+                <p style={{
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#92400e',
+                  margin: '0 0 8px 0',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Context
+                </p>
+                <p style={{
+                  fontSize: '14px',
+                  color: '#451a03',
+                  margin: 0,
+                  lineHeight: '1.6'
+                }}>
+                  {example.context}
+                </p>
+              </div>
+            )}
+
+            {/* Category & Target */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '16px',
+              marginBottom: '16px'
+            }}>
+              {example.category && (
+                <div style={{
+                  backgroundColor: '#f0f9ff',
+                  border: '1px solid #bfdbfe',
+                  borderRadius: '8px',
+                  padding: '12px'
+                }}>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#0c4a6e',
+                    margin: '0 0 6px 0',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Category
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    margin: 0,
+                    fontWeight: '600'
+                  }}>
+                    {example.category}
+                  </p>
+                </div>
+              )}
+              {example.target && (
+                <div style={{
+                  backgroundColor: '#fce7f3',
+                  border: '1px solid #fbcfe8',
+                  borderRadius: '8px',
+                  padding: '12px'
+                }}>
+                  <p style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: '#831843',
+                    margin: '0 0 6px 0',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Target/Actor
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    margin: 0,
+                    fontWeight: '600'
+                  }}>
+                    {example.target}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Registers/Tone */}
+            {example.registers && (
+              <div style={{
+                backgroundColor: '#f3e8ff',
+                border: '1px solid #e9d5ff',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '16px'
+              }}>
+                <p style={{
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#6b21a8',
+                  margin: '0 0 8px 0',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  🎭 Registers & Tone
+                </p>
+                <p style={{
+                  fontSize: '14px',
+                  color: '#1e293b',
+                  margin: 0,
+                  lineHeight: '1.6'
+                }}>
+                  {example.registers}
+                </p>
+              </div>
+            )}
+
+            {/* Risk Level */}
+            {example.risk_level && (
+              <div style={{
+                backgroundColor: example.risk_level === 'High' ? '#fee2e2' : example.risk_level === 'Medium' ? '#fef3c7' : '#f0fdf4',
+                border: example.risk_level === 'High' ? '1px solid #fecaca' : example.risk_level === 'Medium' ? '1px solid #fcd34d' : '1px solid #bbf7d0',
+                borderRadius: '8px',
+                padding: '12px'
+              }}>
+                <p style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: example.risk_level === 'High' ? '#991b1b' : example.risk_level === 'Medium' ? '#92400e' : '#166534',
+                  margin: '0 0 6px 0',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  ⚠️ Risk Level
+                </p>
+                <p style={{
+                  fontSize: '14px',
+                  color: '#1e293b',
+                  margin: 0,
+                  fontWeight: '700'
+                }}>
+                  {example.risk_level}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Expand Button for additional details */}
+          {(example.platform_dynamics || example.key_theme || example.power_relations) && (
+            <div style={{
+              padding: '16px 24px',
+              borderTop: '1px solid #e2e8f0',
+              backgroundColor: '#f8fafc'
+            }}>
+              <button
+                onClick={() => setExpandedExample(expandedExample === idx ? null : idx)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: 'white',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  color: '#2d5a7b',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f1f5f9';
+                  e.target.style.borderColor = '#2d5a7b';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.borderColor = '#cbd5e1';
+                }}
+              >
+                {expandedExample === idx ? '▼ Hide Analysis' : '▶ Show Analysis'}
+              </button>
+            </div>
+          )}
+
+          {/* Expanded Analysis */}
+          {expandedExample === idx && (
+            <div style={{
+              padding: '24px',
+              borderTop: '1px solid #e2e8f0',
+              backgroundColor: '#fafbfc'
+            }}>
+              <div style={{ display: 'grid', gap: '16px' }}>
+                {example.platform_dynamics && (
+                  <div>
+                    <h4 style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#1e293b',
+                      margin: '0 0 8px 0'
+                    }}>
+                      📱 Platform Dynamics
+                    </h4>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#475569',
+                      margin: 0,
+                      lineHeight: '1.6'
+                    }}>
+                      {example.platform_dynamics}
+                    </p>
+                  </div>
+                )}
+
+                {example.power_relations && (
+                  <div>
+                    <h4 style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#1e293b',
+                      margin: '0 0 8px 0'
+                    }}>
+                      ⚖️ Power Relations
+                    </h4>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#475569',
+                      margin: 0,
+                      lineHeight: '1.6'
+                    }}>
+                      {example.power_relations}
+                    </p>
+                  </div>
+                )}
+
+                {example.key_theme && (
+                  <div>
+                    <h4 style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#1e293b',
+                      margin: '0 0 8px 0'
+                    }}>
+                      🔑 Key Theme
+                    </h4>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#475569',
+                      margin: 0,
+                      lineHeight: '1.6'
+                    }}>
+                      {example.key_theme}
+                    </p>
+                  </div>
+                )}
+
+                {example.actor_positioning && (
+                  <div>
+                    <h4 style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#1e293b',
+                      margin: '0 0 8px 0'
+                    }}>
+                      🎭 Actor Positioning
+                    </h4>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#475569',
+                      margin: 0,
+                      lineHeight: '1.6'
+                    }}>
+                      {example.actor_positioning}
+                    </p>
+                  </div>
+                )}
+
+                {example.resonance && (
+                  <div>
+                    <h4 style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#1e293b',
+                      margin: '0 0 8px 0'
+                    }}>
+                      📊 Resonance
+                    </h4>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#475569',
+                      margin: 0,
+                      lineHeight: '1.6'
+                    }}>
+                      {example.resonance}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-      )}
-
-      <style jsx>{`
-        @media (max-width: 768px) {
-          button {
-            padding: 14px 16px !important;
-          }
-
-          div[style*="padding: 20px"] {
-            padding: 16px !important;
-          }
-
-          blockquote {
-            font-size: 12px !important;
-            padding: 10px !important;
-          }
-        }
-      `}</style>
+      ))}
     </div>
   );
-}
-
-/**
- * Platform Badge Component
- */
-function PlatformBadge({ platform = 'unknown' }) {
-  const platformColors = {
-    'kenyatalk': { bg: '#c7d2e8', color: '#1e293b', emoji: '💬' },
-    'reddit': { bg: '#ffdab9', color: '#7c2d12', emoji: '🤖' },
-    'telegram': { bg: '#a3d5ff', color: '#003d82', emoji: '✈️' },
-    'twitter': { bg: '#a3d5ff', color: '#003d82', emoji: '🐦' },
-    'whatsapp': { bg: '#c8e6c9', color: '#1b5e20', emoji: '💚' },
-    'facebook': { bg: '#bbdefb', color: '#0d47a1', emoji: '👍' },
-    'tiktok': { bg: '#f0e6ff', color: '#4a148c', emoji: '🎵' },
-    'youtube': { bg: '#ffccbc', color: '#bf360c', emoji: '▶️' },
-    'discord': { bg: '#e1d5f0', color: '#512da8', emoji: '💬' },
-    'other': { bg: '#e0e0e0', color: '#424242', emoji: '📱' }
-  };
-
-  const config = platformColors[platform.toLowerCase()] || platformColors.other;
-
-  return (
-    <span style={{
-      backgroundColor: config.bg,
-      color: config.color,
-      padding: '4px 10px',
-      borderRadius: '4px',
-      fontSize: '12px',
-      fontWeight: '600',
-      whiteSpace: 'nowrap'
-    }}>
-      {config.emoji} {capitalizeFirst(platform)}
-    </span>
-  );
-}
-
-/**
- * Redact sensitive information in quotes
- * Replaces @mentions and #hashtags with [redacted]
- */
-function redactQuote(quote) {
-  if (!quote) return '';
-  
-  return quote
-    .replace(/@\w+/g, '[@redacted]')
-    .replace(/#\w+/g, '[#redacted]')
-    .slice(0, 200) + (quote.length > 200 ? '...' : '');
-}
-
-/**
- * Format date to readable format
- */
-function formatDate(dateString) {
-  if (!dateString) return 'Unknown date';
-  
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  } catch (error) {
-    return dateString;
-  }
-}
-
-/**
- * Capitalize first letter
- */
-function capitalizeFirst(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
