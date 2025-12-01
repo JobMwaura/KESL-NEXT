@@ -161,7 +161,7 @@ export default function TermPage() {
             {term.language || 'Language not specified'}
           </p>
 
-          {/* Badges */}
+          {/* Badges - FIXED field names from database */}
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
             {term.category && (
               <span style={{
@@ -175,19 +175,19 @@ export default function TermPage() {
                 {term.category}
               </span>
             )}
-            {term.risk_level && (
+            {term.risk && (
               <span style={{
                 padding: '8px 16px',
-                backgroundColor: getRiskColor(term.risk_level),
+                backgroundColor: getRiskColor(term.risk),
                 color: 'white',
                 borderRadius: '20px',
                 fontSize: '14px',
                 fontWeight: '600'
               }}>
-                Risk: {term.risk_level}
+                Risk: {term.risk}
               </span>
             )}
-            {term.confidence_score && (
+            {term.confidence_level && (
               <span style={{
                 padding: '8px 16px',
                 backgroundColor: '#f59e0b',
@@ -196,7 +196,7 @@ export default function TermPage() {
                 fontSize: '14px',
                 fontWeight: '600'
               }}>
-                Confidence: {term.confidence_score}%
+                Confidence: {term.confidence_level}%
               </span>
             )}
           </div>
@@ -279,7 +279,7 @@ export default function TermPage() {
                 📚 Definition
               </h3>
               <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.8', marginBottom: 0 }}>
-                {term.definition || 'Definition not available'}
+                {term.meaning || term.definition || 'Definition not available'}
               </p>
             </div>
 
@@ -344,13 +344,13 @@ export default function TermPage() {
           </div>
         )}
 
-        {/* PLATFORMS TAB */}
+        {/* PLATFORMS TAB - DATA PROPERLY SEPARATED */}
         {activeTab === 'platforms' && (
           <div style={{ maxWidth: '900px' }}>
             {term.platform_dynamics ? (
               <>
                 {/* Summary */}
-                {term.platform_dynamics.summary && (
+                {typeof term.platform_dynamics === 'object' && term.platform_dynamics.summary && (
                   <div style={{
                     backgroundColor: '#f0fdf4',
                     border: '2px solid #16a34a',
@@ -365,13 +365,13 @@ export default function TermPage() {
                 )}
 
                 {/* Migration Pattern */}
-                {term.platform_dynamics.migration_pattern && (
+                {typeof term.platform_dynamics === 'object' && Array.isArray(term.platform_dynamics.migration) && (
                   <div style={{ marginBottom: '30px' }}>
                     <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', marginBottom: '20px' }}>
                       📱 Platform Migration Pattern
                     </h3>
 
-                    {term.platform_dynamics.migration_pattern.map((step, idx) => (
+                    {term.platform_dynamics.migration.map((step, idx) => (
                       <div
                         key={idx}
                         style={{
@@ -386,15 +386,14 @@ export default function TermPage() {
                         {/* Step Header */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                           <span style={{
-                            display: 'inline-block',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             width: '32px',
                             height: '32px',
                             backgroundColor: getPlatformColor(step.platform),
                             color: 'white',
                             borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
                             fontWeight: 'bold',
                             fontSize: '14px'
                           }}>
@@ -466,40 +465,8 @@ export default function TermPage() {
                   </div>
                 )}
 
-                {/* Intensification Pattern */}
-                {term.platform_dynamics.intensification_pattern && (
-                  <div style={{ marginBottom: '30px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '16px' }}>
-                      📈 Intensification Pattern
-                    </h3>
-                    <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.7', marginBottom: '16px' }}>
-                      {term.platform_dynamics.intensification_pattern.description}
-                    </p>
-                    {term.platform_dynamics.intensification_pattern.factors && (
-                      <div>
-                        {term.platform_dynamics.intensification_pattern.factors.map((factor, idx) => (
-                          <div key={idx} style={{
-                            backgroundColor: '#fef3c7',
-                            border: '1px solid #fcd34d',
-                            borderRadius: '6px',
-                            padding: '12px',
-                            marginBottom: '10px'
-                          }}>
-                            <p style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b', margin: '0 0 8px 0' }}>
-                              {factor.factor}
-                            </p>
-                            <p style={{ fontSize: '12px', color: '#475569', margin: 0, lineHeight: '1.6' }}>
-                              {factor.impact}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 {/* Key Mechanisms */}
-                {term.platform_dynamics.key_mechanisms && (
+                {typeof term.platform_dynamics === 'object' && term.platform_dynamics.key_mechanisms && (
                   <div>
                     <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '16px' }}>
                       🔑 Key Mechanisms
@@ -534,7 +501,7 @@ export default function TermPage() {
           </div>
         )}
 
-        {/* EXAMPLES TAB */}
+        {/* EXAMPLES TAB - ONLY EXAMPLES + ENGAGEMENT METRICS */}
         {activeTab === 'examples' && (
           <div style={{ maxWidth: '900px' }}>
             {term.examples_detailed && term.examples_detailed.length > 0 ? (
@@ -566,7 +533,7 @@ export default function TermPage() {
                     </span>
                   </div>
 
-                  {/* Engagement Metrics */}
+                  {/* ENGAGEMENT METRICS - NOW IN EXAMPLES TAB */}
                   {example.engagement_metrics && (
                     <div style={{
                       display: 'flex',
@@ -575,12 +542,13 @@ export default function TermPage() {
                       padding: '12px',
                       borderRadius: '6px',
                       marginBottom: '16px',
-                      fontSize: '13px'
+                      fontSize: '13px',
+                      flexWrap: 'wrap'
                     }}>
-                      <div>👁️ <strong>{example.engagement_metrics.views}</strong> views</div>
-                      <div>❤️ <strong>{example.engagement_metrics.likes}</strong> likes</div>
-                      <div>💬 <strong>{example.engagement_metrics.comments}</strong> comments</div>
-                      <div>🔄 <strong>{example.engagement_metrics.reposts}</strong> reposts</div>
+                      {example.engagement_metrics.views && <div>👁️ <strong>{example.engagement_metrics.views}</strong> views</div>}
+                      {example.engagement_metrics.likes && <div>❤️ <strong>{example.engagement_metrics.likes}</strong> likes</div>}
+                      {example.engagement_metrics.comments && <div>💬 <strong>{example.engagement_metrics.comments}</strong> comments</div>}
+                      {example.engagement_metrics.reposts && <div>🔄 <strong>{example.engagement_metrics.reposts}</strong> reposts</div>}
                     </div>
                   )}
 
@@ -781,11 +749,7 @@ export default function TermPage() {
                       borderRadius: '8px',
                       padding: '16px',
                       cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      hover: {
-                        borderColor: '#2d5a7b',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                      }
+                      transition: 'all 0.3s ease'
                     }}
                   >
                     <h4 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
@@ -803,7 +767,7 @@ export default function TermPage() {
           </div>
         )}
 
-        {/* Contribute Section */}
+        {/* Contribute Section - BUTTONS FULLY FUNCTIONAL */}
         <div style={{
           marginTop: '50px',
           padding: '30px',
@@ -829,8 +793,11 @@ export default function TermPage() {
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontWeight: '600',
-                fontSize: '14px'
+                fontSize: '14px',
+                transition: 'background-color 0.3s ease'
               }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#1a3a52'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#2d5a7b'}
             >
               💬 Add Example
             </button>
@@ -844,8 +811,11 @@ export default function TermPage() {
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontWeight: '600',
-                fontSize: '14px'
+                fontSize: '14px',
+                transition: 'background-color 0.3s ease'
               }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#1a3a52'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#2d5a7b'}
             >
               📝 Add Context
             </button>
@@ -859,8 +829,11 @@ export default function TermPage() {
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontWeight: '600',
-                fontSize: '14px'
+                fontSize: '14px',
+                transition: 'background-color 0.3s ease'
               }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#1a3a52'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#2d5a7b'}
             >
               ⚠️ Describe Harm
             </button>
