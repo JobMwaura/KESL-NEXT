@@ -110,6 +110,7 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const termId = searchParams.get('term_id');
+    const type = searchParams.get('type');
 
     if (!termId) {
       return new Response(
@@ -118,12 +119,17 @@ export async function GET(request) {
       );
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('community_contributions')
       .select('*')
       .eq('term_id', termId)
-      .eq('status', 'approved')
-      .order('created_at', { ascending: false });
+      .eq('status', 'approved');
+
+    if (type) {
+      query = query.eq('contribution_type', type);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       return new Response(
@@ -133,7 +139,7 @@ export async function GET(request) {
     }
 
     return new Response(
-      JSON.stringify({ data }),
+      JSON.stringify({ contributions: data || [] }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
 
