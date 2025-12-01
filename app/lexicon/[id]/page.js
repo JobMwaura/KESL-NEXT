@@ -291,6 +291,7 @@ export default function TermPage() {
               {[
                 { id: 'overview', label: '📖 Overview', icon: '📖' },
                 { id: 'context', label: '📚 Context', icon: '📚' },
+                { id: 'platform', label: '🌐 Platform Dynamics', icon: '🌐' },
                 { id: 'community', label: '💬 Community', icon: '💬' },
                 { id: 'contribute', label: '✏️ Contribute', icon: '✏️' }
               ].map(tab => (
@@ -598,6 +599,110 @@ export default function TermPage() {
                 <div style={{ marginTop: '30px' }}>
                   <ApprovedContributions termId={params.id} type="context" />
                 </div>
+              </div>
+            )}
+
+            {/* Platform Dynamics Tab */}
+            {activeTab === 'platform' && (
+              <div style={{
+                backgroundColor: 'white',
+                border: '1px solid #cbd5e1',
+                borderRadius: '10px',
+                padding: '40px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '20px'
+                }}>
+                  <h2 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '700' }}>
+                    Platform Dynamics
+                  </h2>
+                  <button
+                    onClick={() => openContributionModal('context')}
+                    style={{
+                      padding: '10px 18px',
+                      backgroundColor: '#dbeafe',
+                      color: '#0c4a6e',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      fontSize: '13px',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#bfdbfe';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = '#dbeafe';
+                    }}
+                  >
+                    + Add Platform Context
+                  </button>
+                </div>
+
+                {term.platform_dynamics ? (
+                  <div style={{ display: 'grid', gap: '16px' }}>
+                    {term.platform_dynamics.summary && (
+                      <div style={{
+                        backgroundColor: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        padding: '16px'
+                      }}>
+                        <h4 style={{ margin: 0, fontSize: '14px', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Summary
+                        </h4>
+                        <p style={{ margin: '8px 0 0 0', fontSize: '15px', color: '#1e293b', lineHeight: 1.7 }}>
+                          {term.platform_dynamics.summary}
+                        </p>
+                      </div>
+                    )}
+
+                    {Array.isArray(term.platform_dynamics.migration) && term.platform_dynamics.migration.length > 0 && (
+                      <div style={{
+                        backgroundColor: '#f0f9ff',
+                        border: '1px solid #bae6fd',
+                        borderRadius: '8px',
+                        padding: '16px'
+                      }}>
+                        <h4 style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Migration Path
+                        </h4>
+                        <ul style={{ margin: '10px 0 0 20px', padding: 0, color: '#0f172a', fontSize: '14px', lineHeight: 1.6 }}>
+                          {term.platform_dynamics.migration.map((step, idx) => (
+                            <li key={idx}>
+                              <strong>{step.platform || 'Platform'}:</strong> {step.details || step.description || ''}
+                              {step.date && ` (${step.date})`}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {term.platform_dynamics.action_orientation && (
+                      <div style={{
+                        backgroundColor: '#fff7ed',
+                        border: '1px solid #fed7aa',
+                        borderRadius: '8px',
+                        padding: '16px'
+                      }}>
+                        <h4 style={{ margin: 0, fontSize: '14px', color: '#9a3412', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Action Orientation
+                        </h4>
+                        <p style={{ margin: '8px 0 0 0', fontSize: '15px', color: '#7c2d12', lineHeight: 1.7 }}>
+                          {term.platform_dynamics.action_orientation}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '15px' }}>
+                    No platform dynamics documented yet. Be the first to contribute!
+                  </p>
+                )}
               </div>
             )}
 
