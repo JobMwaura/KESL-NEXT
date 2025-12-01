@@ -98,10 +98,6 @@ export default function ContributeModal({ isOpen, onClose, termId, termName, typ
           setError('Context description is required');
           return false;
         }
-        if (formData.context.length < 50) {
-          setError('Context must be at least 50 characters');
-          return false;
-        }
         break;
 
       case 'harm':
@@ -536,7 +532,7 @@ export default function ContributeModal({ isOpen, onClose, termId, termName, typ
                   <textarea
                     value={formData.context}
                     onChange={(e) => handleInputChange('context', e.target.value)}
-                    placeholder="Provide context about when/where/how this term is used (min 50 characters)"
+                    placeholder="Provide context about when/where/how this term is used"
                     style={{
                       width: '100%',
                       padding: '12px',
@@ -553,10 +549,10 @@ export default function ContributeModal({ isOpen, onClose, termId, termName, typ
                     justifyContent: 'space-between',
                     marginTop: '6px',
                     fontSize: '12px',
-                    color: formData.context.length < 50 ? '#ef4444' : '#94a3b8'
+                    color: '#94a3b8'
                   }}>
                     <span>Helpful context helps researchers understand usage patterns</span>
-                    <span>{charCount}/50 min</span>
+                    <span>{charCount} chars</span>
                   </div>
                 </div>
 
