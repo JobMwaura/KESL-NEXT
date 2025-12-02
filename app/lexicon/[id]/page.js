@@ -25,6 +25,12 @@ export default function TermPage() {
   const [userVote, setUserVote] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({
+    definition: true,
+    gloss: false,
+    harms: true,
+    examples: true
+  });
 
   useEffect(() => {
     async function loadTerm() {
@@ -54,6 +60,13 @@ export default function TermPage() {
   const closeContributionModal = () => {
     setModalOpen(false);
     setModalType(null);
+  };
+
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
 
   if (loading) {
@@ -181,7 +194,7 @@ export default function TermPage() {
           
           {/* Left Column - Main Content */}
           <div>
-            {/* Header Section - UPDATED WITH PHASE 6 */}
+            {/* Header Section */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #cbd5e1',
@@ -208,7 +221,6 @@ export default function TermPage() {
                     {term.language}
                   </p>
                 </div>
-                {/* PHASE 6: Version Badge */}
                 <VersionBadge 
                   versionNumber={term.version_number || 1}
                   termId={term.id}
@@ -252,7 +264,6 @@ export default function TermPage() {
                 )}
               </div>
 
-              {/* PHASE 6: View Version History Button */}
               <button
                 onClick={() => router.push(`/lexicon/${term.id}/versions`)}
                 style={{
@@ -321,58 +332,150 @@ export default function TermPage() {
               ))}
             </div>
 
-            {/* Overview Tab */}
+            {/* Overview Tab - REDESIGNED */}
             {activeTab === 'overview' && (
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '30px'
+                gap: '24px'
               }}>
-                {/* Definition Section */}
+                {/* Definition Section - Collapsible Card */}
                 <div style={{
                   backgroundColor: 'white',
                   border: '1px solid #cbd5e1',
                   borderRadius: '10px',
-                  padding: '40px'
+                  overflow: 'hidden'
                 }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '20px'
-                  }}>
-                    <h2 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '700' }}>
-                      Definition
-                    </h2>
-                  </div>
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#475569',
-                    lineHeight: '1.8',
-                    marginBottom: '30px'
-                  }}>
-                    {term.meaning}
-                  </p>
+                  <button
+                    onClick={() => toggleSection('definition')}
+                    style={{
+                      width: '100%',
+                      padding: '20px',
+                      backgroundColor: expandedSections.definition ? '#f8fafc' : 'white',
+                      border: 'none',
+                      borderBottom: expandedSections.definition ? '1px solid #cbd5e1' : 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!expandedSections.definition) {
+                        e.currentTarget.style.backgroundColor = '#f1f5f9';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!expandedSections.definition) {
+                        e.currentTarget.style.backgroundColor = 'white';
+                      }
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textAlign: 'left' }}>
+                      <span style={{
+                        fontSize: '20px',
+                        transition: 'transform 0.2s',
+                        transform: expandedSections.definition ? 'rotate(90deg)' : 'rotate(0deg)',
+                        display: 'inline-block'
+                      }}>
+                        ▶
+                      </span>
+                      <h2 style={{ margin: 0, fontSize: '18px', color: '#1e293b', fontWeight: '700' }}>
+                        📖 Definition
+                      </h2>
+                    </div>
+                    <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>
+                      {expandedSections.definition ? '▲ Hide' : '▼ Show'}
+                    </span>
+                  </button>
 
-                  {term.literal_gloss && (
-                    <>
-                      <h3 style={{ fontSize: '18px', color: '#1e293b', marginTop: '30px', marginBottom: '15px', fontWeight: '700' }}>
-                        Literal Gloss
-                      </h3>
-                      <p style={{
-                        fontSize: '15px',
-                        color: '#475569',
-                        lineHeight: '1.7',
+                  {expandedSections.definition && (
+                    <div style={{ padding: '24px' }}>
+                      <div style={{
                         backgroundColor: '#f8fafc',
                         border: '1px solid #e2e8f0',
                         borderRadius: '8px',
-                        padding: '16px'
+                        padding: '20px',
+                        lineHeight: '1.8',
+                        color: '#475569',
+                        fontSize: '15px'
                       }}>
-                        {term.literal_gloss}
-                      </p>
-                    </>
+                        {term.meaning}
+                      </div>
+                    </div>
                   )}
                 </div>
+
+                {/* Literal Gloss Section - Collapsible Card */}
+                {term.literal_gloss && (
+                  <div style={{
+                    backgroundColor: 'white',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    overflow: 'hidden'
+                  }}>
+                    <button
+                      onClick={() => toggleSection('gloss')}
+                      style={{
+                        width: '100%',
+                        padding: '20px',
+                        backgroundColor: expandedSections.gloss ? '#f8fafc' : 'white',
+                        border: 'none',
+                        borderBottom: expandedSections.gloss ? '1px solid #cbd5e1' : 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!expandedSections.gloss) {
+                          e.currentTarget.style.backgroundColor = '#f1f5f9';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!expandedSections.gloss) {
+                          e.currentTarget.style.backgroundColor = 'white';
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textAlign: 'left' }}>
+                        <span style={{
+                          fontSize: '20px',
+                          transition: 'transform 0.2s',
+                          transform: expandedSections.gloss ? 'rotate(90deg)' : 'rotate(0deg)',
+                          display: 'inline-block'
+                        }}>
+                          ▶
+                        </span>
+                        <h2 style={{ margin: 0, fontSize: '18px', color: '#1e293b', fontWeight: '700' }}>
+                          🔤 Literal Gloss
+                        </h2>
+                      </div>
+                      <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>
+                        {expandedSections.gloss ? '▲ Hide' : '▼ Show'}
+                      </span>
+                    </button>
+
+                    {expandedSections.gloss && (
+                      <div style={{ padding: '24px' }}>
+                        <div style={{
+                          backgroundColor: '#f0fdf4',
+                          border: '1px solid #bfdbfe',
+                          borderLeft: '4px solid #10b981',
+                          borderRadius: '8px',
+                          padding: '20px',
+                          lineHeight: '1.8',
+                          color: '#475569',
+                          fontSize: '15px',
+                          fontStyle: 'italic'
+                        }}>
+                          {term.literal_gloss}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Harms Section */}
                 {term.harms && Object.values(term.harms).some(v => v) && (
@@ -727,7 +830,7 @@ export default function TermPage() {
             )}
           </div>
 
-          {/* Right Sidebar - UPDATED WITH PHASE 6 VERSION INFO */}
+          {/* Right Sidebar */}
           <aside>
             {/* Helpful Card */}
             <div style={{
@@ -823,7 +926,7 @@ export default function TermPage() {
               </p>
             </div>
 
-            {/* Metadata Card - UPDATED WITH PHASE 6 VERSION INFO */}
+            {/* Metadata Card */}
             <div style={{
               backgroundColor: 'white',
               border: '1px solid #cbd5e1',
@@ -930,7 +1033,6 @@ export default function TermPage() {
                   </p>
                 </div>
 
-                {/* PHASE 6: Version Info Section */}
                 <div style={{
                   paddingTop: '14px',
                   borderTop: '1px solid #e2e8f0'
