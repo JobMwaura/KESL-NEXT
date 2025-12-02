@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import WizardStep from '@/components/WizardStep';
 import TermPreviewCard from '@/components/TermPreviewCard';
 import {
@@ -362,7 +364,9 @@ export default function SubmitPage() {
   const progress = (currentStep / 5) * 100;
 
   return (
-    <div className="submit-page">
+    <>
+      <Header />
+      <div className="submit-page">
       {/* Header */}
       <div className="page-header">
         <h1>🎯 Submit a Term</h1>
@@ -763,7 +767,7 @@ export default function SubmitPage() {
         </div>
       </div>
 
-      <style jsx>{`
+        <style jsx>{`
         .submit-page {
           min-height: 100vh;
           background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -1219,6 +1223,8 @@ export default function SubmitPage() {
           }
         }
       `}</style>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }
