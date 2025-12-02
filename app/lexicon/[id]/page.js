@@ -28,8 +28,6 @@ export default function TermPage() {
   const [expandedSections, setExpandedSections] = useState({
     definition: true,
     gloss: false,
-    harms: true,
-    examples: true
   });
 
   useEffect(() => {
@@ -74,9 +72,7 @@ export default function TermPage() {
       <>
         <Header />
         <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{
-            textAlign: 'center'
-          }}>
+          <div style={{ textAlign: 'center' }}>
             <div style={{
               display: 'inline-block',
               width: '40px',
@@ -119,12 +115,6 @@ export default function TermPage() {
               fontWeight: '600',
               fontSize: '14px',
               transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#1a3a52';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = '#2d5a7b';
             }}>
               ← Back to Lexicon
             </button>
@@ -145,205 +135,229 @@ export default function TermPage() {
     }
   };
 
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: '📖', description: 'Definition & details' },
+    { id: 'context', label: 'Context', icon: '📚', description: 'Historical context' },
+    { id: 'platform', label: 'Platforms', icon: '🌐', description: 'Migration & dynamics' },
+    { id: 'community', label: 'Community', icon: '💬', description: 'User contributions' },
+    { id: 'contribute', label: 'Contribute', icon: '✏️', description: 'Add your insights' }
+  ];
+
   return (
     <>
       <Header />
-      <main style={{ minHeight: '100vh', paddingBottom: '60px' }}>
+      <main style={{ minHeight: '100vh', paddingBottom: '60px', backgroundColor: '#f9fafb' }}>
         {/* Breadcrumb Navigation */}
         <nav style={{
-          padding: '20px',
-          backgroundColor: '#f8fafc',
-          borderBottom: '1px solid #e2e8f0',
-          marginBottom: '40px'
+          padding: '16px 20px',
+          backgroundColor: 'white',
+          borderBottom: '1px solid #e5e7eb',
+          marginBottom: '0'
         }}>
-          <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <a href="/" style={{
-              textDecoration: 'none',
-              color: '#2d5a7b',
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'color 0.2s',
-              padding: '6px 0'
-            }}
-            onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
-            onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
+          <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+            <a href="/" style={{ textDecoration: 'none', color: '#2d5a7b', fontWeight: '500', transition: 'color 0.2s' }} 
+              onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
+              onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
               🏠 Home
             </a>
-            <span style={{ color: '#cbd5e1' }}>/</span>
-            <a href="/lexicon" style={{
-              textDecoration: 'none',
-              color: '#2d5a7b',
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'color 0.2s',
-              padding: '6px 0'
-            }}
-            onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
-            onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
+            <span style={{ color: '#d1d5db' }}>/</span>
+            <a href="/lexicon" style={{ textDecoration: 'none', color: '#2d5a7b', fontWeight: '500', transition: 'color 0.2s' }}
+              onMouseEnter={(e) => e.target.style.color = '#1a3a52'}
+              onMouseLeave={(e) => e.target.style.color = '#2d5a7b'}>
               📖 Lexicon
             </a>
-            <span style={{ color: '#cbd5e1' }}>/</span>
-            <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>
-              {term.term}
-            </span>
+            <span style={{ color: '#d1d5db' }}>/</span>
+            <span style={{ color: '#6b7280', fontWeight: '600' }}>{term.term}</span>
           </div>
         </nav>
 
-        {/* Main Content */}
-        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 320px', gap: '40px' }}>
+        {/* Main Content Grid */}
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '40px 20px 0', display: 'grid', gridTemplateColumns: '1fr 320px', gap: '40px' }}>
           
-          {/* Left Column - Main Content */}
+          {/* Left Column */}
           <div>
-            {/* Header Section */}
+            {/* Hero Header Card - REDESIGNED */}
             <div style={{
               backgroundColor: 'white',
-              border: '1px solid #cbd5e1',
-              borderRadius: '10px',
-              padding: '40px',
-              marginBottom: '40px'
+              border: '1px solid #e5e7eb',
+              borderRadius: '12px',
+              padding: '48px',
+              marginBottom: '32px',
+              position: 'relative',
+              overflow: 'hidden'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '20px', marginBottom: '20px' }}>
+              {/* Decorative gradient background */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: `linear-gradient(90deg, ${getCategoryColor(term.category)} 0%, ${getRiskColor(term.risk)} 100%)`
+              }} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '20px', marginBottom: '24px' }}>
                 <div style={{ flex: 1 }}>
-                  <h1 style={{
-                    fontSize: '52px',
-                    color: '#1e293b',
-                    margin: '0 0 10px 0',
-                    fontWeight: '700'
-                  }}>
-                    {term.term}
-                  </h1>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <h1 style={{
+                      fontSize: '48px',
+                      color: '#0f172a',
+                      margin: 0,
+                      fontWeight: '700',
+                      letterSpacing: '-0.5px'
+                    }}>
+                      {term.term}
+                    </h1>
+                    <span style={{
+                      backgroundColor: '#dbeafe',
+                      color: '#0c4a6e',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      letterSpacing: '0.5px'
+                    }}>
+                      v{term.version_number || 1}
+                    </span>
+                  </div>
                   
                   <p style={{
-                    fontSize: '16px',
-                    color: '#94a3b8',
-                    margin: '0 0 20px 0'
+                    fontSize: '15px',
+                    color: '#6b7280',
+                    margin: '0 0 20px 0',
+                    fontWeight: '500'
                   }}>
                     {term.language}
                   </p>
+
+                  {/* Category, Risk, Confidence Badges */}
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{
+                      backgroundColor: getCategoryColor(term.category),
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      {term.category}
+                    </span>
+                    <span style={{
+                      backgroundColor: getRiskColor(term.risk),
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      🔴 {term.risk}
+                    </span>
+                    {term.confidence_level && (
+                      <span style={{
+                        backgroundColor: getConfidenceColor(term.confidence_level),
+                        color: 'white',
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        {getConfidenceIcon(term.confidence_level)} {term.confidence_level}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <VersionBadge 
-                  versionNumber={term.version_number || 1}
-                  termId={term.id}
-                  size="medium"
-                />
-              </div>
 
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
-                <span style={{
-                  backgroundColor: getCategoryColor(term.category),
-                  color: 'white',
-                  padding: '8px 14px',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  textTransform: 'capitalize'
-                }}>
-                  {term.category}
-                </span>
-                <span style={{
-                  backgroundColor: getRiskColor(term.risk),
-                  color: 'white',
-                  padding: '8px 14px',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontWeight: '700'
-                }}>
-                  Risk: {term.risk}
-                </span>
-                {term.confidence_level && (
-                  <span style={{
-                    backgroundColor: getConfidenceColor(term.confidence_level),
-                    color: 'white',
-                    padding: '8px 14px',
-                    borderRadius: '6px',
+                {/* Version Badge */}
+                <button
+                  onClick={() => router.push(`/lexicon/${term.id}/versions`)}
+                  style={{
+                    padding: '10px 16px',
+                    backgroundColor: '#f0f9ff',
+                    color: '#0c4a6e',
+                    border: '1px solid #bae6fd',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
                     fontSize: '13px',
-                    fontWeight: '700'
-                  }}>
-                    {getConfidenceIcon(term.confidence_level)} Confidence
-                  </span>
-                )}
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e0f2fe';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f0f9ff';
+                  }}
+                >
+                  📅 Version History
+                </button>
               </div>
-
-              <button
-                onClick={() => router.push(`/lexicon/${term.id}/versions`)}
-                style={{
-                  padding: '10px 16px',
-                  backgroundColor: '#dbeafe',
-                  color: '#0c4a6e',
-                  border: '1px solid #0284c7',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  transition: 'all 0.2s',
-                  display: 'inline-block'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#bfdbfe';
-                  e.target.style.boxShadow = '0 2px 4px rgba(2, 132, 199, 0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#dbeafe';
-                  e.target.style.boxShadow = 'none';
-                }}
-              >
-                📅 View Version History
-              </button>
             </div>
 
-            {/* Tabs */}
+            {/* Tabs - REDESIGNED with descriptions */}
             <div style={{
               display: 'flex',
-              gap: '0',
-              borderBottom: '2px solid #e2e8f0',
-              marginBottom: '30px',
-              flexWrap: 'wrap'
+              gap: '4px',
+              marginBottom: '32px',
+              borderBottom: '2px solid #e5e7eb',
+              backgroundColor: 'white',
+              borderRadius: '12px 12px 0 0',
+              padding: '0',
+              overflow: 'hidden'
             }}>
-              {[
-                { id: 'overview', label: '📖 Overview', icon: '📖' },
-                { id: 'context', label: '📚 Context', icon: '📚' },
-                { id: 'platform', label: '🌐 Platform Dynamics', icon: '🌐' },
-                { id: 'community', label: '💬 Community', icon: '💬' },
-                { id: 'contribute', label: '✏️ Contribute', icon: '✏️' }
-              ].map(tab => (
+              {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   style={{
-                    padding: '16px 20px',
-                    backgroundColor: 'transparent',
+                    flex: 1,
+                    padding: '16px 12px',
+                    backgroundColor: activeTab === tab.id ? '#f0f9ff' : 'transparent',
                     border: 'none',
-                    borderBottom: activeTab === tab.id ? '3px solid #2d5a7b' : '3px solid transparent',
-                    color: activeTab === tab.id ? '#2d5a7b' : '#94a3b8',
+                    borderBottom: activeTab === tab.id ? '3px solid #0c4a6e' : '3px solid transparent',
+                    color: activeTab === tab.id ? '#0c4a6e' : '#9ca3af',
                     cursor: 'pointer',
                     fontWeight: activeTab === tab.id ? '700' : '500',
                     fontSize: '14px',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    textAlign: 'center',
+                    position: 'relative'
                   }}
                   onMouseEnter={(e) => {
-                    if (activeTab !== tab.id) e.target.style.color = '#64748b';
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.backgroundColor = '#f9fafb';
+                      e.currentTarget.style.color = '#6b7280';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    if (activeTab !== tab.id) e.target.style.color = '#94a3b8';
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#9ca3af';
+                    }
                   }}
+                  title={tab.description}
                 >
-                  {tab.label}
+                  <div style={{ fontSize: '20px', marginBottom: '2px' }}>{tab.icon}</div>
+                  <div style={{ fontSize: '13px' }}>{tab.label}</div>
                 </button>
               ))}
             </div>
 
-            {/* Overview Tab - REDESIGNED */}
+            {/* Overview Tab */}
             {activeTab === 'overview' && (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '24px'
-              }}>
-                {/* Definition Section - Collapsible Card */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                
+                {/* Definition Card */}
                 <div style={{
                   backgroundColor: 'white',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '10px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '12px',
                   overflow: 'hidden'
                 }}>
                   <button
@@ -351,9 +365,9 @@ export default function TermPage() {
                     style={{
                       width: '100%',
                       padding: '20px',
-                      backgroundColor: expandedSections.definition ? '#f8fafc' : 'white',
+                      backgroundColor: expandedSections.definition ? '#f9fafb' : 'white',
                       border: 'none',
-                      borderBottom: expandedSections.definition ? '1px solid #cbd5e1' : 'none',
+                      borderBottom: expandedSections.definition ? '1px solid #e5e7eb' : 'none',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -361,43 +375,35 @@ export default function TermPage() {
                       transition: 'all 0.2s'
                     }}
                     onMouseEnter={(e) => {
-                      if (!expandedSections.definition) {
-                        e.currentTarget.style.backgroundColor = '#f1f5f9';
-                      }
+                      if (!expandedSections.definition) e.currentTarget.style.backgroundColor = '#f9fafb';
                     }}
                     onMouseLeave={(e) => {
-                      if (!expandedSections.definition) {
-                        e.currentTarget.style.backgroundColor = 'white';
-                      }
+                      if (!expandedSections.definition) e.currentTarget.style.backgroundColor = 'white';
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textAlign: 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span style={{
                         fontSize: '20px',
                         transition: 'transform 0.2s',
                         transform: expandedSections.definition ? 'rotate(90deg)' : 'rotate(0deg)',
                         display: 'inline-block'
-                      }}>
-                        ▶
-                      </span>
-                      <h2 style={{ margin: 0, fontSize: '18px', color: '#1e293b', fontWeight: '700' }}>
+                      }}>▶</span>
+                      <h2 style={{ margin: 0, fontSize: '18px', color: '#1f2937', fontWeight: '700' }}>
                         📖 Definition
                       </h2>
                     </div>
-                    <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>
-                      {expandedSections.definition ? '▲ Hide' : '▼ Show'}
-                    </span>
                   </button>
 
                   {expandedSections.definition && (
                     <div style={{ padding: '24px' }}>
                       <div style={{
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0',
+                        backgroundColor: '#f9fafb',
+                        border: '1px solid #e5e7eb',
+                        borderLeft: '4px solid #0c4a6e',
                         borderRadius: '8px',
                         padding: '20px',
                         lineHeight: '1.8',
-                        color: '#475569',
+                        color: '#4b5563',
                         fontSize: '15px'
                       }}>
                         {term.meaning}
@@ -406,12 +412,12 @@ export default function TermPage() {
                   )}
                 </div>
 
-                {/* Literal Gloss Section - Collapsible Card */}
+                {/* Literal Gloss Card */}
                 {term.literal_gloss && (
                   <div style={{
                     backgroundColor: 'white',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '10px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '12px',
                     overflow: 'hidden'
                   }}>
                     <button
@@ -419,9 +425,9 @@ export default function TermPage() {
                       style={{
                         width: '100%',
                         padding: '20px',
-                        backgroundColor: expandedSections.gloss ? '#f8fafc' : 'white',
+                        backgroundColor: expandedSections.gloss ? '#f9fafb' : 'white',
                         border: 'none',
-                        borderBottom: expandedSections.gloss ? '1px solid #cbd5e1' : 'none',
+                        borderBottom: expandedSections.gloss ? '1px solid #e5e7eb' : 'none',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -429,44 +435,35 @@ export default function TermPage() {
                         transition: 'all 0.2s'
                       }}
                       onMouseEnter={(e) => {
-                        if (!expandedSections.gloss) {
-                          e.currentTarget.style.backgroundColor = '#f1f5f9';
-                        }
+                        if (!expandedSections.gloss) e.currentTarget.style.backgroundColor = '#f9fafb';
                       }}
                       onMouseLeave={(e) => {
-                        if (!expandedSections.gloss) {
-                          e.currentTarget.style.backgroundColor = 'white';
-                        }
+                        if (!expandedSections.gloss) e.currentTarget.style.backgroundColor = 'white';
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textAlign: 'left' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span style={{
                           fontSize: '20px',
                           transition: 'transform 0.2s',
                           transform: expandedSections.gloss ? 'rotate(90deg)' : 'rotate(0deg)',
                           display: 'inline-block'
-                        }}>
-                          ▶
-                        </span>
-                        <h2 style={{ margin: 0, fontSize: '18px', color: '#1e293b', fontWeight: '700' }}>
+                        }}>▶</span>
+                        <h2 style={{ margin: 0, fontSize: '18px', color: '#1f2937', fontWeight: '700' }}>
                           🔤 Literal Gloss
                         </h2>
                       </div>
-                      <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>
-                        {expandedSections.gloss ? '▲ Hide' : '▼ Show'}
-                      </span>
                     </button>
 
                     {expandedSections.gloss && (
                       <div style={{ padding: '24px' }}>
                         <div style={{
                           backgroundColor: '#f0fdf4',
-                          border: '1px solid #bfdbfe',
+                          border: '1px solid #bbf7d0',
                           borderLeft: '4px solid #10b981',
                           borderRadius: '8px',
                           padding: '20px',
                           lineHeight: '1.8',
-                          color: '#475569',
+                          color: '#065f46',
                           fontSize: '15px',
                           fontStyle: 'italic'
                         }}>
@@ -481,7 +478,7 @@ export default function TermPage() {
                 {term.harms && Object.values(term.harms).some(v => v) && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>💔 Documented Harms</h3>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>💔 Documented Harms</h3>
                       <button
                         onClick={() => openContributionModal('harm')}
                         style={{
@@ -495,28 +492,21 @@ export default function TermPage() {
                           fontSize: '13px',
                           transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = '#fecaca';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = '#fee2e2';
-                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#fecaca'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#fee2e2'}
                       >
                         + Add Harm
                       </button>
                     </div>
-                    <HarmSection 
-                      harms={term.harms}
-                      harm_details={term.harm_details}
-                    />
+                    <HarmSection harms={term.harms} harm_details={term.harm_details} />
                   </div>
                 )}
 
-                {/* Platform Migration Section */}
+                {/* Examples Section */}
                 {term.examples && term.examples.length > 0 && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>🌐 Platforms & Migration</h3>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>💬 Examples in the Wild</h3>
                       <button
                         onClick={() => openContributionModal('example')}
                         style={{
@@ -530,20 +520,13 @@ export default function TermPage() {
                           fontSize: '13px',
                           transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = '#bfdbfe';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = '#dbeafe';
-                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#bfdbfe'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#dbeafe'}
                       >
                         + Add Example
                       </button>
                     </div>
-                    <PlatformMigration 
-                      examples={term.examples}
-                      migration={term.migration}
-                    />
+                    <ExampleSection examples={term.examples} termId={term.id} />
                   </div>
                 )}
 
@@ -551,7 +534,7 @@ export default function TermPage() {
                 {(term.variants?.length > 0 || term.related_terms?.length > 0) && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>🔤 Variants & Related</h3>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>🔤 Variants & Related</h3>
                       <button
                         onClick={() => openContributionModal('relation')}
                         style={{
@@ -565,75 +548,66 @@ export default function TermPage() {
                           fontSize: '13px',
                           transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = '#c7d2e8';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = '#e0e7ff';
-                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#c7d2fe'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#e0e7ff'}
                       >
                         + Add Related
                       </button>
                     </div>
-                    <VariantsSection 
-                      variants={term.variants}
-                      related_terms={term.related_terms}
-                      currentTermId={term.id}
-                    />
+                    <VariantsSection variants={term.variants} related_terms={term.related_terms} currentTermId={term.id} />
                   </div>
                 )}
 
-                {/* Examples Section */}
-                {term.examples && term.examples.length > 0 && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>💬 Examples</h3>
-                    </div>
-                    <ExampleSection 
-                      examples={term.examples}
-                      termId={term.id}
-                    />
-                  </div>
-                )}
-
-                {/* Empty State - No Examples */}
-                {(!term.examples || term.examples.length === 0) && (
+                {/* Empty State */}
+                {(!term.examples || term.examples.length === 0) && !term.harms && (
                   <div style={{
-                    backgroundColor: '#f8fafc',
-                    border: '2px dashed #cbd5e1',
-                    borderRadius: '10px',
-                    padding: '40px',
+                    backgroundColor: '#f9fafb',
+                    border: '2px dashed #d1d5db',
+                    borderRadius: '12px',
+                    padding: '48px',
                     textAlign: 'center'
                   }}>
-                    <p style={{
-                      fontSize: '16px',
-                      color: '#64748b',
-                      margin: '0 0 16px 0'
-                    }}>
-                      No examples documented yet. Help us by adding one!
+                    <p style={{ fontSize: '16px', color: '#6b7280', margin: '0 0 20px 0' }}>
+                      Help us document this term by adding examples and context.
                     </p>
-                    <button
-                      onClick={() => openContributionModal('example')}
-                      style={{
-                        padding: '12px 24px',
-                        backgroundColor: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '14px',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = '#2563eb';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = '#3b82f6';
-                      }}
-                    >
-                      💬 Add First Example
-                    </button>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => openContributionModal('example')}
+                        style={{
+                          padding: '12px 24px',
+                          backgroundColor: '#0c4a6e',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '14px',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#082f49'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#0c4a6e'}
+                      >
+                        💬 Add Example
+                      </button>
+                      <button
+                        onClick={() => openContributionModal('context')}
+                        style={{
+                          padding: '12px 24px',
+                          backgroundColor: '#059669',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '14px',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#047857'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#059669'}
+                      >
+                        📚 Add Context
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -643,18 +617,18 @@ export default function TermPage() {
             {activeTab === 'context' && (
               <div style={{
                 backgroundColor: 'white',
-                border: '1px solid #cbd5e1',
-                borderRadius: '10px',
-                padding: '40px'
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
+                padding: '32px'
               }}>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: '20px'
+                  marginBottom: '24px'
                 }}>
-                  <h2 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '700' }}>
-                    Context & Examples
+                  <h2 style={{ fontSize: '28px', color: '#1f2937', margin: 0, fontWeight: '700' }}>
+                    Context & Historical Background
                   </h2>
                   <button
                     onClick={() => openContributionModal('context')}
@@ -663,18 +637,14 @@ export default function TermPage() {
                       backgroundColor: '#dbeafe',
                       color: '#0c4a6e',
                       border: 'none',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       cursor: 'pointer',
                       fontWeight: '600',
                       fontSize: '13px',
                       transition: 'all 0.2s'
                     }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#bfdbfe';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#dbeafe';
-                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#bfdbfe'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#dbeafe'}
                   >
                     + Add Context
                   </button>
@@ -683,31 +653,24 @@ export default function TermPage() {
                 {term.context_history ? (
                   <div style={{
                     display: 'grid',
-                    gap: '12px',
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '10px',
-                    padding: '20px'
+                    gap: '16px',
+                    backgroundColor: '#f9fafb',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '24px'
                   }}>
-                    <h4 style={{
-                      margin: 0,
-                      fontSize: '14px',
-                      color: '#475569',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.6px'
-                    }}>
-                      Context Details
-                    </h4>
                     {renderContextBlocks(term.context_full || term.context_history)}
                   </div>
                 ) : (
-                  <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '15px' }}>
+                  <p style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '15px' }}>
                     No context documented yet. Be the first to contribute!
                   </p>
                 )}
 
-                {/* Community contributions for context */}
-                <div style={{ marginTop: '30px' }}>
+                <div style={{ marginTop: '32px' }}>
+                  <h3 style={{ fontSize: '18px', color: '#1f2937', fontWeight: '700', marginBottom: '16px' }}>
+                    Community Contributions
+                  </h3>
                   <ApprovedContributions termId={params.id} type="context" />
                 </div>
               </div>
@@ -717,18 +680,18 @@ export default function TermPage() {
             {activeTab === 'platform' && (
               <div style={{
                 backgroundColor: 'white',
-                border: '1px solid #cbd5e1',
-                borderRadius: '10px',
-                padding: '40px'
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
+                padding: '32px'
               }}>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: '20px'
+                  marginBottom: '24px'
                 }}>
-                  <h2 style={{ fontSize: '28px', color: '#1e293b', margin: 0, fontWeight: '700' }}>
-                    Platform Dynamics
+                  <h2 style={{ fontSize: '28px', color: '#1f2937', margin: 0, fontWeight: '700' }}>
+                    Platform Dynamics & Migration
                   </h2>
                   <button
                     onClick={() => openContributionModal('context')}
@@ -737,36 +700,33 @@ export default function TermPage() {
                       backgroundColor: '#dbeafe',
                       color: '#0c4a6e',
                       border: 'none',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       cursor: 'pointer',
                       fontWeight: '600',
                       fontSize: '13px',
                       transition: 'all 0.2s'
                     }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#bfdbfe';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#dbeafe';
-                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#bfdbfe'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#dbeafe'}
                   >
                     + Add Platform Context
                   </button>
                 </div>
 
                 {term.platform_dynamics ? (
-                  <div style={{ display: 'grid', gap: '16px' }}>
+                  <div style={{ display: 'grid', gap: '20px' }}>
                     {term.platform_dynamics.summary && (
                       <div style={{
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0',
+                        backgroundColor: '#f0fdf4',
+                        border: '1px solid #bbf7d0',
+                        borderLeft: '4px solid #10b981',
                         borderRadius: '8px',
-                        padding: '16px'
+                        padding: '20px'
                       }}>
-                        <h4 style={{ margin: 0, fontSize: '14px', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <h4 style={{ margin: 0, fontSize: '13px', color: '#047857', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700' }}>
                           Summary
                         </h4>
-                        <p style={{ margin: '8px 0 0 0', fontSize: '15px', color: '#1e293b', lineHeight: 1.7 }}>
+                        <p style={{ margin: '12px 0 0 0', fontSize: '15px', color: '#065f46', lineHeight: 1.7 }}>
                           {term.platform_dynamics.summary}
                         </p>
                       </div>
@@ -776,15 +736,16 @@ export default function TermPage() {
                       <div style={{
                         backgroundColor: '#f0f9ff',
                         border: '1px solid #bae6fd',
+                        borderLeft: '4px solid #0c4a6e',
                         borderRadius: '8px',
-                        padding: '16px'
+                        padding: '20px'
                       }}>
-                        <h4 style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <h4 style={{ margin: 0, fontSize: '13px', color: '#0c4a6e', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700' }}>
                           Migration Path
                         </h4>
-                        <ul style={{ margin: '10px 0 0 20px', padding: 0, color: '#0f172a', fontSize: '14px', lineHeight: 1.6 }}>
+                        <ul style={{ margin: '12px 0 0 20px', padding: 0, color: '#064e3b', fontSize: '14px', lineHeight: 1.7 }}>
                           {term.platform_dynamics.migration.map((step, idx) => (
-                            <li key={idx}>
+                            <li key={idx} style={{ marginBottom: '8px' }}>
                               <strong>{step.platform || 'Platform'}:</strong> {step.details || step.description || ''}
                               {step.date && ` (${step.date})`}
                             </li>
@@ -795,22 +756,23 @@ export default function TermPage() {
 
                     {term.platform_dynamics.action_orientation && (
                       <div style={{
-                        backgroundColor: '#fff7ed',
-                        border: '1px solid #fed7aa',
+                        backgroundColor: '#fef3c7',
+                        border: '1px solid #fcd34d',
+                        borderLeft: '4px solid #f59e0b',
                         borderRadius: '8px',
-                        padding: '16px'
+                        padding: '20px'
                       }}>
-                        <h4 style={{ margin: 0, fontSize: '14px', color: '#9a3412', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <h4 style={{ margin: 0, fontSize: '13px', color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700' }}>
                           Action Orientation
                         </h4>
-                        <p style={{ margin: '8px 0 0 0', fontSize: '15px', color: '#7c2d12', lineHeight: 1.7 }}>
+                        <p style={{ margin: '12px 0 0 0', fontSize: '15px', color: '#78350f', lineHeight: 1.7 }}>
                           {term.platform_dynamics.action_orientation}
                         </p>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '15px' }}>
+                  <p style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '15px' }}>
                     No platform dynamics documented yet. Be the first to contribute!
                   </p>
                 )}
@@ -819,24 +781,32 @@ export default function TermPage() {
 
             {/* Community Tab */}
             {activeTab === 'community' && (
-              <div>
+              <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '32px' }}>
+                <h2 style={{ fontSize: '28px', color: '#1f2937', margin: '0 0 24px 0', fontWeight: '700' }}>
+                  Community Contributions
+                </h2>
                 <ApprovedContributions termId={params.id} />
               </div>
             )}
 
             {/* Contribute Tab */}
             {activeTab === 'contribute' && (
-              <CommunityContributionForm termId={params.id} termName={term.term} />
+              <div style={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '32px' }}>
+                <h2 style={{ fontSize: '28px', color: '#1f2937', margin: '0 0 24px 0', fontWeight: '700' }}>
+                  Contribute to This Entry
+                </h2>
+                <CommunityContributionForm termId={params.id} termName={term.term} />
+              </div>
             )}
           </div>
 
-          {/* Right Sidebar */}
+          {/* Right Sidebar - UNCHANGED */}
           <aside>
             {/* Helpful Card */}
             <div style={{
               backgroundColor: 'white',
-              border: '2px solid #cbd5e1',
-              borderRadius: '10px',
+              border: '2px solid #e5e7eb',
+              borderRadius: '12px',
               padding: '24px',
               marginBottom: '20px',
               position: 'sticky',
@@ -845,25 +815,22 @@ export default function TermPage() {
               <p style={{
                 fontSize: '14px',
                 fontWeight: '700',
-                color: '#1e293b',
+                color: '#1f2937',
                 marginBottom: '16px',
                 textAlign: 'center'
               }}>
                 Is this helpful?
               </p>
 
-              <div style={{
-                display: 'flex',
-                gap: '8px'
-              }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   onClick={() => handleVote(1)}
                   style={{
                     flex: 1,
                     padding: '12px',
-                    backgroundColor: userVote === 1 ? '#10b981' : '#f1f5f9',
-                    color: userVote === 1 ? 'white' : '#64748b',
-                    border: `2px solid ${userVote === 1 ? '#10b981' : '#e2e8f0'}`,
+                    backgroundColor: userVote === 1 ? '#10b981' : '#f3f4f6',
+                    color: userVote === 1 ? 'white' : '#6b7280',
+                    border: `2px solid ${userVote === 1 ? '#10b981' : '#e5e7eb'}`,
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontWeight: '600',
@@ -872,14 +839,14 @@ export default function TermPage() {
                   }}
                   onMouseEnter={(e) => {
                     if (userVote !== 1) {
-                      e.target.style.backgroundColor = '#e2e8f0';
-                      e.target.style.borderColor = '#cbd5e1';
+                      e.target.style.backgroundColor = '#e5e7eb';
+                      e.target.style.borderColor = '#d1d5db';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (userVote !== 1) {
-                      e.target.style.backgroundColor = '#f1f5f9';
-                      e.target.style.borderColor = '#e2e8f0';
+                      e.target.style.backgroundColor = '#f3f4f6';
+                      e.target.style.borderColor = '#e5e7eb';
                     }
                   }}
                 >
@@ -890,9 +857,9 @@ export default function TermPage() {
                   style={{
                     flex: 1,
                     padding: '12px',
-                    backgroundColor: userVote === -1 ? '#ef4444' : '#f1f5f9',
-                    color: userVote === -1 ? 'white' : '#64748b',
-                    border: `2px solid ${userVote === -1 ? '#ef4444' : '#e2e8f0'}`,
+                    backgroundColor: userVote === -1 ? '#ef4444' : '#f3f4f6',
+                    color: userVote === -1 ? 'white' : '#6b7280',
+                    border: `2px solid ${userVote === -1 ? '#ef4444' : '#e5e7eb'}`,
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontWeight: '600',
@@ -901,14 +868,14 @@ export default function TermPage() {
                   }}
                   onMouseEnter={(e) => {
                     if (userVote !== -1) {
-                      e.target.style.backgroundColor = '#e2e8f0';
-                      e.target.style.borderColor = '#cbd5e1';
+                      e.target.style.backgroundColor = '#e5e7eb';
+                      e.target.style.borderColor = '#d1d5db';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (userVote !== -1) {
-                      e.target.style.backgroundColor = '#f1f5f9';
-                      e.target.style.borderColor = '#e2e8f0';
+                      e.target.style.backgroundColor = '#f3f4f6';
+                      e.target.style.borderColor = '#e5e7eb';
                     }
                   }}
                 >
@@ -918,7 +885,7 @@ export default function TermPage() {
 
               <p style={{
                 fontSize: '12px',
-                color: '#94a3b8',
+                color: '#9ca3af',
                 margin: '12px 0 0 0',
                 textAlign: 'center'
               }}>
@@ -929,15 +896,16 @@ export default function TermPage() {
             {/* Metadata Card */}
             <div style={{
               backgroundColor: 'white',
-              border: '1px solid #cbd5e1',
-              borderRadius: '10px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '12px',
               padding: '24px'
             }}>
               <h3 style={{
                 fontSize: '14px',
                 fontWeight: '700',
-                color: '#1e293b',
-                marginBottom: '16px'
+                color: '#1f2937',
+                marginBottom: '16px',
+                marginTop: 0
               }}>
                 Metadata
               </h3>
@@ -947,7 +915,7 @@ export default function TermPage() {
                   <p style={{
                     fontSize: '11px',
                     fontWeight: '700',
-                    color: '#94a3b8',
+                    color: '#9ca3af',
                     textTransform: 'uppercase',
                     margin: '0 0 4px 0'
                   }}>
@@ -955,7 +923,7 @@ export default function TermPage() {
                   </p>
                   <p style={{
                     fontSize: '16px',
-                    color: '#2d5a7b',
+                    color: '#0c4a6e',
                     margin: 0,
                     fontWeight: '700',
                     fontFamily: 'monospace',
@@ -963,21 +931,13 @@ export default function TermPage() {
                   }}>
                     {term.kel_id || 'KEL-0001'}
                   </p>
-                  <p style={{
-                    fontSize: '10px',
-                    color: '#94a3b8',
-                    margin: '4px 0 0 0',
-                    fontStyle: 'italic'
-                  }}>
-                    Use this ID to cite
-                  </p>
                 </div>
 
                 <div>
                   <p style={{
                     fontSize: '11px',
                     fontWeight: '700',
-                    color: '#94a3b8',
+                    color: '#9ca3af',
                     textTransform: 'uppercase',
                     margin: '0 0 4px 0'
                   }}>
@@ -985,7 +945,7 @@ export default function TermPage() {
                   </p>
                   <p style={{
                     fontSize: '14px',
-                    color: '#1e293b',
+                    color: '#1f2937',
                     margin: 0,
                     fontWeight: '500'
                   }}>
@@ -997,7 +957,7 @@ export default function TermPage() {
                   <p style={{
                     fontSize: '11px',
                     fontWeight: '700',
-                    color: '#94a3b8',
+                    color: '#9ca3af',
                     textTransform: 'uppercase',
                     margin: '0 0 4px 0'
                   }}>
@@ -1005,7 +965,7 @@ export default function TermPage() {
                   </p>
                   <p style={{
                     fontSize: '14px',
-                    color: '#1e293b',
+                    color: '#1f2937',
                     margin: 0,
                     fontWeight: '500'
                   }}>
@@ -1017,7 +977,7 @@ export default function TermPage() {
                   <p style={{
                     fontSize: '11px',
                     fontWeight: '700',
-                    color: '#94a3b8',
+                    color: '#9ca3af',
                     textTransform: 'uppercase',
                     margin: '0 0 4px 0'
                   }}>
@@ -1025,7 +985,7 @@ export default function TermPage() {
                   </p>
                   <p style={{
                     fontSize: '14px',
-                    color: '#1e293b',
+                    color: '#1f2937',
                     margin: 0,
                     fontWeight: '500'
                   }}>
@@ -1033,14 +993,11 @@ export default function TermPage() {
                   </p>
                 </div>
 
-                <div style={{
-                  paddingTop: '14px',
-                  borderTop: '1px solid #e2e8f0'
-                }}>
+                <div style={{ paddingTop: '14px', borderTop: '1px solid #e5e7eb' }}>
                   <p style={{
                     fontSize: '11px',
                     fontWeight: '700',
-                    color: '#94a3b8',
+                    color: '#9ca3af',
                     textTransform: 'uppercase',
                     margin: '0 0 4px 0'
                   }}>
@@ -1048,7 +1005,7 @@ export default function TermPage() {
                   </p>
                   <p style={{
                     fontSize: '14px',
-                    color: '#1e293b',
+                    color: '#1f2937',
                     margin: '0 0 8px 0',
                     fontWeight: '500'
                   }}>
@@ -1076,7 +1033,7 @@ export default function TermPage() {
                     <p style={{
                       fontSize: '11px',
                       fontWeight: '700',
-                      color: '#94a3b8',
+                      color: '#9ca3af',
                       textTransform: 'uppercase',
                       margin: '0 0 4px 0'
                     }}>
@@ -1084,7 +1041,7 @@ export default function TermPage() {
                     </p>
                     <p style={{
                       fontSize: '14px',
-                      color: '#1e293b',
+                      color: '#1f2937',
                       margin: 0,
                       fontWeight: '500'
                     }}>
@@ -1097,7 +1054,7 @@ export default function TermPage() {
                   <p style={{
                     fontSize: '11px',
                     fontWeight: '700',
-                    color: '#94a3b8',
+                    color: '#9ca3af',
                     textTransform: 'uppercase',
                     margin: '0 0 4px 0'
                   }}>
@@ -1105,7 +1062,7 @@ export default function TermPage() {
                   </p>
                   <p style={{
                     fontSize: '14px',
-                    color: '#1e293b',
+                    color: '#1f2937',
                     margin: 0,
                     fontWeight: '500'
                   }}>
@@ -1117,23 +1074,24 @@ export default function TermPage() {
 
             {/* Quick Contribute Card */}
             <div style={{
-              backgroundColor: '#f8fafc',
-              border: '2px solid #3b82f6',
-              borderRadius: '10px',
+              backgroundColor: '#f0f9ff',
+              border: '2px solid #0c4a6e',
+              borderRadius: '12px',
               padding: '20px',
               marginTop: '20px'
             }}>
               <h3 style={{
                 fontSize: '14px',
                 fontWeight: '700',
-                color: '#1e293b',
-                marginBottom: '12px'
+                color: '#1f2937',
+                marginBottom: '12px',
+                marginTop: 0
               }}>
-                Quick Contribute
+                ✏️ Quick Contribute
               </h3>
               <p style={{
                 fontSize: '12px',
-                color: '#64748b',
+                color: '#6b7280',
                 margin: '0 0 12px 0',
                 lineHeight: '1.5'
               }}>
@@ -1147,7 +1105,7 @@ export default function TermPage() {
                     padding: '10px',
                     backgroundColor: 'white',
                     color: '#0c4a6e',
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid #e5e7eb',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontWeight: '600',
@@ -1161,7 +1119,7 @@ export default function TermPage() {
                   }}
                   onMouseLeave={(e) => {
                     e.target.style.backgroundColor = 'white';
-                    e.target.style.borderColor = '#cbd5e1';
+                    e.target.style.borderColor = '#e5e7eb';
                   }}
                 >
                   💬 Add Example
@@ -1173,7 +1131,7 @@ export default function TermPage() {
                     padding: '10px',
                     backgroundColor: 'white',
                     color: '#0c4a6e',
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid #e5e7eb',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontWeight: '600',
@@ -1187,7 +1145,7 @@ export default function TermPage() {
                   }}
                   onMouseLeave={(e) => {
                     e.target.style.backgroundColor = 'white';
-                    e.target.style.borderColor = '#cbd5e1';
+                    e.target.style.borderColor = '#e5e7eb';
                   }}
                 >
                   📚 Add Context
@@ -1199,7 +1157,7 @@ export default function TermPage() {
                     padding: '10px',
                     backgroundColor: 'white',
                     color: '#991b1b',
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid #e5e7eb',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontWeight: '600',
@@ -1213,36 +1171,10 @@ export default function TermPage() {
                   }}
                   onMouseLeave={(e) => {
                     e.target.style.backgroundColor = 'white';
-                    e.target.style.borderColor = '#cbd5e1';
+                    e.target.style.borderColor = '#e5e7eb';
                   }}
                 >
                   💔 Describe Harm
-                </button>
-                <button
-                  onClick={() => openContributionModal('relation')}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    backgroundColor: 'white',
-                    color: '#3730a3',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    fontSize: '12px',
-                    transition: 'all 0.2s',
-                    textAlign: 'center'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#e0e7ff';
-                    e.target.style.borderColor = '#3730a3';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'white';
-                    e.target.style.borderColor = '#cbd5e1';
-                  }}
-                >
-                  🔗 Add Related Term
                 </button>
               </div>
             </div>
@@ -1250,7 +1182,6 @@ export default function TermPage() {
         </div>
       </main>
 
-      {/* Contribution Modal */}
       <ContributeModal
         isOpen={modalOpen}
         onClose={closeContributionModal}
@@ -1288,7 +1219,7 @@ function getRiskColor(risk) {
     'Medium': '#f59e0b',
     'High': '#ef4444'
   };
-  return colors[risk] || '#94a3b8';
+  return colors[risk] || '#9ca3af';
 }
 
 function getConfidenceColor(confidence) {
@@ -1300,7 +1231,7 @@ function getConfidenceColor(confidence) {
     'Medium': '#3b82f6',
     'High': '#10b981'
   };
-  return colors[confidence] || '#94a3b8';
+  return colors[confidence] || '#9ca3af';
 }
 
 function getConfidenceIcon(confidence) {
@@ -1320,7 +1251,6 @@ function capitalizeFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-// Render context text with basic URL linking and paragraph breaks
 function renderContextBlocks(text) {
   if (!text) return null;
 
@@ -1334,7 +1264,7 @@ function renderContextBlocks(text) {
         margin: 0,
         fontSize: '15px',
         lineHeight: 1.7,
-        color: '#1f2937'
+        color: '#374151'
       }}
     >
       {block.split(urlRegex).map((part, i) => {
@@ -1345,7 +1275,7 @@ function renderContextBlocks(text) {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: '#0ea5e9', textDecoration: 'underline' }}
+            style={{ color: '#0284c7', textDecoration: 'underline' }}
           >
             {part}
           </a>
