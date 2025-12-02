@@ -27,15 +27,26 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" style={{ textDecoration: 'none' }}>
           <div style={{
-            fontSize: '24px',
-            fontWeight: '700',
-            color: '#1a3a52',
-            cursor: 'pointer',
-            transition: 'color 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.color = '#2d5a7b'}
-          onMouseLeave={(e) => e.target.style.color = '#1a3a52'}>
-            KESL
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer'
+          }}>
+            <img
+              src="/kesl-logo.png"
+              alt="KESL logo"
+              style={{ width: '34px', height: '34px', objectFit: 'contain' }}
+            />
+            <div style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#1a3a52',
+              transition: 'color 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#2d5a7b'}
+            onMouseLeave={(e) => e.target.style.color = '#1a3a52'}>
+              KESL
+            </div>
           </div>
         </Link>
 
