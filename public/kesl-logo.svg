@@ -1,0 +1,19 @@
+<svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <!-- Speech bubble background -->
+  <path d="M10 8h44c3.3 0 6 2.7 6 6v32c0 3.3-2.7 6-6 6H34l-12 10v-10H10c-3.3 0-6-2.7-6-6V14c0-3.3 2.7-6 6-6z" fill="#d64b3f"/>
+
+  <!-- Skull base -->
+  <g transform="translate(12 10)">
+    <path d="M22 6c-8.8 0-16 7.2-16 16 0 6.6 4 12.2 9.7 14.7V42c0 1.7 1.3 3 3 3h6.6c1.7 0 3-1.3 3-3v-5.3C34 34.2 38 28.6 38 22c0-8.8-7.2-16-16-16z" fill="#0f172a"/>
+
+    <!-- Eyes (cutouts via bubble color) -->
+    <circle cx="18" cy="22" r="4" fill="#d64b3f"/>
+    <circle cx="30" cy="22" r="4" fill="#d64b3f"/>
+
+    <!-- Nose -->
+    <path d="M24 26l-3 5h6z" fill="#d64b3f"/>
+
+    <!-- Teeth -->
+    <rect x="18" y="32" width="12" height="3" rx="1.5" fill="#d64b3f"/>
+  </g>
+</svg>

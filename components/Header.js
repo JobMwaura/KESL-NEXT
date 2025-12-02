@@ -33,7 +33,7 @@ export default function Header() {
             cursor: 'pointer'
           }}>
             <img
-              src="/kesl-logo.png"
+              src="/kesl-logo.svg"
               alt="KESL logo"
               style={{ width: '34px', height: '34px', objectFit: 'contain' }}
             />
